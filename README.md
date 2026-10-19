@@ -35,4 +35,9 @@ robot and errand are illustrations; the page says so where they appear.
 
 - Replace "Anonymous authors" and the meta line in the hero, the footer and the BibTeX entry.
 - Add paper and code links to the hero button row (`.btnrow` under `.verdict`).
-- To host on GitHub Pages: copy `index.html` and `assets/` to the site root.
+
+## Deployment
+
+Live at https://yyyybq.github.io/probing-spatial-state/ (GitHub Pages, `main` branch, repo root of
+`yyyybq/probing-spatial-state`). To update: edit `page.html`, run `bash build.sh`, then commit and
+`git push`; Pages rebuilds in about a minute.
