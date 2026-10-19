@@ -1,0 +1,1807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Probing Spatial State</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Do visual foundation models keep a spatial state? An interactive tour of probing ten frozen models across four levels: spatial structure, object persistence, predictive update and actionability.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..650;1,8..60,400..500&display=swap">
+<style>
+/* Layout: one apartment seen many ways. A live viewfinder hero, then spreads that pair a
+   narrative column with a live stage, drawn in floor-plan line art with degree readouts. */
+:root{
+  --paper:#faf9f6; --paper-2:#f2efea; --panel:#ffffff; --ink:#1c1d21; --ink-2:#3c3e44; --graphite:#686b72;
+  --hair:#dcd7cf; --hair-2:#e9e5de; --accent:#dd4d27; --accent-ink:#ad3613; --accent-soft:rgba(221,77,39,.10);
+  --accent-mid:rgba(221,77,39,.36); --on-accent:#ffffff; --chair:#ee7731; --good:#1d7f62; --good-soft:rgba(29,127,98,.12);
+  --cool:#2f74a3; --cool-soft:rgba(47,116,163,.13);
+  --l1:#2f74a3; --l2:#3b8a55; --l3:#c4416a; --l4:#b5860f;
+  --r-wall:#e9e6e1; --r-floor:#d9d4cc; --r-ceil:#f3f1ed; --r-fog:#f7f6f3; --r-grid:#c2bbb0;
+  --shadow:0 1px 0 rgba(40,30,20,.04),0 10px 30px rgba(40,30,20,.07);
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --maxw:1220px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#111214; --paper-2:#17181b; --panel:#1c1d21; --ink:#edebe7; --ink-2:#c9c6c0; --graphite:#9b988f;
+  --hair:#303135; --hair-2:#242528; --accent:#ff6a42; --accent-ink:#ff8e6c; --accent-soft:rgba(255,106,66,.13);
+  --accent-mid:rgba(255,106,66,.42); --on-accent:#1a0c07; --chair:#ff8a3d; --good:#46c39a; --good-soft:rgba(70,195,154,.15);
+  --cool:#69b2e2; --cool-soft:rgba(105,178,226,.16);
+  --l1:#69b2e2; --l2:#72c48e; --l3:#f07f9b; --l4:#e8bb48;
+  --r-wall:#3a3e46; --r-floor:#23262c; --r-ceil:#16181c; --r-fog:#101114; --r-grid:#3d424c;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 12px 34px rgba(0,0,0,.38);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#111214; --paper-2:#17181b; --panel:#1c1d21; --ink:#edebe7; --ink-2:#c9c6c0; --graphite:#9b988f;
+  --hair:#303135; --hair-2:#242528; --accent:#ff6a42; --accent-ink:#ff8e6c; --accent-soft:rgba(255,106,66,.13);
+  --accent-mid:rgba(255,106,66,.42); --on-accent:#1a0c07; --chair:#ff8a3d; --good:#46c39a; --good-soft:rgba(70,195,154,.15);
+  --cool:#69b2e2; --cool-soft:rgba(105,178,226,.16);
+  --l1:#69b2e2; --l2:#72c48e; --l3:#f07f9b; --l4:#e8bb48;
+  --r-wall:#3a3e46; --r-floor:#23262c; --r-ceil:#16181c; --r-fog:#101114; --r-grid:#3d424c;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 12px 34px rgba(0,0,0,.38);
+  color-scheme:dark}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;font-optical-sizing:auto}
+img,video,canvas,svg{max-width:100%}
+img,video,canvas{display:block}
+[hidden]{display:none!important}
+a{color:var(--accent-ink);text-underline-offset:3px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.015em;color:var(--ink)}
+h1{font-size:clamp(2.5rem,5.4vw,4.7rem);font-weight:800;font-stretch:114%;line-height:.94}
+h2{font-size:clamp(1.85rem,3.7vw,2.95rem);font-weight:760;font-stretch:114%;line-height:1.02}
+h3{font-size:1.15rem;font-weight:700;font-stretch:106%;line-height:1.22}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.76rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink)}
+.lede{font-size:1.15rem;color:var(--ink-2);max-width:64ch}
+.note{font-size:.88rem;color:var(--graphite);max-width:72ch}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.sechead{display:grid;gap:14px;margin-bottom:clamp(22px,3vw,36px)}
+.band{padding-block:clamp(56px,8vw,104px);border-top:1px solid var(--hair)}
+.band.alt{background:var(--paper-2)}
+.panel{background:var(--panel);border:1px solid var(--hair);border-radius:14px;padding:clamp(16px,2.2vw,24px);min-width:0}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:.95rem;font-weight:620;font-stretch:104%;padding:10px 16px;border-radius:999px;border:1px solid var(--hair);background:var(--panel);color:var(--ink);text-decoration:none;cursor:pointer;line-height:1.1}
+.btn:hover{border-color:var(--graphite)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border:1px solid var(--hair);border-radius:16px;background:var(--paper-2)}
+.seg button{font-family:var(--f-display);font-size:.86rem;font-weight:600;border:0;background:transparent;color:var(--graphite);padding:7px 12px;border-radius:12px;cursor:pointer;line-height:1.15}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.14)}
+.lv{display:inline-grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:700 .74rem/1 var(--f-display);font-stretch:100%}
+.lv.ghost{background:transparent;color:var(--accent-ink);border:1.5px solid var(--accent)}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--paper);background:color-mix(in srgb,var(--paper) 88%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--hair)}
+.topbar .wrap{display:flex;align-items:center;gap:16px;height:56px;position:relative}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:760;font-stretch:112%;font-size:1.02rem;color:var(--ink);text-decoration:none;white-space:nowrap}
+.brand svg{width:26px;height:26px;flex:none}
+.nav{display:flex;gap:2px;margin-left:auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{font-family:var(--f-display);font-size:.86rem;font-weight:560;color:var(--graphite);text-decoration:none;padding:6px 10px;border-radius:999px;white-space:nowrap}
+.nav a:hover{color:var(--ink);background:var(--hair-2)}
+.nav a.on{color:var(--accent-ink);background:var(--accent-soft)}
+.iconbtn{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--hair);background:var(--panel);cursor:pointer}
+.iconbtn svg{width:18px;height:18px}
+.progress{position:absolute;left:0;bottom:-1px;height:2px;background:var(--accent);width:0;transition:width .12s linear}
+@media (max-width:900px){.nav{display:none}.iconbtn{margin-left:auto}}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(28px,5vw,64px) clamp(44px,6vw,84px)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,11fr) minmax(0,13fr);gap:clamp(24px,4vw,56px);align-items:center}
+.hero-copy{display:grid;gap:20px;min-width:0}
+.hero h1 .q{color:var(--accent)}
+.subtitle{font-style:italic;font-size:clamp(1.12rem,1.7vw,1.4rem);line-height:1.35;color:var(--ink-2);max-width:30ch}
+.verdict{display:grid;gap:6px;border-left:2px solid var(--accent);padding-left:14px;font-size:1.04rem;max-width:46ch}
+.meta{font-size:.86rem;color:var(--graphite)}
+.hero-stage{display:grid;gap:10px;min-width:0}
+.caption{font-size:.9rem;color:var(--graphite);max-width:70ch}
+@media (max-width:980px){.hero-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- viewfinder ---------- */
+.vf{position:relative;margin:0;border-radius:14px;overflow:hidden;background:var(--panel);border:1px solid var(--hair);box-shadow:var(--shadow)}
+.vf canvas.view{width:100%;height:auto;aspect-ratio:16/9;cursor:grab;touch-action:pan-y}
+.vf canvas.view.dragging{cursor:grabbing}
+.vf::before,.vf::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--accent);pointer-events:none;opacity:.8}
+.vf::before{top:10px;left:10px;border-right:0;border-bottom:0}
+.vf::after{bottom:10px;right:10px;border-left:0;border-top:0}
+.hud{position:absolute;font-family:var(--f-mono);font-size:.72rem;font-weight:500;letter-spacing:.03em;color:var(--ink);background:color-mix(in srgb,var(--panel) 82%,transparent);border:1px solid var(--hair);border-radius:8px;padding:4px 8px;pointer-events:none;max-width:calc(100% - 24px);line-height:1.35}
+.hud.tl{top:12px;left:34px}
+.hud.tr{top:12px;right:12px}
+.hud.br{bottom:12px;right:34px;text-align:right}
+.hud .k{color:var(--graphite)}
+.hud .rem{color:var(--accent-ink)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px}
+@media (prefers-reduced-motion:no-preference){.dot.live{animation:pulse 1.6s ease-in-out infinite}}
+@keyframes pulse{50%{opacity:.25}}
+.mini{position:absolute;left:12px;bottom:12px;width:min(40%,300px);height:auto;aspect-ratio:5/3;border-radius:9px;border:1px solid var(--hair);background:var(--panel);box-shadow:var(--shadow);pointer-events:none}
+@media (max-width:560px){.hud.br,.hud.tr{display:none}.mini{width:46%}}
+.planbox{width:100%;height:auto;aspect-ratio:5/3;border-radius:12px;border:1px solid var(--hair);background:var(--panel)}
+
+/* ---------- memory game ---------- */
+.game{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(18px,3vw,32px);align-items:start}
+.game-stage{display:grid;gap:12px;min-width:0}
+.game-side{display:grid;gap:16px;align-content:start}
+.prompt{font-family:var(--f-display);font-weight:650;font-size:1.12rem;font-stretch:104%;line-height:1.3}
+.dialwrap{display:grid;place-items:center}
+#dial{width:min(100%,330px);height:auto;touch-action:none;cursor:crosshair;user-select:none}
+#dial.off{cursor:default;opacity:.55}
+.game-result{display:grid;gap:8px;min-height:3.2em}
+.bigerr{font-family:var(--f-display);font-weight:800;font-stretch:118%;font-size:2.6rem;line-height:1;color:var(--accent)}
+.rounds{display:flex;flex-wrap:wrap;gap:6px}
+.rounds span{font-family:var(--f-mono);font-size:.78rem;padding:3px 8px;border-radius:999px;background:var(--paper-2);border:1px solid var(--hair)}
+.countdown{position:absolute;right:16px;bottom:16px;width:52px;height:52px;display:grid;place-items:center;font:800 1.3rem var(--f-display);color:var(--on-accent);background:var(--accent);border-radius:50%;box-shadow:var(--shadow)}
+.ruler{margin-top:clamp(18px,3vw,28px);display:grid;gap:10px}
+.ruler svg{width:100%;height:auto;overflow:visible}
+@media (max-width:900px){.game{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- levels ---------- */
+.spread{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(18px,3vw,32px);align-items:start}
+.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:16px}
+.tabs button{display:flex;align-items:center;gap:10px;text-align:left;padding:9px 10px;border-radius:12px;border:1px solid var(--hair);background:var(--paper-2);cursor:pointer;font-family:var(--f-display);font-weight:620;font-size:.9rem;line-height:1.15;color:var(--graphite)}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.tabs button[aria-selected="false"] .lv{background:var(--graphite);color:var(--panel)}
+.tabpanel{display:grid;gap:14px}
+.tabpanel h3{font-size:1.3rem}
+.measure{display:grid;gap:6px;font-size:.92rem;border-top:1px solid var(--hair);padding-top:12px}
+.measure .row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.measure .row b{font-family:var(--f-mono);font-weight:600;font-size:.86rem;white-space:nowrap}
+.measure .lab{color:var(--graphite)}
+.stage{display:grid;gap:12px;min-width:0;position:sticky;top:76px}
+.ghostbox{position:absolute;right:12px;bottom:12px;width:36%;border:2px dashed var(--accent);border-radius:8px;overflow:hidden;background:var(--panel)}
+.ghostbox canvas{width:100%;height:auto;aspect-ratio:16/9}
+.ghostbox span{position:absolute;left:6px;top:6px;font:500 .66rem var(--f-mono);background:var(--panel);padding:1px 5px;border-radius:5px;color:var(--accent-ink)}
+.feedback{font-size:.95rem;padding:10px 12px;border-radius:10px;background:var(--paper-2);border:1px solid var(--hair)}
+.feedback.good{background:var(--good-soft);border-color:var(--good)}
+.feedback.bad{background:var(--accent-soft);border-color:var(--accent)}
+.goalthumb{display:flex;gap:12px;align-items:center}
+.goalthumb canvas{width:46%;height:auto;aspect-ratio:16/9;border-radius:8px;border:2px solid var(--l4)}
+.teaser{margin:clamp(28px,4vw,48px) 0 0;display:grid;gap:10px}
+.teaser img{width:100%;height:auto;border-radius:14px;border:1px solid var(--hair);background:#fff}
+.teaser figcaption{font-size:.9rem;color:var(--graphite);max-width:80ch}
+.protocol{margin-top:clamp(20px,3vw,32px);display:grid;gap:16px}
+.ptools{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.ptools .lab{font-family:var(--f-mono);font-size:.76rem;color:var(--graphite);text-transform:uppercase;letter-spacing:.08em}
+.strip-scroll{overflow-x:auto;padding-bottom:6px}
+.strip{display:grid;grid-template-columns:repeat(28,64px);gap:6px;width:max-content}
+.tile{position:relative;display:grid;gap:3px}
+.tile canvas{width:64px;height:36px;border-radius:4px;border:1.5px solid var(--hair);transition:opacity .25s}
+.tile span{font:500 .62rem var(--f-mono);color:var(--graphite);text-align:center}
+.tile.in canvas{border-color:var(--accent)}
+.tile.out canvas{opacity:.25}
+.tile.tgt canvas{border:2px dashed var(--l3);opacity:1}
+.tile.tgt span{color:var(--l3);font-weight:600}
+.pipe{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:var(--f-display);font-size:.88rem;font-weight:600}
+.pipe .node{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:1px solid var(--hair);background:var(--paper-2)}
+.pipe .node svg{width:18px;height:18px}
+.pipe .arr{color:var(--graphite)}
+@media (max-width:980px){.spread{grid-template-columns:minmax(0,1fr)}.stage{position:static}}
+
+/* ---------- results ---------- */
+.results-grid{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:clamp(16px,2.5vw,28px);align-items:start}
+.heat-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.heat-tools label{font-family:var(--f-mono);font-size:.76rem;color:var(--graphite);text-transform:uppercase;letter-spacing:.08em}
+select{font-family:var(--f-display);font-size:.9rem;padding:7px 10px;border-radius:10px;border:1px solid var(--hair);background:var(--panel);color:var(--ink)}
+.heat-scroll{overflow-x:auto}
+.heat{display:grid;grid-template-columns:minmax(112px,1.3fr) repeat(7,minmax(56px,1fr));gap:3px;min-width:600px}
+.heat .h{font-family:var(--f-display);font-size:.78rem;font-weight:650;line-height:1.15;padding:4px 4px 6px;text-align:center;border-bottom:2px solid var(--hair);cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;color:var(--ink)}
+.heat .h small{display:block;font-family:var(--f-mono);font-weight:500;color:var(--graphite);font-size:.66rem}
+.heat .h.lv1{border-bottom-color:var(--l1)}.heat .h.lv2{border-bottom-color:var(--l2)}.heat .h.lv3{border-bottom-color:var(--l3)}
+.heat .h.sorted{background:var(--accent-soft);border-radius:8px 8px 0 0}
+.heat .corner{font-family:var(--f-mono);font-size:.7rem;color:var(--graphite);align-self:end;padding:0 4px 6px}
+.heat .m{display:flex;flex-direction:column;justify-content:center;font-family:var(--f-display);font-weight:620;font-size:.88rem;line-height:1.1;padding:4px 6px;border-radius:8px;cursor:pointer;border:0;background:none;text-align:left;color:var(--ink)}
+.heat .m small{font-family:var(--f-mono);font-weight:400;font-size:.64rem;color:var(--graphite)}
+.heat .m.sel{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.heat .c{position:relative;font-family:var(--f-mono);font-size:.78rem;font-variant-numeric:tabular-nums;text-align:center;padding:8px 2px;border-radius:7px;border:0;cursor:pointer;color:var(--ink)}
+.heat .c.best{box-shadow:inset 0 0 0 2px var(--ink)}
+.heat .c.hl{outline:2.5px solid var(--accent);outline-offset:1px;z-index:1}
+.heat .c.dim{opacity:.35}
+.tip{position:fixed;z-index:80;pointer-events:none;font-size:.8rem;line-height:1.35;background:var(--ink);color:var(--paper);padding:7px 10px;border-radius:8px;max-width:260px;font-family:var(--f-display)}
+.profile{display:grid;gap:12px}
+.profile .fam{font-family:var(--f-mono);font-size:.74rem;color:var(--graphite);text-transform:uppercase;letter-spacing:.08em}
+.pbars{display:grid;gap:8px}
+.pbar{display:grid;grid-template-columns:7.2em minmax(0,1fr) 3.4em;gap:8px;align-items:center;font-size:.82rem}
+.pbar .lab{font-family:var(--f-display);font-weight:600;color:var(--ink-2);font-size:.8rem;line-height:1.1}
+.pbar .track{height:10px;border-radius:5px;background:var(--hair-2);overflow:hidden}
+.pbar .fill{height:100%;border-radius:5px;background:var(--accent);transition:width .45s ease}
+.pbar .rk{font-family:var(--f-mono);font-size:.74rem;color:var(--graphite);text-align:right}
+.insights{margin-top:clamp(16px,2.5vw,24px);display:grid;gap:12px}
+.ins-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.pager{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.8rem;color:var(--graphite)}
+.pager button{width:34px;height:34px;border-radius:50%;border:1px solid var(--hair);background:var(--panel);cursor:pointer;font-size:1rem}
+.ins-body{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start}
+.ins-num{font-family:var(--f-display);font-weight:800;font-stretch:118%;font-size:2.3rem;line-height:1;color:var(--accent)}
+.ins-body p{max-width:70ch}
+@media (max-width:1120px){.results-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- layers and prefix ---------- */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,2.5vw,28px);align-items:start}
+.two .panel{display:grid;gap:14px}
+#layerSvg{width:100%;height:auto}
+.range{width:100%;accent-color:var(--accent)}
+.rangelabels{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.74rem;color:var(--graphite)}
+.prefix-scroll{overflow-x:auto}
+.prefix{display:grid;grid-template-columns:minmax(92px,1.3fr) repeat(7,minmax(40px,1fr));gap:3px;min-width:430px}
+.prefix .h{font-family:var(--f-display);font-size:.72rem;font-weight:650;text-align:center;padding-bottom:4px;color:var(--ink-2)}
+.prefix .m{font-family:var(--f-display);font-size:.8rem;font-weight:600;align-self:center}
+.prefix .c{font-family:var(--f-mono);font-weight:600;text-align:center;padding:6px 0;border-radius:6px;font-size:.92rem;cursor:default}
+.prefix .c.col-hl{outline:2px solid var(--ink);outline-offset:-1px}
+.stat{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.stat .big{font-family:var(--f-display);font-weight:800;font-stretch:120%;font-size:3.4rem;line-height:.9;color:var(--accent)}
+@media (max-width:980px){.two{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- mission ---------- */
+.mission-bar{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;margin-bottom:16px}
+.mission{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(16px,2.5vw,28px);align-items:start}
+.m-stage{display:grid;gap:12px;min-width:0}
+.planfig{position:relative;margin:0}
+.planfig canvas{width:100%;height:auto;aspect-ratio:5/3;border-radius:14px;border:1px solid var(--hair);background:var(--panel)}
+.m-banner{position:absolute;left:14px;top:14px;font-family:var(--f-display);font-weight:700;font-size:.95rem;padding:7px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--hair);box-shadow:var(--shadow);max-width:calc(100% - 28px)}
+.m-banner.bad{border-color:var(--accent);color:var(--accent-ink)}
+.m-banner.good{border-color:var(--good);color:var(--good)}
+.m-under{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:stretch}
+.m-under .vf canvas.view{cursor:default}
+.log{font-family:var(--f-mono);font-size:.74rem;line-height:1.5;background:var(--panel);border:1px solid var(--hair);border-radius:14px;padding:10px 12px;overflow-y:auto;max-height:240px;min-height:120px;display:grid;align-content:start;gap:4px}
+.log .ln{display:grid;grid-template-columns:3.6em 2.2em minmax(0,1fr);gap:6px}
+.log .t{color:var(--graphite)}
+.log .tag{color:var(--accent-ink);font-weight:600}
+.log .ok{color:var(--good)}
+.log .ko{color:var(--accent-ink)}
+.m-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.m-step{border:1px solid var(--hair);border-radius:14px;background:var(--panel);padding:12px 14px;display:grid;gap:6px;cursor:pointer;transition:border-color .2s}
+.m-step.cur{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.m-step .top{display:flex;gap:10px;align-items:center}
+.m-step .top h3{font-size:1rem}
+.m-step .op{font-size:.88rem;color:var(--ink-2)}
+.m-step .val{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.82rem;color:var(--graphite)}
+.m-step .val b{font-family:var(--f-mono);font-size:1.02rem;color:var(--ink)}
+.m-step svg{width:100%;height:auto;overflow:visible}
+.m-step .out{font-family:var(--f-display);font-weight:650;font-size:.86rem;min-height:1.2em}
+.m-step .out.ko{color:var(--accent-ink)}
+.m-step .out.ok{color:var(--good)}
+.m-step .out.mid{color:var(--l4)}
+.units{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;max-width:260px}
+.units i{display:block;aspect-ratio:1;border-radius:2px;background:var(--hair-2)}
+.units i.on{background:var(--accent)}
+.m-summary{margin-top:clamp(16px,2.5vw,24px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.m-summary h3{margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font-family:var(--f-display);font-weight:640;font-size:.9rem;padding:8px 14px;border-radius:999px;border:1px solid var(--hair);background:var(--panel);cursor:pointer;color:var(--ink)}
+.chips button small{font-family:var(--f-mono);font-weight:400;color:var(--graphite);margin-left:4px;font-size:.7rem}
+.chips button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+.chips button.ideal{border-style:dashed}
+@media (max-width:980px){.mission{grid-template-columns:minmax(0,1fr)}.m-summary{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){.m-under{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- controls ---------- */
+.cards4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,2.5vw,28px)}
+.card{display:grid;gap:12px;align-content:start}
+.card svg.chart{width:100%;height:auto;overflow:visible}
+.card .say{font-size:.95rem;color:var(--ink-2)}
+@media (max-width:900px){.cards4{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- video and paper ---------- */
+.videofig{margin:0;display:grid;gap:10px}
+.videofig video{width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;border:1px solid var(--hair);background:#0e1117}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
+.three .panel{display:grid;gap:8px;align-content:start}
+.three .q{font-family:var(--f-display);font-weight:800;font-stretch:118%;font-size:1.9rem;line-height:1}
+.three .sub{font-family:var(--f-mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--graphite)}
+.takeaway{font-size:clamp(1.15rem,2vw,1.45rem);line-height:1.45;max-width:58ch;margin-block:clamp(24px,4vw,40px)}
+.takeaway b{font-weight:600;color:var(--accent-ink)}
+pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-height:1.55;background:var(--paper-2);border:1px solid var(--hair);border-radius:10px;padding:12px 14px;color:var(--ink)}
+.bib-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.foot{padding-block:36px 48px;border-top:1px solid var(--hair);font-size:.86rem;color:var(--graphite)}
+.foot .wrap{display:grid;gap:6px}
+@media (max-width:900px){.three{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Probing Spatial State, back to top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 22 L27 11 A21 21 0 0 1 27 33 Z" transform="translate(0 -6)" fill="var(--accent)" opacity=".22"/><path d="M8 16 L26 6 M8 16 L26 26" stroke="var(--accent)" stroke-width="1.6" fill="none"/><circle cx="8" cy="16" r="4.2" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.8"/><rect x="21" y="2.5" width="8" height="7" rx="1.5" fill="none" stroke="var(--chair)" stroke-width="1.6" stroke-dasharray="2.4 1.8"/></svg>
+      <span>Spatial State</span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#play">Memory test</a><a href="#levels">Four levels</a><a href="#results">Results</a><a href="#depth">Layers</a><a href="#mission">Robot errand</a><a href="#inputs">Controls</a><a href="#video">Video</a><a href="#paper">Paper</a>
+    </nav>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch between light and dark theme">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" fill="none" stroke="var(--ink)" stroke-width="1.6"/><path d="M10 2.5 A7.5 7.5 0 0 1 10 17.5 Z" fill="var(--ink)"/></svg>
+    </button>
+    <div class="progress" id="progress"></div>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Frozen-feature probing · 10 models · 4 levels</p>
+      <h1>Out of sight, <span class="q">out of mind?</span></h1>
+      <p class="subtitle">Probing Spatial State Representations in Visual Foundation Models</p>
+      <div class="verdict">
+        <p>Ten frozen vision models read the room in ten different ways.</p>
+        <p>None of them does well at all four things a spatial state needs: reading the scene, keeping it beyond view, updating it under motion and acting on it.</p>
+      </div>
+      <div class="btnrow">
+        <a class="btn primary" href="#play">Point to the chair</a>
+        <a class="btn" href="#mission">Watch a robot try</a>
+        <a class="btn" href="#video">3-minute video</a>
+      </div>
+      <p class="meta">Anonymous authors · under review. Links to the paper and code will be added here.</p>
+    </div>
+    <div class="hero-stage">
+      <figure class="vf">
+        <canvas class="view" id="heroView" width="896" height="504" tabindex="0" role="img" aria-label="First-person view of a toy apartment with an orange chair. Drag sideways or use the arrow keys to turn."></canvas>
+        <div class="hud tl"><span class="dot live"></span>Live · drag to turn</div>
+        <div class="hud tr num" id="heroHead">heading 140° · FOV 72°</div>
+        <canvas class="mini" id="heroMap" width="600" height="360" aria-hidden="true"></canvas>
+        <div class="hud br" id="heroMem"><span class="k">in view</span> orange chair</div>
+      </figure>
+      <p class="caption">A toy apartment, rendered live in your browser. Turn away from the orange chair: the floor plan keeps a dashed outline where it was. That record of where things are relative to you, including things you can no longer see, is what we call a <em>spatial state</em>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="play">
+  <div class="wrap">
+    <div class="sechead">
+      <p class="eyebrow">Memory test</p>
+      <h2>Can you point to the chair?</h2>
+      <p class="lede">You get three seconds to look at the room. Then the camera turns away and you point to where the object is now. This is the paper's object persistence test, with you as the subject.</p>
+    </div>
+    <div class="game">
+      <div class="game-stage">
+        <figure class="vf">
+          <canvas class="view" id="gameView" width="896" height="504" role="img" aria-label="First-person view used in the memory test"></canvas>
+          <div class="hud tl" id="gamePhase">Round 1 of 5 · ready</div>
+          <div class="countdown" id="gameCount" hidden></div>
+        </figure>
+        <canvas class="planbox" id="gameMap" width="900" height="540" aria-label="Floor plan revealing the true direction and your guess" role="img" hidden></canvas>
+      </div>
+      <div class="game-side panel">
+        <p class="prompt" id="gamePrompt">Press start. You will see the room for three seconds, then the camera turns away.</p>
+        <div class="dialwrap">
+          <svg id="dial" class="off" viewBox="-160 -160 320 320" role="slider" tabindex="0" aria-label="Direction you point to, in degrees relative to where you face" aria-valuemin="-180" aria-valuemax="180" aria-valuenow="0"></svg>
+        </div>
+        <div class="btnrow">
+          <button class="btn primary" id="startBtn" type="button">Start round</button>
+          <button class="btn primary" id="lockBtn" type="button" hidden>Lock in</button>
+          <button class="btn" id="nextBtn" type="button" hidden>Next round</button>
+        </div>
+        <div class="game-result" id="gameResult" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="ruler panel">
+      <h3>Your error next to the ten frozen models</h3>
+      <svg id="ruler" viewBox="0 0 1000 170" role="img" aria-label="Angular error scale from 0 to 100 degrees with the ten models' mean errors and your rounds"></svg>
+      <p class="note num" id="rulerList"></p>
+      <p class="note">The models were scored on real ScanNet++ scans: a trained probe reads frozen features and predicts the 3D direction to an object seen earlier. Your rounds use this toy room and a flat dial, so read the comparison as a sense of scale, not a benchmark.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band alt" id="levels">
+  <div class="wrap">
+    <div class="sechead">
+      <p class="eyebrow">Four levels</p>
+      <h2>What a spatial state lets you do</h2>
+      <p class="lede">We don't assume a 3D map, a scene graph or any particular architecture. A spatial state is characterized by what it supports, at four levels that climb from reading the scene to acting in it.</p>
+    </div>
+    <div class="spread">
+      <div class="panel">
+        <div class="tabs" role="tablist" aria-label="Levels">
+          <button role="tab" id="tab1" aria-controls="lvp1" aria-selected="true" data-lv="1"><span class="lv">L1</span>Spatial structure</button>
+          <button role="tab" id="tab2" aria-controls="lvp2" aria-selected="false" data-lv="2" tabindex="-1"><span class="lv">L2</span>Object persistence</button>
+          <button role="tab" id="tab3" aria-controls="lvp3" aria-selected="false" data-lv="3" tabindex="-1"><span class="lv">L3</span>Predictive update</button>
+          <button role="tab" id="tab4" aria-controls="lvp4" aria-selected="false" data-lv="4" tabindex="-1"><span class="lv">L4</span>Actionability</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" id="lvp1" aria-labelledby="tab1">
+          <h3>Read the geometry of what is in view</h3>
+          <p>Depth at every pixel, the camera's pose, which pixels belong to which object, and whether two views show the same place. Switch what the camera shows:</p>
+          <div class="seg" id="lvMode" role="group" aria-label="View mode">
+            <button type="button" data-mode="rgb" aria-pressed="true">Color</button>
+            <button type="button" data-mode="depth" aria-pressed="false">Depth</button>
+            <button type="button" data-mode="inst" aria-pressed="false">Objects</button>
+          </div>
+          <div class="measure">
+            <div class="row"><span class="lab">Depth loss, lower is better</span><b>Fast3R 0.135</b></div>
+            <div class="row"><span class="lab">Camera pose AUC@30, higher</span><b>Fast3R 0.385</b></div>
+            <div class="row"><span class="lab">Instance identity loss, lower</span><b>DINOv2 1.26</b></div>
+            <div class="row"><span class="lab">View consistency, balanced acc.</span><b>Fast3R 0.983</b></div>
+            <p class="note">Best of the ten frozen representations on each measurement.</p>
+          </div>
+        </div>
+        <div class="tabpanel" role="tabpanel" id="lvp2" aria-labelledby="tab2" hidden>
+          <h3>Keep track of what left the view</h3>
+          <p>The probe gets an object's appearance from an early frame and must point to it from the final camera, after the object is out of view. It is never told where the object was or how the camera moved. Drag the view to turn; arrows on the plan point to what you remember.</p>
+          <label class="note"><input type="checkbox" id="lvArrows" checked> Point to remembered objects</label>
+          <div class="measure">
+            <div class="row"><span class="lab">Angular error to the hidden object</span><b>VideoMAE 55.5°</b></div>
+            <div class="row"><span class="lab">Worst of ten</span><b>MiniMax-H3 79.5°</b></div>
+            <p class="note">Scored over 16 azimuth × 8 elevation bins around the final camera; random pointing would average 90°.</p>
+          </div>
+        </div>
+        <div class="tabpanel" role="tabpanel" id="lvp3" aria-labelledby="tab3" hidden>
+          <h3>Anticipate the view after a move</h3>
+          <p>Given the current features and the next camera motion, predict the next frame's features, or integrate a whole sequence of moves. Pick a move to see the view you should expect, then make it.</p>
+          <div class="btnrow" id="lvMoves">
+            <button class="btn" type="button" data-move="left">Step left</button>
+            <button class="btn" type="button" data-move="fwd">Step forward</button>
+            <button class="btn" type="button" data-move="turn">Turn right 30°</button>
+            <button class="btn primary" type="button" id="lvGo" disabled>Make the move</button>
+          </div>
+          <p class="note" id="lvMoveMsg" aria-live="polite">Pick a move.</p>
+          <div class="measure">
+            <div class="row"><span class="lab">One-step prediction R@1</span><b>Qwen2.5-VL 0.238</b></div>
+            <div class="row"><span class="lab">Path integration R@1</span><b>DINOv2 0.147</b></div>
+            <p class="note">A prediction counts when it retrieves the true future frame among all samples, scored in each model's own feature space.</p>
+          </div>
+        </div>
+        <div class="tabpanel" role="tabpanel" id="lvp4" aria-labelledby="tab4" hidden>
+          <h3>Use the state to reach a goal</h3>
+          <div class="goalthumb"><canvas id="lvGoal" width="320" height="180" aria-label="Goal view" role="img"></canvas><p>The goal is this view. Which of the two moves on the plan gets you closer?</p></div>
+          <div class="btnrow"><button class="btn" type="button" data-pick="A">Move A</button><button class="btn" type="button" data-pick="B">Move B</button><button class="btn" type="button" id="lvNewPair">New pair</button></div>
+          <p class="feedback" id="lvFeedback" aria-live="polite">Pick a move.</p>
+          <div class="measure">
+            <div class="row"><span class="lab">Pick the better of two moves</span><b>76–80%</b></div>
+            <div class="row"><span class="lab">Knowing only the two moves</span><b>67.8%</b></div>
+            <div class="row"><span class="lab">Output the move itself: makes progress</span><b>50–60%</b></div>
+            <p class="note">Four backbones tested: DINOv2-L, Fast3R, V-JEPA 2 and Wan2.1.</p>
+          </div>
+        </div>
+      </div>
+      <div class="stage">
+        <figure class="vf">
+          <canvas class="view" id="lvView" width="896" height="504" tabindex="0" role="img" aria-label="First-person view for the level demos. Drag or use the arrow keys to turn."></canvas>
+          <div class="hud tl" id="lvHud">L1 · color</div>
+          <div class="ghostbox" id="lvGhostBox" hidden><canvas id="lvGhost" width="448" height="252"></canvas><span>expected next view</span></div>
+        </figure>
+        <canvas class="planbox" id="lvMap" width="900" height="540" role="img" aria-label="Floor plan for the level demos"></canvas>
+      </div>
+    </div>
+
+    <figure class="teaser">
+      <img src="assets/teaser.jpg" alt="Paper figure 1: a robot builds an internal spatial representation from streaming observations of an apartment; four panels illustrate spatial structure, object persistence, predictive spatial update and actionability." width="1536" height="1024" loading="lazy">
+      <figcaption>Figure 1 of the paper. A moving observer builds an internal spatial representation from partial views; L1 to L4 are the capabilities we probe.</figcaption>
+    </figure>
+
+    <div class="protocol panel" id="protocol">
+      <h3>How we ask a frozen model</h3>
+      <p class="note">The backbone never changes. A causal prefix of <span class="num">p</span> frames goes through it, we take the features of one layer and train a small probe to read out a spatial target. The future frame <span class="num">h</span> steps ahead is encoded on its own, so the answer can't leak into the input.</p>
+      <div class="ptools">
+        <span class="lab">prefix p</span>
+        <div class="seg" id="pSeg" role="group" aria-label="Prefix length"><button type="button" data-p="8" aria-pressed="false">8</button><button type="button" data-p="12" aria-pressed="false">12</button><button type="button" data-p="16" aria-pressed="true">16</button><button type="button" data-p="24" aria-pressed="false">24</button></div>
+        <span class="lab">future h</span>
+        <div class="seg" id="hSeg" role="group" aria-label="Future offset"><button type="button" data-h="1" aria-pressed="false">1</button><button type="button" data-h="2" aria-pressed="true">2</button><button type="button" data-h="4" aria-pressed="false">4</button></div>
+      </div>
+      <div class="strip-scroll"><div class="strip" id="strip"></div></div>
+      <div class="pipe" aria-label="Probing pipeline">
+        <span class="node" id="pipeIn">frames 1–16</span><span class="arr">→</span>
+        <span class="node"><svg viewBox="0 0 20 20" aria-hidden="true"><g stroke="var(--cool)" stroke-width="1.6" stroke-linecap="round"><path d="M10 2v16M3 6l14 8M3 14l14-8"/><path d="M8 3.5l2 1.5 2-1.5M8 16.5l2-1.5 2 1.5"/></g></svg>frozen encoder, layer ℓ</span><span class="arr">→</span>
+        <span class="node">features Z</span><span class="arr">→</span>
+        <span class="node"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2c1 3 5 5 5 9.5A5 5 0 0 1 5 11.5C5 9 7 8 7 6c1.5 1 2 2 2 3 1-2 1-4 1-7z" fill="var(--accent)"/></svg>trained probe</span><span class="arr">→</span>
+        <span class="node" id="pipeOut">depth, pose, objects, direction, next frame…</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="results">
+  <div class="wrap">
+    <div class="sechead">
+      <p class="eyebrow">Benchmark</p>
+      <h2>No model wins everywhere</h2>
+      <p class="lede">Ten frozen representations, seven measurements, four different winners. Click a column to rank by it, or pick a model to see its profile.</p>
+    </div>
+    <div class="results-grid">
+      <div class="panel">
+        <div class="heat-tools">
+          <label for="sortSel">Rank rows by</label>
+          <select id="sortSel"></select>
+        </div>
+        <div class="heat-scroll"><div class="heat" id="heat"></div></div>
+        <p class="note" style="margin-top:10px">Cell shading follows the rank within each column (darker is better). Outlined cells are the best of ten. Values from the paper's main table, ScanNet++.</p>
+      </div>
+      <aside class="panel profile" id="profile" aria-live="polite"></aside>
+    </div>
+    <div class="panel insights">
+      <div class="ins-head">
+        <h3>What the table says</h3>
+        <div class="pager"><button type="button" id="insPrev" aria-label="Previous finding">←</button><span id="insCount">1 / 5</span><button type="button" id="insNext" aria-label="Next finding">→</button></div>
+      </div>
+      <div class="ins-body"><span class="ins-num" id="insNum">10×</span><p id="insText"></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band alt" id="depth">
+  <div class="wrap">
+    <div class="sechead">
+      <p class="eyebrow">Layers and context</p>
+      <h2>Where and when you read matters</h2>
+      <p class="lede">The same backbone answers differently depending on which layer you read and how much video it has seen. Layer and prefix are part of the evaluation, not a detail.</p>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <h3>Network depth</h3>
+        <div class="seg" id="layerModel" role="group" aria-label="Backbone"><button type="button" data-m="V-JEPA 2" aria-pressed="true">V-JEPA 2</button><button type="button" data-m="VideoMAE" aria-pressed="false">VideoMAE</button></div>
+        <svg id="layerSvg" viewBox="0 0 560 330" role="img" aria-label="Which block each task peaks at"></svg>
+        <div><input class="range" type="range" id="layerRange" min="0" max="4" step="1" value="1" aria-label="Measured block"><div class="rangelabels"><span>block 0</span><span>5</span><span>11</span><span>17</span><span>23</span></div></div>
+        <p id="layerText" aria-live="polite"></p>
+      </div>
+      <div class="panel">
+        <h3>Streaming context: 24 frames against 8</h3>
+        <div class="stat"><span class="big">82%</span><p>of 55 paired comparisons favour the shorter prefix. Every model gets worse at object persistence and path integration with the longer one.</p></div>
+        <div class="prefix-scroll"><div class="prefix" id="prefixGrid"></div></div>
+        <div class="seg" id="prefixHl" role="group" aria-label="Highlight a task"><button type="button" data-c="-1" aria-pressed="true">All tasks</button><button type="button" data-c="4" aria-pressed="false">Persistence</button><button type="button" data-c="6" aria-pressed="false">Path integration</button></div>
+        <p class="note">Standardized, direction-corrected change from p8 to p24; − means the longer prefix hurts. A longer prefix also moves the endpoint, so this does not isolate history alone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="mission">
+  <div class="wrap">
+    <div class="sechead">
+      <p class="eyebrow">Downstream</p>
+      <h2>One errand, four key operations</h2>
+      <p class="lede">A household robot walked past a mug on the kitchen counter and on into the living room. Now it has to bring the mug to the coffee table. Each step of the errand leans on one level of spatial state. Pick a frozen backbone and see where the errand breaks.</p>
+    </div>
+    <div class="mission-bar">
+      <div class="chips" id="mModels" role="group" aria-label="Backbone"></div>
+      <div class="btnrow"><button class="btn primary" id="mRun" type="button">Run the errand</button><button class="btn" id="mReset" type="button">Reset</button></div>
+    </div>
+    <div class="mission">
+      <div class="m-stage">
+        <figure class="planfig">
+          <canvas id="mMap" width="1000" height="600" role="img" aria-label="Floor plan of the robot errand"></canvas>
+          <div class="m-banner" id="mBanner">Ready: the mug is behind the robot.</div>
+        </figure>
+        <div class="m-under">
+          <figure class="vf"><canvas class="view" id="mView" width="640" height="360" role="img" aria-label="What the robot's camera sees"></canvas><div class="hud tl" id="mViewHud">robot camera</div></figure>
+          <div class="log" id="mLog" aria-live="polite"></div>
+        </div>
+      </div>
+      <ol class="m-steps" id="mSteps"></ol>
+    </div>
+    <div class="panel m-summary" id="mSummary"></div>
+    <p class="note" style="margin-top:14px">The robot, apartment and errand are an illustration, and no robot ran. Each step replays the number the paper measured for that backbone with frozen features and a trained probe on ScanNet++. A step counts as broken when that average misses what the step needs, such as bringing the mug back inside the 72° field of view.</p>
+  </div>
+</section>
+
+<section class="band alt" id="inputs">
+  <div class="wrap">
+    <div class="sechead">
+      <p class="eyebrow">Controls</p>
+      <h2>Decodable is not the same as used</h2>
+      <p class="lede">A probe can score well through shortcuts. So we keep the trained probe and the target fixed and change only the input: the motion, the history, the goal. Flip the inputs yourself.</p>
+    </div>
+    <div class="cards4">
+      <article class="panel card">
+        <h3>Predict the next frame, or just copy it?</h3>
+        <div class="seg" id="copySeg" role="group" aria-label="Prediction strategy"><button type="button" data-k="0" aria-pressed="true">Learned predictor</button><button type="button" data-k="1" aria-pressed="false">Copy the last feature</button></div>
+        <svg class="chart" id="copySvg" viewBox="0 0 520 220" role="img" aria-label="Global retrieval R@1 for learned prediction and copying"></svg>
+        <p class="say" id="copySay"></p>
+      </article>
+      <article class="panel card">
+        <h3>Does the readout use the motion and the history?</h3>
+        <div class="seg" id="ciSeg" role="group" aria-label="Which input to change"><button type="button" data-k="motion" aria-pressed="true">Swap in a wrong motion</button><button type="button" data-k="history" aria-pressed="false">Keep only the last frame</button></div>
+        <svg class="chart" id="ciSvg" viewBox="0 0 520 220" role="img" aria-label="Effect of correct inputs with 95% intervals"></svg>
+        <p class="say" id="ciSay"></p>
+      </article>
+      <article class="panel card">
+        <h3>Can you read V-JEPA 2's own predictions?</h3>
+        <div class="seg" id="ifSeg" role="group" aria-label="Reader"><button type="button" data-k="same" aria-pressed="true">Reader trained on real features</button><button type="button" data-k="new" aria-pressed="false">Reader retrained on predictions</button></div>
+        <svg class="chart" id="ifSvg" viewBox="0 0 520 200" role="img" aria-label="Normalized depth error of readers on real and predicted features"></svg>
+        <p class="say" id="ifSay"></p>
+      </article>
+      <article class="panel card">
+        <h3>Does the goal steer the move, and does it help?</h3>
+        <div class="seg" id="goalSeg" role="group" aria-label="Goal given to the readout"><button type="button" data-k="0" aria-pressed="true">Correct goal</button><button type="button" data-k="1" aria-pressed="false">Goal from another scene</button></div>
+        <svg class="chart" id="goalSvg" viewBox="0 0 520 230" role="img" aria-label="Predicted direction and positive progress under correct and shuffled goals"></svg>
+        <p class="say" id="goalSay"></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="video">
+  <div class="wrap">
+    <div class="sechead">
+      <p class="eyebrow">Video</p>
+      <h2>The paper in three minutes</h2>
+    </div>
+    <figure class="videofig">
+      <video controls playsinline preload="metadata" poster="assets/poster.jpg">
+        <source src="assets/promo.mp4" type="video/mp4">
+      </video>
+      <script type="application/json" id="capdata">[[0,0.65,"Turn your head,"],[0.67,2.21,"and the chair leaves your view."],[2.23,3.533,"But not your mind."],[3.553,4.903,"You still know where it is,"],[4.923,6.328,"what one step would reveal,"],[6.348,7.803,"and how to get back to it."],[7.823,9.417,"That's a spatial state."],[9.437,11.292,"Visual foundation models learn"],[11.312,13.757,"from huge amounts of images and video."],[13.777,15.667,"But do they hold a spatial state?"],[19.47,21.852,"We put ten frozen models to the test:"],[21.872,24.753,"image and video encoders, a 3D model,"],[24.773,26.915,"video generators, a world model,"],[26.935,28.95,"and a multimodal LLM."],[28.97,30.685,"Each model watches a camera move"],[30.705,32.048,"through indoor scenes,"],[32.068,34.76,"frame by frame, never seeing the future."],[34.78,36.15,"A small trained probe"],[36.17,38.167,"then reads out what its features know."],[38.187,39.747,"We ask four questions."],[39.767,41.285,"Can it read the visible scene:"],[41.305,43.187,"depth, pose, and objects?"],[43.207,44.504,"Does it remember objects"],[44.524,45.907,"after they leave the view?"],[45.927,46.584,"Can it predict"],[46.604,48.237,"what it will see after a move?"],[48.257,49.332,"And can it pick a move"],[49.352,51.227,"that brings it closer to a goal?"],[52.125,53.49,"Here's what we found."],[53.51,55.333,"No model wins everywhere."],[55.353,57.29,"Fast3R reads camera pose"],[57.31,59.583,"ten times better than DINOv2."],[59.603,61.068,"Yet the best at locating objects"],[61.088,63.618,"out of view is VideoMAE,"],[63.638,66.113,"despite weaker readout of the visible scene."],[66.133,69.048,"And DINOv2 and Qwen lead future prediction,"],[69.068,71.475,"despite weaker object persistence."],[71.495,72.512,"Seeing a scene well"],[72.532,74.19,"does not mean remembering it."],[75.08,77.29,"Where and when you read also matters."],[77.31,80.2,"In V-JEPA 2, prediction, object identity,"],[80.22,81.687,"and persistence each peak"],[81.707,82.967,"at a different layer."],[82.987,85.427,"And more history is not always better."],[85.447,87.312,"Going from 8 frames to 24"],[87.332,88.862,"makes object persistence"],[88.882,90.612,"and path integration worse,"],[90.632,92.487,"for every model we tested."],[93.375,96.15,"Next, decodable is not the same as used."],[96.17,98.92,"For V-JEPA 2, simply copying the last feature"],[98.94,101.1,"beats a learned one-step predictor."],[101.12,103.505,"And VideoMAE, the best"],[103.525,105.243,"at locating hidden objects,"],[105.263,106.88,"shows no reliable benefit"],[106.9,108.46,"from its visual history."],[109.337,111.212,"V-JEPA 2 can also predict"],[111.232,112.827,"future features natively."],[112.847,114.017,"But hand those predictions"],[114.037,116.717,"to a depth reader trained on real features,"],[116.737,120.979,"and the error jumps from 0.18 to 0.25,"],[120.999,122.392,"worse than a layout prior"],[122.412,123.999,"that ignores the input."],[124.02,125.07,"Retrain the reader,"],[125.09,127.525,"and the error falls to 0.22."],[127.545,129.075,"Some geometry survives,"],[129.095,130.99,"but the interface has changed."],[131.885,133.85,"Finally, acting toward a goal."],[133.87,136.425,"Picking the better of two candidate moves works,"],[136.445,138.27,"and clearly depends on the goal."],[138.29,139.035,"But what if the probe"],[139.055,140.818,"must output the move itself?"],[140.838,142.918,"Swap in a goal from another scene,"],[142.938,144.568,"and the predicted direction swings"],[144.588,146.763,"by 30 to 46 degrees."],[146.783,147.883,"Yet the correct goal"],[147.903,150.3,"does not reliably beat a shuffled one."],[150.32,151.305,"The needle turns,"],[151.325,152.79,"but it doesn't point the way."],[152.81,155.6,"Goal sensitivity is not goal utility."],[156.502,157.857,"So readable, used,"],[157.877,160.167,"and useful are three different questions."],[160.187,161.607,"To judge whether a vision model"],[161.627,163.107,"holds a spatial state,"],[163.127,165.207,"don't just ask what can be decoded."],[165.227,167.332,"Ask whether it can be kept beyond view,"],[167.352,169.957,"updated under motion, and used to act."]]</script>
+      <figcaption class="note">Narrated walkthrough with English captions. Room views in the video are schematic renders; the experiments use ScanNet++.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="band alt" id="paper">
+  <div class="wrap">
+    <div class="sechead">
+      <p class="eyebrow">Takeaway</p>
+      <h2>Readable, used, useful</h2>
+    </div>
+    <div class="three">
+      <div class="panel"><span class="sub">decodability</span><span class="q">Readable?</span><p>Can the information be read out of frozen features at all? Often, but which model, layer and prefix you use changes the answer.</p></div>
+      <div class="panel"><span class="sub">input use</span><span class="q">Used?</span><p>Does the readout rely on the motion, the history and the goal it is given? Not reliably: copying can beat prediction, and history helps some models only.</p></div>
+      <div class="panel"><span class="sub">functional utility</span><span class="q">Useful?</span><p>Does it help behavior? Goals steer predicted moves by 30–46°, yet the correct goal does not reliably make more progress.</p></div>
+    </div>
+    <p class="takeaway">To judge whether a visual model holds a spatial state, ask not only what can be decoded, but whether it can be <b>kept beyond view</b>, <b>updated under motion</b> and <b>used to act</b>.</p>
+    <div class="two">
+      <div class="panel">
+        <h3>Abstract</h3>
+        <p>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore concerns more than recognizing individual images: it calls for a persistent spatial state that can be updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We investigate this question through four levels of spatial capability: spatial structure, object persistence, predictive spatial update, and actionability, using frozen feature probes across ten representations under streaming egocentric observations in static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong visible scene readout does not ensure accurate object persistence or future feature retrieval. Matched controls further distinguish readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure but changes its interface to a fixed spatial readout. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: in the continuous output setting, predicted actions respond to goal changes, yet using the correct goal does not reliably improve progress. Together, these findings motivate evaluating spatial representations not only by what can be decoded, but by whether that information can be maintained beyond observation, predictively updated, and used for goal-directed action.</p>
+      </div>
+      <div class="panel">
+        <div class="bib-head"><h3>BibTeX</h3><button class="btn" id="copyBib" type="button">Copy</button></div>
+<pre id="bib"><code>@misc{anonymous2026probing,
+  title  = {Probing Spatial State Representations
+            in Visual Foundation Models},
+  author = {Anonymous},
+  year   = {2026},
+  note   = {Under review}
+}</code></pre>
+        <p class="note">Scope: offline, probe-based diagnostics with frozen features in static indoor scenes. A probe that fails does not prove that a model lacks the ability.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Probing Spatial State Representations in Visual Foundation Models · anonymous submission.</p>
+    <p>The apartment, views, robot and errand on this page are illustrations rendered in your browser. All reported numbers come from the paper.</p>
+  </div>
+</footer>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+(() => {
+'use strict';
+/* ================================================================ helpers */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const TAU = Math.PI * 2, D2R = Math.PI / 180, R2D = 180 / Math.PI;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const wrapA = a => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
+const lookAt = (x, y, tx, ty) => Math.atan2(ty - y, tx - x);
+const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const fmt = (v, d) => Number(v).toFixed(d);
+const compass = a => Math.round(((a * R2D) % 360 + 360) % 360);
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svg(tag, attrs, parent) {
+  const el = document.createElementNS(SVGNS, tag);
+  if (attrs) for (const k in attrs) el.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(el);
+  return el;
+}
+function txt(parent, x, y, s, attrs) {
+  const t = svg('text', Object.assign({ x, y }, attrs || {}), parent);
+  t.textContent = s;
+  return t;
+}
+function safe(name, fn) { try { fn(); } catch (e) { console.error('[' + name + ']', e); } }
+let seed = 7;
+const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+
+/* ================================================================ theme */
+const root = document.documentElement;
+try { const t = localStorage.getItem('pss-theme'); if (t === 'dark' || t === 'light') root.setAttribute('data-theme', t); } catch (e) {}
+const isDark = () => { const t = root.getAttribute('data-theme'); return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+const cssv = n => getComputedStyle(root).getPropertyValue(n).trim();
+function hex(h) {
+  h = String(h).replace('#', '').trim();
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  const n = parseInt(h, 16);
+  return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255];
+}
+let P = {};
+function readPalette() {
+  for (const n of ['paper', 'paper-2', 'panel', 'ink', 'ink-2', 'graphite', 'hair', 'hair-2', 'accent', 'accent-ink', 'chair', 'good', 'cool', 'l1', 'l2', 'l3', 'l4']) P[n] = cssv('--' + n);
+  P.wall = hex(cssv('--r-wall')); P.floor = hex(cssv('--r-floor')); P.ceil = hex(cssv('--r-ceil'));
+  P.fog = hex(cssv('--r-fog')); P.grid = hex(cssv('--r-grid')); P.dark = isDark(); P.lineK = P.dark ? 0.55 : 0.5;
+}
+const redraw = new Set();
+function redrawAll() { for (const f of redraw) safe('redraw', f); }
+$('#themeBtn').addEventListener('click', () => {
+  const next = isDark() ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try { localStorage.setItem('pss-theme', next); } catch (e) {}
+  readPalette(); redrawAll();
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readPalette(); redrawAll(); });
+readPalette();
+
+/* ================================================================ data (from the paper) */
+const MODELS = ['DINOv2-L', 'Fast3R', 'VideoMAE-L', 'V-JEPA 2', 'Qwen2.5-VL', 'Wan2.1', 'CogVideoX', 'Aether', 'MiniMax-H3', 'LingBot-video'];
+const FAMILY = { 'DINOv2-L': 'Image encoder', 'Fast3R': '3D model', 'VideoMAE-L': 'Video encoder', 'V-JEPA 2': 'Video encoder', 'Qwen2.5-VL': 'Multimodal LLM', 'Wan2.1': 'Video generator', 'CogVideoX': 'Video generator', 'Aether': 'World model', 'MiniMax-H3': 'Video generator', 'LingBot-video': 'Video generator' };
+const METRICS = [
+  { key: 'depth', name: 'Depth', full: 'Depth loss', lv: 1, hib: false, nd: 3, v: [0.1425, 0.1347, 0.2888, 0.2687, 0.2193, 0.3599, 0.4375, 0.5413, 0.4864, 0.5683] },
+  { key: 'pose', name: 'Pose', full: 'Camera pose AUC@30', lv: 1, hib: true, nd: 3, v: [0.0386, 0.3852, 0.2124, 0.1849, 0.0269, 0.0603, 0.0302, 0.0198, 0.0893, 0.0098] },
+  { key: 'inst', name: 'Instance', full: 'Instance identity loss', lv: 1, hib: false, nd: 2, v: [1.2563, 1.4804, 4.2575, 3.0291, 2.8522, 4.8688, 5.7245, 7.9184, 4.7338, 2.9600] },
+  { key: 'view', name: 'View', full: 'View consistency (balanced acc.)', lv: 1, hib: true, nd: 3, v: [0.9597, 0.9827, 0.9210, 0.9240, 0.9403, 0.8175, 0.7918, 0.7238, 0.5000, 0.9164] },
+  { key: 'pers', name: 'Persist.', full: 'Persistence angular error (°)', lv: 2, hib: false, nd: 1, v: [69.01, 56.45, 55.53, 59.39, 71.36, 66.44, 70.80, 62.46, 79.54, 74.46] },
+  { key: 'one', name: '1-step', full: 'One-step prediction R@1', lv: 3, hib: true, nd: 3, v: [0.1592, 0.0263, 0.0888, 0.1232, 0.2375, 0.1150, 0.0272, 0.0109, 0.0041, 0.0851] },
+  { key: 'path', name: 'Path', full: 'Path integration R@1', lv: 3, hib: true, nd: 3, v: [0.1470, 0.0145, 0.0685, 0.0839, 0.1374, 0.0383, 0.0112, 0.0015, 0.0014, 0.0290] }
+];
+const SUMMARY = {
+  'DINOv2-L': 'Best at instance identity and path integration, second on depth and one-step prediction, but a low camera pose score (AUC 0.039) and mid-table persistence.',
+  'Fast3R': 'Leads depth, camera pose and view consistency and is second on persistence, yet sits near the bottom on both prediction tasks.',
+  'VideoMAE-L': 'Locates out-of-view objects best of all ten (55.5°) even though its depth and view readout are mid-table.',
+  'V-JEPA 2': 'Third to fifth on everything. For one-step prediction, copying its last feature beats a learned predictor.',
+  'Qwen2.5-VL': 'Best one-step prediction and second on path integration, but eighth on persistence and on camera pose.',
+  'Wan2.1': 'Middle of the pack. It beats VideoMAE on one-step prediction but not on path integration.',
+  'CogVideoX': 'In the lower half on every measurement.',
+  'Aether': 'Weak visible-scene readout, yet fourth on persistence.',
+  'MiniMax-H3': 'Fourth on camera pose, but last on persistence and both prediction tasks, with view consistency at chance (0.500).',
+  'LingBot-video': 'Fourth on instance identity, but last on depth and camera pose.'
+};
+const INSIGHTS = [
+  { big: '10×', text: 'Fast3R, trained for 3D reconstruction, reads camera pose about ten times better than DINOv2 (AUC@30 0.385 against 0.039). Yet DINOv2 separates object instances better (loss 1.26 against 1.48).', cells: [['Fast3R', 'pose'], ['DINOv2-L', 'pose'], ['DINOv2-L', 'inst'], ['Fast3R', 'inst']] },
+  { big: '55.5°', text: 'VideoMAE locates out-of-view objects best, although DINOv2 and Qwen2.5-VL read depth and view consistency better. Seeing a scene well does not guarantee remembering it.', cells: [['VideoMAE-L', 'pers'], ['VideoMAE-L', 'depth'], ['VideoMAE-L', 'view'], ['DINOv2-L', 'depth'], ['Qwen2.5-VL', 'view']] },
+  { big: 'Top 2', text: 'DINOv2 and Qwen2.5-VL take the top two spots on both prediction tasks, despite weaker persistence (69.0° and 71.4°).', cells: [['DINOv2-L', 'one'], ['DINOv2-L', 'path'], ['Qwen2.5-VL', 'one'], ['Qwen2.5-VL', 'path'], ['DINOv2-L', 'pers'], ['Qwen2.5-VL', 'pers']] },
+  { big: '⇄', text: 'Even the two prediction tasks disagree. Wan2.1 beats VideoMAE on one-step prediction (0.115 against 0.089), and VideoMAE beats Wan2.1 on path integration (0.069 against 0.038).', cells: [['Wan2.1', 'one'], ['VideoMAE-L', 'one'], ['Wan2.1', 'path'], ['VideoMAE-L', 'path']] },
+  { big: '≈', text: 'Model families don’t decide the profile. VideoMAE and V-JEPA 2 are both video encoders with nearly the same view consistency (0.921 and 0.924), but VideoMAE is better at pose and persistence while V-JEPA 2 is better at depth, identity and prediction.', cells: [['VideoMAE-L', 'view'], ['V-JEPA 2', 'view'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose']] }
+];
+const LAYER_PEAKS = {
+  'V-JEPA 2': { 'Geometry': 17, 'Instance identity': 11, 'View consistency': 11, 'Persistence': 17, 'One-step': 5, 'Path integration': 5 },
+  'VideoMAE': { 'Geometry': 23, 'Instance identity': 23, 'View consistency': 23, 'Persistence': 23, 'One-step': 17, 'Path integration': 17 }
+};
+const MEASURED = [0, 5, 11, 17, 23];
+const TASK_LV = { 'Geometry': 1, 'Instance identity': 1, 'View consistency': 1, 'Persistence': 2, 'One-step': 3, 'Path integration': 3 };
+const PREFIX_MODELS = ['DINOv2', 'Fast3R', 'VideoMAE', 'V-JEPA 2', 'Qwen2.5-VL', 'Wan2.1', 'CogVideoX', 'Aether'];
+const PREFIX_TASKS = ['Depth', 'Mask', 'Camera', 'View', 'Persist.', 'One-step', 'Path'];
+const PREFIX_DELTA = [
+  [0.1010, 0.0234, -0.3753, 0.0120, -1.2873, -0.1635, -2.3363],
+  [0.1110, 0.0041, 0.3753, -0.0083, null, 0.0273, -0.1183],
+  [-0.6646, -3.3418, -1.4228, -0.6041, -0.6781, -0.4360, -2.0701],
+  [-0.0029, -0.4520, -0.7259, -0.1255, -0.7164, -0.0273, -0.1183],
+  [0.1683, -0.2908, -0.2606, 0.0556, -0.4178, -0.1908, -2.2475],
+  [-0.3129, -1.3304, -0.5852, -0.2435, -1.2742, -0.4360, -0.1479],
+  [-0.1654, -1.3567, -0.3443, -0.4501, -1.1956, 0.0818, -0.1774],
+  [-0.3223, -3.7814, -0.2874, -0.1631, -0.4962, -0.0273, -0.0296]
+];
+const COPY = [{ m: 'Wan2.1', pred: 15.22, copy: 11.96 }, { m: 'V-JEPA 2', pred: 13.04, copy: 19.93 }];
+const MOTION_GAIN = [['V-JEPA 2', 18.84, 13.04, 25.36], ['VideoMAE', 10.51, 6.16, 15.22], ['Wan2.1', 2.90, -1.45, 7.25], ['CogVideoX', 4.35, 0.35, 7.97]];
+const HISTORY_BENEFIT = [['V-JEPA 2', 10.26, 3.51, 16.80], ['VideoMAE', 2.08, -6.10, 9.97], ['Wan2.1', 10.01, 3.42, 16.69], ['CogVideoX', -3.41, -9.39, 2.39]];
+const IFACE = { real: [0.1824, 0.1827], same: [0.2459, 0.2427], fresh: [0.2233, 0.2271], copy: [0.2890, 0.2974], prior: [0.2406, 0.2377] };
+const ACT_MODELS = ['DINOv2-L', 'Fast3R', 'V-JEPA 2', 'Wan2.1'];
+const CONT_PROGRESS = [53.8, 59.8, 53.8, 50.2];
+const CONT_SHUFFLE = [[0.78, -2.12, 3.69], [1.17, -2.66, 5.20], [0.31, -2.86, 3.59], [-2.27, -6.28, 1.67]];
+const PERSIST = MODELS.map((m, i) => ({ m, e: METRICS[4].v[i] }));
+
+/* ================================================================ the apartment */
+const ROOM = { x0: -5, x1: 5, y0: -3, y1: 3 }, WALL_H = 2.7, CAM_H = 1.35, FOV = 72 * D2R;
+const OBJ = [], PARTS = [], byName = {};
+const sh = (c, k) => { const v = typeof c === 'string' ? hex(c) : c; return [Math.min(1, v[0] * k), Math.min(1, v[1] * k), Math.min(1, v[2] * k)]; };
+const box = (x0, y0, x1, y1, z0, z1, c) => ({ k: 'b', x0, y0, x1, y1, z0, z1, c: typeof c === 'string' ? hex(c) : c });
+const cyl = (cx, cy, r, z0, z1, c) => ({ k: 'r', cx, cy, r, z0, z1, c: typeof c === 'string' ? hex(c) : c });
+function legs(x0, y0, x1, y1, z1, c, t) { t = t || 0.05; return [box(x0, y0, x0 + t, y0 + t, 0, z1, c), box(x1 - t, y0, x1, y0 + t, 0, z1, c), box(x0, y1 - t, x0 + t, y1, 0, z1, c), box(x1 - t, y1 - t, x1, y1, 0, z1, c)]; }
+function chairParts(cx, cy, w, back, col, seat, top) {
+  seat = seat || 0.46; top = top || 0.98;
+  const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - w / 2, y1 = cy + w / 2;
+  const ps = legs(x0 + 0.03, y0 + 0.03, x1 - 0.03, y1 - 0.03, seat - 0.06, sh(col, 0.55));
+  ps.push(box(x0, y0, x1, y1, seat - 0.07, seat, col));
+  ps.push(back > 0 ? box(x0, y1 - 0.09, x1, y1, seat, top, sh(col, 0.8)) : box(x0, y0, x1, y0 + 0.09, seat, top, sh(col, 0.8)));
+  return ps;
+}
+function tableParts(cx, cy, w, d, col, top, thick) {
+  top = top || 0.76; thick = thick || 0.07;
+  const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - d / 2, y1 = cy + d / 2;
+  const ps = legs(x0 + 0.06, y0 + 0.06, x1 - 0.06, y1 - 0.06, top - thick, sh(col, 0.62), 0.07);
+  ps.push(box(x0, y0, x1, y1, top - thick, top, col));
+  return ps;
+}
+function sofaParts(cx, cy, w, d, col) {
+  const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - d / 2, y1 = cy + d / 2;
+  return [box(x0, y0, x1, y1, 0, 0.44, col), box(x0, y0, x1, y0 + 0.24, 0.44, 0.88, sh(col, 0.82)), box(x0, y0, x0 + 0.22, y1, 0.44, 0.64, sh(col, 0.9)), box(x1 - 0.22, y0, x1, y1, 0.44, 0.64, sh(col, 0.9))];
+}
+function addObj(id, name, label, color, parts, plan, extra) {
+  const o = Object.assign({ id, name, label, color, parts, plan }, extra || {});
+  parts.forEach(p => { p.o = id; p.pi = PARTS.length + 1; PARTS.push(p); });
+  OBJ.push(o); byName[name] = o; return o;
+}
+const R = (x0, y0, x1, y1) => ({ t: 'r', x0, y0, x1, y1 });
+addObj(1, 'chair', 'orange chair', '#ee7731', chairParts(-3.75, 1.75, 0.62, 1, '#ee7731'), [R(-4.06, 1.44, -3.44, 2.06), { t: 'bar', x0: -4.06, y0: 1.96, x1: -3.44, y1: 2.06 }]);
+addObj(2, 'sofa', 'sofa', '#cbc6be', sofaParts(-1.9, -2.42, 2.5, 0.95, '#cbc6be'), [R(-3.15, -2.895, -0.65, -1.945), { t: 'bar', x0: -3.15, y0: -2.895, x1: -0.65, y1: -2.655 }]);
+addObj(3, 'coffee', 'coffee table', '#c8ab86', tableParts(-1.9, -1.05, 1.15, 0.6, '#c8ab86', 0.44, 0.06), [R(-2.475, -1.35, -1.325, -0.75)]);
+addObj(4, 'table', 'dining table', '#c59c75', tableParts(2.55, 0.85, 1.7, 0.95, '#c59c75'), [R(1.7, 0.375, 3.4, 1.325)]);
+[[5, 2.05, 1.62, 1], [6, 3.05, 1.62, 1], [7, 2.05, 0.08, -1], [8, 3.05, 0.08, -1]].forEach(([id, x, y, b]) =>
+  addObj(id, 'tchair' + id, 'dining chair', '#b4b0a9', chairParts(x, y, 0.45, b, '#b4b0a9', 0.46, 0.92), [R(x - 0.225, y - 0.225, x + 0.225, y + 0.225), { t: 'bar', x0: x - 0.225, y0: b > 0 ? y + 0.15 : y - 0.225, x1: x + 0.225, y1: b > 0 ? y + 0.225 : y - 0.15 }], { minor: true }));
+addObj(9, 'plant', 'plant', '#76a466', [cyl(4.35, -2.35, 0.22, 0, 0.42, '#b5734f'), cyl(4.35, -2.35, 0.36, 0.42, 1.35, '#76a466')], [{ t: 'c', cx: 4.35, cy: -2.35, r: 0.36 }]);
+addObj(10, 'fridge', 'fridge', '#e0dfdb', [box(4.075, 2.025, 4.925, 2.875, 0, 2.0, '#e0dfdb')], [R(4.075, 2.025, 4.925, 2.875)]);
+addObj(11, 'counter', 'kitchen counter', '#d2cdc5', [box(1.8, 2.37, 4.0, 2.99, 0, 0.92, '#d2cdc5'), box(1.8, 2.66, 4.0, 2.99, 1.45, 2.15, '#bdb7ae')], [R(1.8, 2.37, 4.0, 2.99)]);
+addObj(12, 'shelf', 'bookshelf', '#a88a6b', [box(-4.98, -1.4, -4.62, 0.1, 0, 1.85, '#a88a6b'), box(-4.9, -1.3, -4.6, -0.75, 0.95, 1.25, '#c97b63'), box(-4.9, -0.6, -4.6, 0.0, 0.25, 0.6, '#6fa88c'), box(-4.9, -1.3, -4.6, -0.2, 1.38, 1.7, '#e0c068')], [R(-4.98, -1.4, -4.62, 0.1)]);
+addObj(13, 'door', 'door', '#ab8e72', [box(-1.075, 2.96, -0.025, 3.0, 0, 2.15, '#ab8e72')], [{ t: 'door', x0: -1.075, x1: -0.025 }]);
+addObj(14, 'lamp', 'floor lamp', '#e9c766', [cyl(-4.45, -2.5, 0.05, 0, 1.25, '#8a8f99'), cyl(-4.45, -2.5, 0.21, 1.25, 1.62, '#e9c766')], [{ t: 'c', cx: -4.45, cy: -2.5, r: 0.21 }]);
+addObj(15, 'mug', 'mug', '#d23f29', [cyl(2.75, 2.6, 0.065, 0.92, 1.05, '#d23f29')], [{ t: 'c', cx: 2.75, cy: 2.6, r: 0.1 }], { minor: true });
+addObj(21, 'window', 'window', '#bcd7e8', [box(-5.0, 0.6, -4.96, 2.2, 0.95, 2.15, '#bcd7e8')], [], { decor: true });
+addObj(22, 'paint1', 'painting', '#c97b63', [box(-2.6, -3.0, -1.2, -2.96, 1.25, 1.95, '#c97b63')], [], { decor: true });
+addObj(23, 'paint2', 'painting', '#6fa88c', [box(4.96, -1.15, 5.0, -0.05, 1.2, 1.9, '#6fa88c')], [], { decor: true });
+const PLAN_OBJ = OBJ.filter(o => !o.decor);
+const center = name => { const p = byName[name].plan[0]; return p.t === 'c' ? { x: p.cx, y: p.cy } : p.t === 'door' ? { x: (p.x0 + p.x1) / 2, y: 2.95 } : { x: (p.x0 + p.x1) / 2, y: (p.y0 + p.y1) / 2 }; };
+const INST = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1'].map(hex);
+const DEPTH_STOPS = [[0, '#fff1a8'], [0.22, '#ffb347'], [0.45, '#e9552a'], [0.7, '#8a2d5f'], [1, '#231a3b']].map(([t, c]) => [t, hex(c)]);
+function depthRGB(d) {
+  const t = clamp((d - 0.3) / 8.5, 0, 1);
+  for (let i = 1; i < DEPTH_STOPS.length; i++) {
+    if (t <= DEPTH_STOPS[i][0]) {
+      const [t0, c0] = DEPTH_STOPS[i - 1], [t1, c1] = DEPTH_STOPS[i]; const u = (t - t0) / (t1 - t0);
+      return [lerp(c0[0], c1[0], u), lerp(c0[1], c1[1], u), lerp(c0[2], c1[2], u)];
+    }
+  }
+  return DEPTH_STOPS[DEPTH_STOPS.length - 1][1];
+}
+
+/* ================================================================ raycaster (z-buffer, per column) */
+class Ray {
+  constructor(W, H) { this.alloc(W, H); }
+  alloc(W, H) {
+    this.W = W; this.H = H; const n = W * H;
+    this.z = new Float32Array(n); this.id = new Int16Array(n); this.pid = new Int16Array(n); this.col = new Float32Array(n * 3);
+    this.dx = new Float32Array(W); this.dy = new Float32Array(W); this.co = new Float32Array(W);
+    this.cv = document.createElement('canvas'); this.cv.width = W; this.cv.height = H;
+    this.g = this.cv.getContext('2d'); this.img = this.g.createImageData(W, H);
+  }
+  ensure(W, H) { if (W !== this.W || H !== this.H) this.alloc(W, H); }
+  render(x, y, h, mode, hidden) {
+    const { W, H, z, id, pid, col, dx, dy, co } = this;
+    const f = (W / 2) / Math.tan(FOV / 2), hor = H / 2;
+    const fog = P.fog, fl = P.floor, ce = P.ceil, gr = P.grid, wall = P.wall;
+    for (let c = 0; c < W; c++) { const off = Math.atan((W / 2 - (c + 0.5)) / f), a = h + off; dx[c] = Math.cos(a); dy[c] = Math.sin(a); co[c] = Math.cos(off); }
+    for (let r = 0; r < H; r++) {
+      const ry = r + 0.5; let i = r * W;
+      if (ry > hor) {
+        const d = f * CAM_H / (ry - hor), L = Math.exp(-d / 11), gfall = Math.exp(-d / 8);
+        for (let c = 0; c < W; c++, i++) {
+          const tt = d / co[c], fx = x + tt * dx[c], fy = y + tt * dy[c];
+          const gm = Math.min(Math.abs(fx - Math.round(fx)), Math.abs(fy - Math.round(fy)));
+          const g = Math.exp(-gm * gm / 0.0006) * gfall * 0.85;
+          const k = i * 3;
+          col[k] = (fl[0] + (gr[0] - fl[0]) * g) * L + fog[0] * (1 - L);
+          col[k + 1] = (fl[1] + (gr[1] - fl[1]) * g) * L + fog[1] * (1 - L);
+          col[k + 2] = (fl[2] + (gr[2] - fl[2]) * g) * L + fog[2] * (1 - L);
+          z[i] = d; id[i] = 0; pid[i] = 0;
+        }
+      } else {
+        const d = f * (WALL_H - CAM_H) / Math.max(hor - ry, 1e-3), L = Math.exp(-d / 11);
+        const cr = ce[0] * L + fog[0] * (1 - L), cg = ce[1] * L + fog[1] * (1 - L), cb = ce[2] * L + fog[2] * (1 - L);
+        for (let c = 0; c < W; c++, i++) { const k = i * 3; col[k] = cr; col[k + 1] = cg; col[k + 2] = cb; z[i] = d; id[i] = 0; pid[i] = -9; }
+      }
+    }
+    for (let c = 0; c < W; c++) {
+      const ddx = dx[c], ddy = dy[c]; let t = 1e9, wid = 0;
+      if (ddx > 1e-9) { const tt = (ROOM.x1 - x) / ddx; if (tt < t) { t = tt; wid = -1; } } else if (ddx < -1e-9) { const tt = (ROOM.x0 - x) / ddx; if (tt < t) { t = tt; wid = -2; } }
+      if (ddy > 1e-9) { const tt = (ROOM.y1 - y) / ddy; if (tt < t) { t = tt; wid = -3; } } else if (ddy < -1e-9) { const tt = (ROOM.y0 - y) / ddy; if (tt < t) { t = tt; wid = -4; } }
+      const Dw = Math.max(t * co[c], 1e-3), top = hor - f * (WALL_H - CAM_H) / Dw, bot = hor + f * CAM_H / Dw;
+      const s = (wid === -1 || wid === -2) ? 0.9 : 1.0, L = Math.exp(-Dw / 11);
+      const cr = wall[0] * s * L + fog[0] * (1 - L), cg = wall[1] * s * L + fog[1] * (1 - L), cb = wall[2] * s * L + fog[2] * (1 - L);
+      const r0 = Math.max(0, Math.ceil(top - 0.5)), r1 = Math.min(H - 1, Math.floor(bot - 0.5));
+      for (let r = r0; r <= r1; r++) { const i = r * W + c; if (Dw < z[i]) { z[i] = Dw; id[i] = -1; pid[i] = wid; const k = i * 3; col[k] = cr; col[k + 1] = cg; col[k + 2] = cb; } }
+    }
+    for (let q = 0; q < PARTS.length; q++) {
+      const p = PARTS[q]; if (hidden && hidden.has(p.o)) continue;
+      const base = p.c;
+      for (let c = 0; c < W; c++) {
+        let tn, tf, shade;
+        const ddx = dx[c], ddy = dy[c];
+        if (p.k === 'b') {
+          let t1x, t2x, t1y, t2y;
+          if (Math.abs(ddx) < 1e-9) { if (x < p.x0 || x > p.x1) continue; t1x = -1e9; t2x = 1e9; } else { t1x = (p.x0 - x) / ddx; t2x = (p.x1 - x) / ddx; if (t1x > t2x) { const s = t1x; t1x = t2x; t2x = s; } }
+          if (Math.abs(ddy) < 1e-9) { if (y < p.y0 || y > p.y1) continue; t1y = -1e9; t2y = 1e9; } else { t1y = (p.y0 - y) / ddy; t2y = (p.y1 - y) / ddy; if (t1y > t2y) { const s = t1y; t1y = t2y; t2y = s; } }
+          tn = Math.max(t1x, t1y); tf = Math.min(t2x, t2y);
+          if (tf < Math.max(tn, 0)) continue;
+          shade = t1x > t1y ? 0.8 : 1.0; if (tn <= 0) tn = 1e-3;
+        } else {
+          const ox = x - p.cx, oy = y - p.cy, b = ox * ddx + oy * ddy, cc = ox * ox + oy * oy - p.r * p.r, disc = b * b - cc;
+          if (disc <= 0) continue;
+          const sq = Math.sqrt(disc); tn = -b - sq; tf = -b + sq; if (tf <= 0) continue; if (tn <= 0) tn = 1e-3;
+          const px = x + tn * ddx - p.cx, py = y + tn * ddy - p.cy, nrm = Math.hypot(px, py) + 1e-9;
+          shade = 0.55 + 0.45 * clamp(-(px * ddx + py * ddy) / nrm, 0, 1);
+        }
+        const Dn = tn * co[c], Df = tf * co[c];
+        const topN = hor - f * (p.z1 - CAM_H) / Dn, botN = hor + f * (CAM_H - p.z0) / Dn;
+        let topA = topN, botA = botN;
+        if (p.z1 < CAM_H) topA = Math.min(topN, hor - f * (p.z1 - CAM_H) / Math.max(Df, 1e-3));
+        if (p.z0 > CAM_H) botA = Math.max(botN, hor + f * (CAM_H - p.z0) / Math.max(Df, 1e-3));
+        const L = Math.exp(-Dn / 11);
+        const r0 = Math.max(0, Math.ceil(topA - 0.5)), r1 = Math.min(H - 1, Math.floor(botA - 0.5));
+        for (let r = r0; r <= r1; r++) {
+          const i = r * W + c; if (Dn >= z[i]) continue;
+          const ry = r + 0.5; let a, b2, d2;
+          if (ry < topN) { a = Math.min(base[0] * 1.12 + 0.05, 1); b2 = Math.min(base[1] * 1.12 + 0.05, 1); d2 = Math.min(base[2] * 1.12 + 0.05, 1); }
+          else if (ry > botN) { a = base[0] * 0.6; b2 = base[1] * 0.6; d2 = base[2] * 0.6; }
+          else { a = base[0] * shade; b2 = base[1] * shade; d2 = base[2] * shade; }
+          z[i] = Dn; id[i] = p.o; pid[i] = p.pi; const k = i * 3;
+          col[k] = a * L + fog[0] * (1 - L); col[k + 1] = b2 * L + fog[1] * (1 - L); col[k + 2] = d2 * L + fog[2] * (1 - L);
+        }
+      }
+    }
+    const out = this.img.data, K = P.lineK, counts = new Map();
+    for (let r = 0; r < H; r++) {
+      for (let c = 0; c < W; c++) {
+        const i = r * W + c; const v = id[i];
+        if (v > 0) counts.set(v, (counts.get(v) || 0) + 1);
+        let e = (c > 0 && pid[i] !== pid[i - 1]) || (r > 0 && pid[i] !== pid[i - W]);
+        let R_, G_, B_;
+        if (mode === 'depth') { const d = depthRGB(z[i]); R_ = d[0]; G_ = d[1]; B_ = d[2]; e = false; }
+        else if (mode === 'inst') { if (v > 0) { const q = INST[(v * 7) % INST.length]; R_ = q[0]; G_ = q[1]; B_ = q[2]; } else if (v === -1) { R_ = G_ = B_ = P.dark ? 0.32 : 0.78; } else { R_ = G_ = B_ = P.dark ? 0.16 : 0.9; } }
+        else { const k = i * 3; R_ = col[k]; G_ = col[k + 1]; B_ = col[k + 2]; }
+        if (e) { R_ *= K; G_ *= K; B_ *= K; }
+        const o = i * 4; out[o] = R_ * 255; out[o + 1] = G_ * 255; out[o + 2] = B_ * 255; out[o + 3] = 255;
+      }
+    }
+    this.g.putImageData(this.img, 0, 0);
+    const vis = new Set(); for (const [k, n] of counts) if (n >= 6 && k < 20) vis.add(k);
+    return vis;
+  }
+}
+const RAY = new Ray(448, 252), RAY_SMALL = new Ray(96, 54);
+function fitCanvas(cv) {
+  const r = cv.getBoundingClientRect(); const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (r.width < 4 || r.height < 4) return null;   // not laid out yet; the resize observer draws it later
+  const w = Math.max(2, Math.round(r.width * dpr)), h = Math.max(2, Math.round(r.height * dpr));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  cv._dpr = dpr; return { w, h, dpr };
+}
+function renderView(cv, x, y, h, mode, hidden) {
+  const fc = fitCanvas(cv); if (!fc) return new Set();
+  const w = fc.w;
+  const iw = clamp(Math.round(w / (cv._dpr > 1.2 ? 1.6 : 1.15)), 160, 640), ih = Math.round(iw * 9 / 16);
+  RAY.ensure(iw, ih);
+  const vis = RAY.render(x, y, h, mode || 'rgb', hidden);
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.drawImage(RAY.cv, 0, 0, cv.width, cv.height);
+  return vis;
+}
+function screenX(cv, h, bx, by, px, py) {
+  const rel = wrapA(lookAt(px, py, bx, by) - h); if (Math.abs(rel) > FOV / 2) return null;
+  const f = (cv.width / 2) / Math.tan(FOV / 2); return cv.width / 2 - f * Math.tan(rel);
+}
+
+/* ================================================================ floor plan */
+function planT(cv, pad) {
+  const d = cv._dpr || 1, p = (pad == null ? 14 : pad) * d;
+  const s = Math.max(0.01, Math.min((cv.width - 2 * p) / 10, (cv.height - 2 * p) / 6));
+  return { s, d, X: x => cv.width / 2 + x * s, Y: y => cv.height / 2 - y * s };
+}
+function withAlpha(g, a, fn) { const o = g.globalAlpha; g.globalAlpha = o * a; fn(); g.globalAlpha = o; }
+function drawPlan(cv, o) {
+  if (!fitCanvas(cv)) return;
+  const g = cv.getContext('2d'), T = planT(cv, o.pad), s = T.s, d = T.d;
+  g.clearRect(0, 0, cv.width, cv.height);
+  g.fillStyle = P['paper-2']; g.fillRect(T.X(-5), T.Y(3), 10 * s, 6 * s);
+  g.strokeStyle = P['hair']; g.lineWidth = Math.max(1, 0.8 * d); g.beginPath();
+  for (let x = -4; x <= 4; x++) { g.moveTo(T.X(x), T.Y(-3)); g.lineTo(T.X(x), T.Y(3)); }
+  for (let y = -2; y <= 2; y++) { g.moveTo(T.X(-5), T.Y(y)); g.lineTo(T.X(5), T.Y(y)); }
+  withAlpha(g, 0.55, () => g.stroke());
+  for (const ob of PLAN_OBJ) {
+    if (o.hideObj && o.hideObj.has(ob.id)) continue;
+    const st = o.states ? o.states(ob.id) : 'v';
+    drawObj(g, T, ob, st, o);
+  }
+  g.strokeStyle = P.ink; g.lineWidth = Math.max(2, 2.6 * d); g.lineCap = 'square'; g.beginPath();
+  g.moveTo(T.X(-1.075), T.Y(3)); g.lineTo(T.X(-5), T.Y(3)); g.lineTo(T.X(-5), T.Y(-3)); g.lineTo(T.X(5), T.Y(-3)); g.lineTo(T.X(5), T.Y(3)); g.lineTo(T.X(-0.025), T.Y(3)); g.stroke();
+  if (o.extras) o.extras(g, T);
+  if (o.pose && !o.hideObs) (o.robot ? drawRobot : drawObserver)(g, T, o.pose, o);
+  if (o.after) o.after(g, T);
+}
+function drawObj(g, T, ob, st, o) {
+  const s = T.s, d = T.d;
+  const alpha = st === 'v' ? 1 : st === 'r' ? 0.5 : st === 'u' ? 0.2 : 0.85;
+  g.lineWidth = Math.max(1, 1.1 * d);
+  for (const p of ob.plan) {
+    g.beginPath();
+    if (p.t === 'r' || p.t === 'bar') g.rect(T.X(p.x0), T.Y(p.y1), (p.x1 - p.x0) * s, (p.y1 - p.y0) * s);
+    else if (p.t === 'c') g.arc(T.X(p.cx), T.Y(p.cy), p.r * s, 0, TAU);
+    else if (p.t === 'door') {
+      withAlpha(g, alpha, () => { g.strokeStyle = P.graphite; g.setLineDash([3 * d, 3 * d]); g.beginPath(); g.arc(T.X(p.x0), T.Y(3), (p.x1 - p.x0) * s, 0, Math.PI / 2); g.stroke(); g.setLineDash([]); g.beginPath(); g.moveTo(T.X(p.x0), T.Y(3)); g.lineTo(T.X(p.x0), T.Y(3 - (p.x1 - p.x0))); g.stroke(); });
+      continue;
+    }
+    withAlpha(g, alpha, () => {
+      g.fillStyle = p.t === 'bar' ? P.ink : ob.color;
+      withAlpha(g, p.t === 'bar' ? 0.35 : 0.92, () => g.fill());
+      g.strokeStyle = P.ink; withAlpha(g, 0.55, () => g.stroke());
+    });
+  }
+  if (st === 'r') {
+    const b = bbox(ob), pad = 0.12;
+    g.save(); g.strokeStyle = ob.name === 'chair' ? P.chair : P.accent; g.lineWidth = Math.max(1.5, 2 * d); g.setLineDash([4 * d, 3 * d]);
+    g.beginPath(); g.rect(T.X(b.x0 - pad), T.Y(b.y1 + pad), (b.x1 - b.x0 + 2 * pad) * s, (b.y1 - b.y0 + 2 * pad) * s); g.stroke(); g.restore();
+  }
+  if (o.highlight === ob.id) {
+    const b = bbox(ob), pad = 0.18; g.save(); g.strokeStyle = P.accent; g.lineWidth = Math.max(2, 2.5 * d);
+    g.beginPath(); g.rect(T.X(b.x0 - pad), T.Y(b.y1 + pad), (b.x1 - b.x0 + 2 * pad) * s, (b.y1 - b.y0 + 2 * pad) * s); g.stroke(); g.restore();
+  }
+}
+function bbox(ob) {
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const p of ob.plan) {
+    if (p.t === 'c') { x0 = Math.min(x0, p.cx - p.r); x1 = Math.max(x1, p.cx + p.r); y0 = Math.min(y0, p.cy - p.r); y1 = Math.max(y1, p.cy + p.r); }
+    else if (p.t === 'door') { x0 = Math.min(x0, p.x0); x1 = Math.max(x1, p.x1); y0 = Math.min(y0, 2.9); y1 = Math.max(y1, 3); }
+    else { x0 = Math.min(x0, p.x0); x1 = Math.max(x1, p.x1); y0 = Math.min(y0, p.y0); y1 = Math.max(y1, p.y1); }
+  }
+  return { x0, y0, x1, y1 };
+}
+function drawCone(g, T, x, y, h, rad, col, alpha) {
+  g.save(); g.beginPath(); g.rect(T.X(-5), T.Y(3), 10 * T.s, 6 * T.s); g.clip();   // keep the view cone inside the walls
+  drawConeRaw(g, T, x, y, h, rad, col, alpha); g.restore();
+}
+function drawConeRaw(g, T, x, y, h, rad, col, alpha) {
+  const cx = T.X(x), cy = T.Y(y), r = rad * T.s;
+  g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, r, -(h + FOV / 2), -(h - FOV / 2)); g.closePath();
+  g.fillStyle = col; withAlpha(g, alpha == null ? 0.15 : alpha, () => g.fill());
+  g.strokeStyle = col; g.lineWidth = Math.max(1, T.d); withAlpha(g, 0.6, () => { g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + r * Math.cos(-(h + FOV / 2)), cy + r * Math.sin(-(h + FOV / 2))); g.moveTo(cx, cy); g.lineTo(cx + r * Math.cos(-(h - FOV / 2)), cy + r * Math.sin(-(h - FOV / 2))); g.stroke(); });
+}
+function drawObserver(g, T, p, o) {
+  if (o.cone !== false) drawCone(g, T, p.x, p.y, p.h, o.coneR || 2.2, o.coneCol || P.accent, o.coneAlpha);
+  const cx = T.X(p.x), cy = T.Y(p.y), r = Math.max(5 * T.d, 0.19 * T.s);
+  g.beginPath(); g.arc(cx, cy, r, 0, TAU); g.fillStyle = P.panel; g.fill(); g.strokeStyle = o.bodyCol || P.ink; g.lineWidth = Math.max(1.5, 2 * T.d); g.stroke();
+  g.beginPath(); g.moveTo(cx + Math.cos(-p.h) * r * 1.9, cy + Math.sin(-p.h) * r * 1.9); g.lineTo(cx + Math.cos(-p.h + 0.55) * r * 1.05, cy + Math.sin(-p.h + 0.55) * r * 1.05); g.lineTo(cx + Math.cos(-p.h - 0.55) * r * 1.05, cy + Math.sin(-p.h - 0.55) * r * 1.05); g.closePath(); g.fillStyle = o.bodyCol || P.ink; g.fill();
+}
+function drawRobot(g, T, p, o) {
+  if (o.cone !== false) drawCone(g, T, p.x, p.y, p.h, o.coneR || 2.4, o.coneCol || P.accent, o.coneAlpha);
+  const cx = T.X(p.x), cy = T.Y(p.y), r = Math.max(7 * T.d, 0.24 * T.s);
+  g.save(); g.translate(cx, cy); g.rotate(-p.h);
+  g.fillStyle = P.ink; g.fillRect(-r * 0.75, -r * 1.08, r * 1.5, r * 0.32); g.fillRect(-r * 0.75, r * 0.76, r * 1.5, r * 0.32);
+  g.beginPath(); g.roundRect ? g.roundRect(-r * 0.95, -r * 0.82, r * 1.9, r * 1.64, r * 0.35) : g.rect(-r * 0.95, -r * 0.82, r * 1.9, r * 1.64);
+  g.fillStyle = o.ghost ? 'transparent' : P.panel; g.fill(); g.strokeStyle = o.bodyCol || P.ink; g.lineWidth = Math.max(1.5, 2 * T.d);
+  if (o.ghost) g.setLineDash([3 * T.d, 3 * T.d]); g.stroke(); g.setLineDash([]);
+  g.fillStyle = o.bodyCol || P.accent; g.beginPath(); g.arc(r * 0.52, 0, r * 0.26, 0, TAU); g.fill();
+  if (o.carry) { g.fillStyle = byName.mug.color; g.beginPath(); g.arc(-r * 0.25, 0, r * 0.3, 0, TAU); g.fill(); g.strokeStyle = P.ink; g.lineWidth = T.d; g.stroke(); }
+  g.restore();
+}
+function arrowTo(g, T, x0, y0, x1, y1, col, w, dash) {
+  const a = T.X(x0), b = T.Y(y0), c = T.X(x1), e = T.Y(y1), ang = Math.atan2(e - b, c - a), hl = Math.max(7, 9 * T.d);
+  g.save(); g.strokeStyle = col; g.fillStyle = col; g.lineWidth = (w || 2) * T.d; if (dash) g.setLineDash(dash.map(v => v * T.d));
+  g.beginPath(); g.moveTo(a, b); g.lineTo(c - Math.cos(ang) * hl * 0.7, e - Math.sin(ang) * hl * 0.7); g.stroke(); g.setLineDash([]);
+  g.beginPath(); g.moveTo(c, e); g.lineTo(c - Math.cos(ang - 0.4) * hl, e - Math.sin(ang - 0.4) * hl); g.lineTo(c - Math.cos(ang + 0.4) * hl, e - Math.sin(ang + 0.4) * hl); g.closePath(); g.fill(); g.restore();
+}
+function label(g, T, x, y, s, col, align, size) {
+  g.save(); g.font = `600 ${Math.round((size || 12) * T.d)}px ${cssv('--f-display') || 'sans-serif'}`; g.textAlign = align || 'left'; g.textBaseline = 'middle';
+  const w = g.measureText(s).width, px = T.X(x), py = T.Y(y), pad = 4 * T.d;
+  const bx = align === 'center' ? px - w / 2 : align === 'right' ? px - w : px;
+  g.fillStyle = P.panel; withAlpha(g, 0.85, () => g.fillRect(bx - pad, py - 8 * T.d, w + 2 * pad, 16 * T.d));
+  g.fillStyle = col || P.ink; g.fillText(s, px, py); g.restore();
+}
+function flag(g, T, x, y, col) {
+  const a = T.X(x), b = T.Y(y), h = 18 * T.d;
+  g.save(); g.strokeStyle = P.ink; g.lineWidth = 1.6 * T.d; g.beginPath(); g.moveTo(a, b); g.lineTo(a, b - h); g.stroke();
+  g.fillStyle = col; g.beginPath(); g.moveTo(a, b - h); g.lineTo(a + 12 * T.d, b - h + 5 * T.d); g.lineTo(a, b - h + 10 * T.d); g.closePath(); g.fill(); g.restore();
+}
+
+/* ================================================================ drag-to-turn */
+function dragTurn(cv, get, set, onDone) {
+  let x0 = null, h0 = 0;
+  cv.addEventListener('pointerdown', e => { x0 = e.clientX; h0 = get(); cv.setPointerCapture(e.pointerId); cv.classList.add('dragging'); });
+  cv.addEventListener('pointermove', e => { if (x0 == null) return; const w = cv.getBoundingClientRect().width || 1; set(h0 - (e.clientX - x0) / w * 1.9); });
+  const end = () => { if (x0 == null) return; x0 = null; cv.classList.remove('dragging'); onDone && onDone(); };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') { set(get() + 6 * D2R); e.preventDefault(); onDone && onDone(); }
+    if (e.key === 'ArrowRight') { set(get() - 6 * D2R); e.preventDefault(); onDone && onDone(); }
+  });
+}
+function onResize(el, fn) { if ('ResizeObserver' in window) new ResizeObserver(() => safe('resize', fn)).observe(el); else window.addEventListener('resize', fn); }
+function onScreen(el, cb) { if (!('IntersectionObserver' in window)) { cb(true); return; } new IntersectionObserver(es => es.forEach(e => cb(e.isIntersecting)), { threshold: 0.05 }).observe(el); }
+const names = ids => Array.from(ids).map(i => OBJ.find(o => o.id === i)).filter(o => o && !o.decor && !o.minor).map(o => o.label);
+
+/* ================================================================ hero */
+safe('hero', () => {
+  const view = $('#heroView'), map = $('#heroMap');
+  const chairC = center('chair');
+  const H = { x: -1.2, y: -0.35, h: lookAt(-1.2, -0.35, chairC.x, chairC.y), seen: new Set(), vis: new Set(), touched: 0, on: true, t: 0 };
+  const h0 = H.h;
+  function draw() {
+    H.vis = renderView(view, H.x, H.y, H.h);
+    H.vis.forEach(i => H.seen.add(i));
+    drawPlan(map, { pose: H, pad: 6, coneR: 2.4, states: id => H.vis.has(id) ? 'v' : H.seen.has(id) ? 'r' : 'u' });
+    $('#heroHead').textContent = `heading ${compass(H.h)}° · FOV 72°`;
+    const inV = names(H.vis), rem = names(new Set(Array.from(H.seen).filter(i => !H.vis.has(i))));
+    $('#heroMem').innerHTML = `<span class="k">in view</span> ${inV.slice(0, 3).join(', ') || '—'}` + (rem.length ? `<br><span class="rem">remembered</span> ${rem.slice(0, 3).join(', ')}` : '');
+  }
+  dragTurn(view, () => H.h, v => { H.h = v; H.touched = performance.now(); draw(); }, () => { H.touched = performance.now(); });
+  redraw.add(draw); onResize(view, draw); draw();
+  onScreen(view, v => { H.on = v; });
+  if (!REDUCED) {
+    let last = performance.now();
+    const loop = now => {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (H.on && now - H.touched > 4000 && !document.hidden) {
+        H.t += dt; const target = h0 - 1.05 + Math.cos(H.t * 0.32) * 1.05;
+        H.h += (target - H.h) * Math.min(1, dt * 2.5); draw();
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+});
+
+/* ================================================================ memory game */
+safe('game', () => {
+  const view = $('#gameView'), map = $('#gameMap'), dial = $('#dial');
+  const ROUNDS = [
+    { target: 'chair', x: -1.0, y: -0.6, turn: 140 }, { target: 'lamp', x: 0.4, y: 0.2, turn: -125 },
+    { target: 'fridge', x: 0.8, y: -0.9, turn: 150 }, { target: 'plant', x: -0.8, y: 0.9, turn: -135 },
+    { target: 'door', x: 1.4, y: -1.6, turn: 120 }
+  ];
+  const G = { i: 0, phase: 'ready', pose: null, tgt: null, guess: 0, errs: [], timer: null };
+  function setup(i) {
+    const R0 = ROUNDS[i % ROUNDS.length], c = center(R0.target);
+    G.tgt = { name: R0.target, label: byName[R0.target].label, x: c.x, y: c.y };
+    G.pose = { x: R0.x, y: R0.y, h: lookAt(R0.x, R0.y, c.x, c.y) + (rnd() - 0.5) * 14 * D2R };
+    G.turn = Math.sign(R0.turn) * (Math.abs(R0.turn) + (rnd() - 0.5) * 24) * D2R;
+    G.guess = 0; G.phase = 'ready';
+  }
+  function drawView() {
+    renderView(view, G.pose.x, G.pose.y, G.pose.h);
+    if (G.phase === 'ready' || G.phase === 'look') {
+      const sx = screenX(view, G.pose.h, G.tgt.x, G.tgt.y, G.pose.x, G.pose.y);
+      if (sx != null) {
+        const g = view.getContext('2d'), d = view._dpr || 1, y = 34 * d;
+        g.fillStyle = P.accent; g.beginPath(); g.moveTo(sx, y + 12 * d); g.lineTo(sx - 8 * d, y); g.lineTo(sx + 8 * d, y); g.closePath(); g.fill();
+        g.font = `700 ${13 * d}px ${cssv('--f-display')}`; g.textAlign = 'center'; g.fillStyle = P.accent; g.fillText(G.tgt.label, sx, y - 8 * d);
+      }
+    }
+  }
+  function drawDial() {
+    dial.innerHTML = '';
+    const R_ = 132;
+    svg('circle', { cx: 0, cy: 0, r: R_, fill: P['paper-2'], stroke: P.hair, 'stroke-width': 1.5 }, dial);
+    const wedge = svg('path', { d: `M0 0 L${R_ * Math.sin(-FOV / 2)} ${-R_ * Math.cos(FOV / 2)} A${R_} ${R_} 0 0 1 ${R_ * Math.sin(FOV / 2)} ${-R_ * Math.cos(FOV / 2)} Z`, fill: P.accent, opacity: 0.12 }, dial);
+    wedge.setAttribute('aria-hidden', 'true');
+    for (let a = 0; a < 360; a += 10) {
+      const r0 = a % 90 === 0 ? R_ - 14 : a % 30 === 0 ? R_ - 9 : R_ - 5, t = a * D2R;
+      svg('line', { x1: r0 * Math.sin(t), y1: -r0 * Math.cos(t), x2: R_ * Math.sin(t), y2: -R_ * Math.cos(t), stroke: P.graphite, 'stroke-width': a % 30 === 0 ? 1.6 : 0.8 }, dial);
+    }
+    txt(dial, 0, -R_ - 10, 'ahead', { 'text-anchor': 'middle', 'font-size': 12, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    txt(dial, 0, R_ + 20, 'behind', { 'text-anchor': 'middle', 'font-size': 12, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    svg('circle', { cx: 0, cy: 0, r: 10, fill: P.panel, stroke: P.ink, 'stroke-width': 2 }, dial);
+    svg('path', { d: 'M0 -20 L6 -9 L-6 -9 Z', fill: P.ink }, dial);
+    const showGuess = G.phase === 'point' || G.phase === 'reveal';
+    if (G.phase === 'reveal') {
+      const tr = G.trueRel, ar = -tr;
+      const a0 = G.guess, a1 = ar; let da = wrapA(a1 - a0);
+      const big = Math.abs(da) > Math.PI ? 1 : 0, sweep = da > 0 ? 1 : 0, rr = 70;
+      svg('path', { d: `M${rr * Math.sin(a0)} ${-rr * Math.cos(a0)} A${rr} ${rr} 0 ${big} ${sweep} ${rr * Math.sin(a0 + da)} ${-rr * Math.cos(a0 + da)}`, fill: 'none', stroke: P.accent, 'stroke-width': 3 }, dial);
+      svg('line', { x1: 0, y1: 0, x2: (R_ - 6) * Math.sin(ar), y2: -(R_ - 6) * Math.cos(ar), stroke: P.accent, 'stroke-width': 4, 'stroke-linecap': 'round' }, dial);
+      txt(dial, (R_ - 30) * Math.sin(ar), -(R_ - 30) * Math.cos(ar) + 4, G.tgt.label.split(' ').pop(), { 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 700, fill: P['accent-ink'], 'font-family': 'Archivo, sans-serif' });
+    }
+    if (showGuess) {
+      const a = G.guess;
+      svg('line', { x1: 0, y1: 0, x2: (R_ - 4) * Math.sin(a), y2: -(R_ - 4) * Math.cos(a), stroke: P.ink, 'stroke-width': 3, 'stroke-linecap': 'round' }, dial);
+      svg('circle', { cx: (R_ - 4) * Math.sin(a), cy: -(R_ - 4) * Math.cos(a), r: 9, fill: P.ink }, dial);
+      const deg = Math.round(wrapA(a) * R2D);
+      txt(dial, 0, 44, deg === 0 ? 'straight ahead' : `${Math.abs(deg)}° ${deg > 0 ? 'right' : 'left'}`, { 'text-anchor': 'middle', 'font-size': 13, fill: P.ink, 'font-family': 'IBM Plex Mono, monospace' });
+      dial.setAttribute('aria-valuenow', deg);
+    }
+  }
+  function drawMap() {
+    if (map.hidden) return;
+    drawPlan(map, {
+      pose: G.pose, coneR: 2.0, highlight: byName[G.tgt.name].id,
+      extras: (g, T) => {
+        if (G.phase !== 'reveal') return;
+        const gh = G.pose.h - G.guess, L = 2.8;
+        arrowTo(g, T, G.pose.x, G.pose.y, G.tgt.x, G.tgt.y, P.accent, 2.5);
+        arrowTo(g, T, G.pose.x, G.pose.y, G.pose.x + L * Math.cos(gh), G.pose.y + L * Math.sin(gh), P.ink, 2.5, [6, 4]);
+        label(g, T, G.pose.x + L * Math.cos(gh), G.pose.y + L * Math.sin(gh) + 0.25, 'your guess', P.ink, 'center', 12);
+      }
+    });
+  }
+  function all() { drawView(); drawDial(); drawMap(); }
+  function phaseLabel(s) { $('#gamePhase').textContent = `Round ${G.i % ROUNDS.length + 1} of ${ROUNDS.length} · ${s}`; }
+  function start() {
+    G.phase = 'look'; $('#startBtn').hidden = true; $('#nextBtn').hidden = true; map.hidden = true; $('#gameResult').innerHTML = '';
+    $('#gamePrompt').textContent = `Remember where the ${G.tgt.label} is.`; phaseLabel('look');
+    dial.classList.add('off'); all();
+    const cd = $('#gameCount'); let n = 3; cd.hidden = false; cd.textContent = n;
+    clearInterval(G.timer);
+    G.timer = setInterval(() => { n -= 1; if (n > 0) { cd.textContent = n; return; } clearInterval(G.timer); cd.hidden = true; turn(); }, 1000);
+  }
+  function turn() {
+    G.phase = 'turn'; phaseLabel('turning'); $('#gamePrompt').textContent = 'The camera turns away…';
+    const hA = G.pose.h, hB = hA + G.turn, t0 = performance.now(), dur = REDUCED ? 1 : 1600;
+    const step = now => {
+      const t = clamp((now - t0) / dur, 0, 1); G.pose.h = hA + (hB - hA) * ease(t); drawView();
+      if (t < 1) requestAnimationFrame(step); else point();
+    };
+    requestAnimationFrame(step);
+  }
+  function point() {
+    G.phase = 'point'; phaseLabel('point'); dial.classList.remove('off');
+    $('#gamePrompt').textContent = `Where is the ${G.tgt.label} now? Drag on the dial, then lock in.`;
+    $('#lockBtn').hidden = false; all(); dial.focus({ preventScroll: true });
+  }
+  function lock() {
+    if (G.phase !== 'point') return;
+    G.trueRel = wrapA(lookAt(G.pose.x, G.pose.y, G.tgt.x, G.tgt.y) - G.pose.h);
+    const err = Math.abs(wrapA(-G.guess - G.trueRel)) * R2D;
+    G.errs.push(err); G.phase = 'reveal'; phaseLabel('result'); $('#lockBtn').hidden = true; dial.classList.add('off');
+    map.hidden = false; $('#nextBtn').hidden = false;
+    const avg = G.errs.reduce((a, b) => a + b, 0) / G.errs.length;
+    const better = PERSIST.filter(p => p.e > avg).length;
+    $('#gamePrompt').textContent = err < 20 ? 'Close. Your spatial state held.' : err < 45 ? 'In the right half of the room.' : 'Lost it. Rooms are harder than they look.';
+    $('#gameResult').innerHTML = `<div class="bigerr">${fmt(err, 0)}°</div><p>off this round. Your average over ${G.errs.length} round${G.errs.length > 1 ? 's' : ''}: <b class="num">${fmt(avg, 1)}°</b>. ${better === 10 ? 'That beats the mean error of all ten frozen models.' : better === 0 ? 'Every frozen model does better on average.' : `That beats the mean error of ${better} of the ten frozen models.`} The best, VideoMAE, is off by 55.5° on average; random pointing averages 90°.</p><div class="rounds">${G.errs.map((e, k) => `<span>R${k + 1} ${fmt(e, 0)}°</span>`).join('')}</div>`;
+    all(); drawRuler();
+  }
+  function next() { G.i += 1; setup(G.i); $('#startBtn').hidden = false; $('#nextBtn').hidden = true; map.hidden = true; phaseLabel('ready'); $('#gamePrompt').textContent = `Ready for round ${G.i % ROUNDS.length + 1}? This time: the ${G.tgt.label}.`; $('#gameResult').innerHTML = ''; all(); start(); }
+  function setGuessFromEvent(e) {
+    const r = dial.getBoundingClientRect(), x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
+    if (Math.hypot(x, y) < 6) return; G.guess = Math.atan2(x, -y); drawDial();
+  }
+  let dragging = false;
+  dial.addEventListener('pointerdown', e => { if (G.phase !== 'point') return; dragging = true; dial.setPointerCapture(e.pointerId); setGuessFromEvent(e); });
+  dial.addEventListener('pointermove', e => { if (dragging && G.phase === 'point') setGuessFromEvent(e); });
+  dial.addEventListener('pointerup', () => { dragging = false; });
+  dial.addEventListener('keydown', e => {
+    if (G.phase !== 'point') return;
+    if (e.key === 'ArrowLeft') { G.guess -= 5 * D2R; drawDial(); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { G.guess += 5 * D2R; drawDial(); e.preventDefault(); }
+    if (e.key === 'Enter') { lock(); e.preventDefault(); }
+  });
+  $('#startBtn').addEventListener('click', start); $('#lockBtn').addEventListener('click', lock); $('#nextBtn').addEventListener('click', next);
+  function drawRuler() {
+    const s = $('#ruler'); s.innerHTML = '';
+    const x0 = 40, x1 = 960, X = v => x0 + clamp(v, 0, 100) / 100 * (x1 - x0), y = 92;
+    const narrow = s.getBoundingClientRect().width < 620;
+    svg('line', { x1: x0, y1: y, x2: x1, y2: y, stroke: P.graphite, 'stroke-width': 2 }, s);
+    for (let v = 0; v <= 100; v += 10) { svg('line', { x1: X(v), y1: y - 5, x2: X(v), y2: y + 5, stroke: P.graphite, 'stroke-width': 1.5 }, s); txt(s, X(v), y + 24, v + '°', { 'text-anchor': 'middle', 'font-size': narrow ? 20 : 14, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' }); }
+    svg('rect', { x: X(55.53), y: y - 9, width: X(79.54) - X(55.53), height: 18, fill: P.accent, opacity: 0.12 }, s);
+    const sorted = PERSIST.slice().sort((a, b) => a.e - b.e);
+    sorted.forEach(p => {
+      const g = svg('g', {}, s); svg('line', { x1: X(p.e), y1: y - 12, x2: X(p.e), y2: y + 12, stroke: P['accent-ink'], 'stroke-width': 2.5 }, g);
+      const t = svg('title', {}, g); t.textContent = `${p.m}: ${fmt(p.e, 1)}°`;
+    });
+    const lo = sorted[0], hi = sorted[sorted.length - 1], fs = narrow ? 19 : 13;
+    txt(s, X(lo.e), y + 58, `best: ${lo.m} ${fmt(lo.e, 1)}°`, { 'text-anchor': 'end', 'font-size': fs, 'font-weight': 600, fill: P['accent-ink'], 'font-family': 'Archivo, sans-serif' });
+    txt(s, X(hi.e), y + 58, `worst: ${hi.m} ${fmt(hi.e, 1)}°`, { 'text-anchor': 'start', 'font-size': fs, 'font-weight': 600, fill: P['accent-ink'], 'font-family': 'Archivo, sans-serif' });
+    $('#rulerList').textContent = 'Mean error of each frozen model: ' + sorted.map(p => `${p.m} ${fmt(p.e, 1)}°`).join(' · ') + '.';
+    svg('line', { x1: X(90), y1: y - 30, x2: X(90), y2: y + 12, stroke: P.graphite, 'stroke-width': 2, 'stroke-dasharray': '5 4' }, s);
+    txt(s, X(90), y - 36, 'random 90°', { 'text-anchor': 'middle', 'font-size': narrow ? 19 : 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    txt(s, (X(55.53) + X(79.54)) / 2, y - 36, 'frozen models', { 'text-anchor': 'middle', 'font-size': narrow ? 19 : 13, fill: P['accent-ink'], 'font-family': 'IBM Plex Mono, monospace' });
+    G.errs.forEach((e, k) => svg('circle', { cx: X(e), cy: y - 22 - (k % 3) * 9, r: 6, fill: P.ink, opacity: 0.55 }, s));
+    if (G.errs.length) {
+      const avg = G.errs.reduce((a, b) => a + b, 0) / G.errs.length;
+      svg('path', { d: `M${X(avg)} ${y - 4} l-10 -22 h20 z`, fill: P.ink }, s);
+      txt(s, X(avg), y - 34 - (avg > 82 ? 24 : 0), `you ${fmt(avg, 1)}°`, { 'text-anchor': 'middle', 'font-size': narrow ? 22 : 15, 'font-weight': 700, fill: P.ink, 'font-family': 'Archivo, sans-serif' });
+    } else {
+      txt(s, X(8), y - 30, 'your rounds appear here', { 'font-size': narrow ? 19 : 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    }
+  }
+  redraw.add(() => { all(); drawRuler(); }); onResize(view, drawView); onResize($('#ruler'), drawRuler);
+  setup(0); all(); drawRuler();
+});
+
+/* ================================================================ four levels */
+safe('levels', () => {
+  const view = $('#lvView'), map = $('#lvMap'), ghost = $('#lvGhost'), goalCv = $('#lvGoal');
+  const S = { lv: 1, mode: 'rgb', pose: { x: -0.6, y: 0.0, h: lookAt(-0.6, 0.0, -3.75, 1.75) }, seen: new Set(), vis: new Set(), pending: null, arrows: true, goal: { x: 3.2, y: -1.4, h: lookAt(3.2, -1.4, 4.5, 2.45) }, cand: null, answered: false };
+  function blocked(x, y) {
+    if (x < -4.6 || x > 4.6 || y < -2.6 || y > 2.6) return true;
+    return PLAN_OBJ.some(o => { const b = bbox(o); return x > b.x0 - 0.25 && x < b.x1 + 0.25 && y > b.y0 - 0.25 && y < b.y1 + 0.25; });
+  }
+  function newPair() {
+    const g = S.goal, p = S.pose, toward = lookAt(p.x, p.y, g.x, g.y);
+    const good = toward + (rnd() - 0.5) * 0.5, bad = toward + (rnd() > 0.5 ? 1 : -1) * (1.7 + rnd() * 0.6);
+    const goodFirst = rnd() > 0.5, L = 1.0;
+    const mk = a => ({ a, x: p.x + L * Math.cos(a), y: p.y + L * Math.sin(a) });
+    S.cand = goodFirst ? { A: mk(good), B: mk(bad) } : { A: mk(bad), B: mk(good) };
+    S.answered = false; $('#lvFeedback').className = 'feedback'; $('#lvFeedback').textContent = 'Pick a move.';
+    drawMap();
+  }
+  function drawView() {
+    S.vis = renderView(view, S.pose.x, S.pose.y, S.pose.h, S.lv === 1 ? S.mode : 'rgb');
+    S.vis.forEach(i => S.seen.add(i));
+    const modeName = { rgb: 'color', depth: 'depth (near is bright)', inst: 'object instances' }[S.mode];
+    $('#lvHud').textContent = S.lv === 1 ? `L1 · ${modeName}` : S.lv === 2 ? `L2 · remembered ${Math.max(0, names(S.seen).length - names(S.vis).length)} objects` : S.lv === 3 ? 'L3 · choose a move' : 'L4 · reach the goal view';
+  }
+  function drawMap() {
+    drawPlan(map, {
+      pose: S.pose, coneR: 2.1,
+      states: S.lv === 2 ? (id => S.vis.has(id) ? 'v' : S.seen.has(id) ? 'r' : 'u') : null,
+      extras: (g, T) => {
+        if (S.lv === 2 && S.arrows) {
+          for (const o of PLAN_OBJ) if (S.seen.has(o.id) && !S.vis.has(o.id) && !o.minor) { const c = center(o.name); arrowTo(g, T, S.pose.x, S.pose.y, c.x, c.y, P.accent, 1.6, [5, 4]); }
+        }
+        if (S.lv === 3 && S.pending) { drawObserver(g, T, S.pending, { coneR: 1.8, coneCol: P.l3, bodyCol: P.l3, coneAlpha: 0.12 }); arrowTo(g, T, S.pose.x, S.pose.y, S.pending.x, S.pending.y, P.l3, 2, [5, 4]); }
+        if (S.lv === 4) {
+          flag(g, T, S.goal.x, S.goal.y, P.l4); drawCone(g, T, S.goal.x, S.goal.y, S.goal.h, 1.4, P.l4, 0.12);
+          if (S.cand) for (const k of ['A', 'B']) { const c = S.cand[k]; arrowTo(g, T, S.pose.x, S.pose.y, c.x, c.y, S.answered ? (dist(c, S.goal) < dist(S.pose, S.goal) ? P.good : P.accent) : P.ink, 2.6); label(g, T, c.x + 0.25 * Math.cos(c.a), c.y + 0.25 * Math.sin(c.a), k, P.ink, 'center', 13); }
+        }
+      }
+    });
+  }
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  function drawGhost() {
+    const box = $('#lvGhostBox');
+    if (S.lv !== 3 || !S.pending) { box.hidden = true; return; }
+    box.hidden = false; renderView(ghost, S.pending.x, S.pending.y, S.pending.h);
+  }
+  function drawGoal() { if (S.lv === 4) renderView(goalCv, S.goal.x, S.goal.y, S.goal.h); }
+  function all() { drawView(); drawMap(); drawGhost(); drawGoal(); }
+  function setLv(n) {
+    S.lv = n;
+    $$('#levels [role=tab]').forEach(b => { const on = +b.dataset.lv === n; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+    for (let k = 1; k <= 4; k++) $('#lvp' + k).hidden = k !== n;
+    if (n === 4 && !S.cand) newPair();
+    S.pending = null; $('#lvGo').disabled = true; all();
+  }
+  $$('#levels [role=tab]').forEach(b => {
+    b.addEventListener('click', () => setLv(+b.dataset.lv));
+    b.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const n = ((S.lv - 1 + (e.key === 'ArrowRight' ? 1 : 3)) % 4) + 1; setLv(n); $('#tab' + n).focus(); e.preventDefault(); } });
+  });
+  $$('#lvMode button').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; $$('#lvMode button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawView(); }));
+  $('#lvArrows').addEventListener('change', e => { S.arrows = e.target.checked; drawMap(); });
+  $$('#lvMoves [data-move]').forEach(b => b.addEventListener('click', () => {
+    const p = S.pose; let q;
+    if (b.dataset.move === 'left') q = { x: p.x + 0.8 * Math.cos(p.h + Math.PI / 2), y: p.y + 0.8 * Math.sin(p.h + Math.PI / 2), h: p.h };
+    else if (b.dataset.move === 'fwd') q = { x: p.x + 0.9 * Math.cos(p.h), y: p.y + 0.9 * Math.sin(p.h), h: p.h };
+    else q = { x: p.x, y: p.y, h: p.h - 30 * D2R };
+    if (blocked(q.x, q.y)) { $('#lvHud').textContent = 'L3 · blocked, try another move'; $('#lvMoveMsg').textContent = 'That move runs into furniture. Try another one.'; S.pending = null; $('#lvGo').disabled = true; drawGhost(); drawMap(); return; }
+    S.pending = q; $('#lvMoveMsg').textContent = 'The dashed frame shows the view you should expect. Make the move to check it.'; $('#lvGo').disabled = false; drawGhost(); drawMap();
+  }));
+  $('#lvGo').addEventListener('click', () => {
+    if (!S.pending) return; const a = Object.assign({}, S.pose), b = S.pending, t0 = performance.now(), dur = REDUCED ? 1 : 700;
+    S.pending = null; $('#lvGo').disabled = true; drawGhost(); $('#lvMoveMsg').textContent = 'Moved. The live view now matches what you expected. Pick another move.';
+    const step = now => { const t = ease(clamp((now - t0) / dur, 0, 1)); S.pose = { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), h: a.h + wrapA(b.h - a.h) * t }; drawView(); drawMap(); if (t < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+  $$('#lvp4 [data-pick]').forEach(b => b.addEventListener('click', () => {
+    if (!S.cand) return; const k = b.dataset.pick, o = k === 'A' ? 'B' : 'A';
+    const d0 = dist(S.pose, S.goal), dk = dist(S.cand[k], S.goal), dOther = dist(S.cand[o], S.goal);
+    const ok = dk < dOther; S.answered = true; const fb = $('#lvFeedback');
+    fb.className = 'feedback ' + (ok ? 'good' : 'bad');
+    fb.textContent = `Move ${k} ${dk < d0 ? 'gets you ' + fmt(d0 - dk, 2) + ' m closer' : 'takes you ' + fmt(dk - d0, 2) + ' m further away'}; move ${o} ${dOther < d0 ? 'gets you ' + fmt(d0 - dOther, 2) + ' m closer' : 'takes you ' + fmt(dOther - d0, 2) + ' m further away'}. ${ok ? 'Right call.' : 'The other one was better.'} The frozen backbones pick right 76–80% of the time.`;
+    drawMap();
+  }));
+  $('#lvNewPair').addEventListener('click', newPair);
+  dragTurn(view, () => S.pose.h, v => { S.pose.h = v; S.pending = null; $('#lvGo').disabled = true; drawView(); drawMap(); drawGhost(); });
+  redraw.add(all); onResize(view, () => { drawView(); drawGhost(); }); onResize(map, drawMap); onResize(goalCv, drawGoal);
+  all();
+
+  // probing protocol strip
+  const strip = $('#strip'), N = 28, wps = [[-1.2, -0.6, 150], [-0.6, -0.2, 120], [0.3, 0.2, 70], [1.1, 0.1, 20], [1.6, -0.6, -30], [1.4, -1.4, -90]];
+  const traj = []; for (let k = 0; k < N; k++) { const u = k / (N - 1) * (wps.length - 1), i = Math.min(wps.length - 2, Math.floor(u)), a = u - i, A = wps[i], B = wps[i + 1]; traj.push([lerp(A[0], B[0], a), lerp(A[1], B[1], a), lerp(A[2], B[2], a) * D2R]); }
+  const tiles = traj.map((t, k) => { const d = document.createElement('div'); d.className = 'tile'; const c = document.createElement('canvas'); c.width = 96; c.height = 54; c.setAttribute('aria-hidden', 'true'); const sp = document.createElement('span'); sp.textContent = k + 1; d.append(c, sp); strip.appendChild(d); return { d, c, t }; });
+  function drawTiles() { for (const tl of tiles) { RAY_SMALL.render(tl.t[0], tl.t[1], tl.t[2], 'rgb'); tl.c.getContext('2d').drawImage(RAY_SMALL.cv, 0, 0); } }
+  const PR = { p: 16, h: 2 };
+  function updStrip() {
+    tiles.forEach((tl, k) => { const n = k + 1; tl.d.className = 'tile ' + (n <= PR.p ? 'in' : n === PR.p + PR.h ? 'tgt' : 'out'); tl.d.querySelector('span').textContent = n === PR.p + PR.h ? `t+${PR.h}` : n; });
+    $('#pipeIn').textContent = `frames 1–${PR.p}`;
+  }
+  $$('#pSeg button').forEach(b => b.addEventListener('click', () => { PR.p = +b.dataset.p; $$('#pSeg button').forEach(x => x.setAttribute('aria-pressed', x === b)); updStrip(); }));
+  $$('#hSeg button').forEach(b => b.addEventListener('click', () => { PR.h = +b.dataset.h; $$('#hSeg button').forEach(x => x.setAttribute('aria-pressed', x === b)); updStrip(); }));
+  drawTiles(); updStrip(); redraw.add(drawTiles);
+});
+
+/* ================================================================ results explorer */
+safe('results', () => {
+  const heat = $('#heat'), sel = $('#sortSel'), tip = $('#tip');
+  const ranks = METRICS.map(m => { const order = m.v.map((v, i) => i).sort((a, b) => m.hib ? m.v[b] - m.v[a] : m.v[a] - m.v[b]); const r = []; order.forEach((i, k) => { r[i] = k; }); return r; });
+  const R_ = { sortBy: -1, sel: 'VideoMAE-L', ins: 0 };
+  sel.innerHTML = '<option value="-1">Paper order</option>' + METRICS.map((m, j) => `<option value="${j}">${m.full}</option>`).join('');
+  function cellColor(rank) { const s = 1 - rank / 9; return `color-mix(in srgb, var(--accent) ${Math.round(6 + 78 * Math.pow(s, 1.5))}%, var(--panel))`; }
+  function build() {
+    const order = MODELS.map((m, i) => i);
+    if (R_.sortBy >= 0) order.sort((a, b) => ranks[R_.sortBy][a] - ranks[R_.sortBy][b]);
+    const hl = new Set(INSIGHTS[R_.ins].cells.map(c => c[0] + '|' + c[1]));
+    let h = '<div class="corner">model</div>';
+    METRICS.forEach((m, j) => { h += `<button type="button" class="h lv${m.lv}${R_.sortBy === j ? ' sorted' : ''}" data-j="${j}" aria-label="Rank by ${m.full}">${m.name}<small>L${m.lv} ${m.hib ? '↑' : '↓'}</small></button>`; });
+    for (const i of order) {
+      const name = MODELS[i];
+      h += `<button type="button" class="m${R_.sel === name ? ' sel' : ''}" data-m="${name}">${name}<small>${FAMILY[name]}</small></button>`;
+      METRICS.forEach((m, j) => {
+        const rk = ranks[j][i], key = name + '|' + m.key, dark = rk <= 2;
+        h += `<button type="button" class="c${rk === 0 ? ' best' : ''}${hl.has(key) ? ' hl' : ''}" style="background:${cellColor(rk)};${dark ? 'color:var(--on-accent)' : ''}" data-i="${i}" data-j="${j}" aria-label="${name}, ${m.full}: ${fmt(m.v[i], m.nd)}, rank ${rk + 1} of 10">${fmt(m.v[i], m.nd)}</button>`;
+      });
+    }
+    heat.innerHTML = h;
+  }
+  function profile() {
+    const i = MODELS.indexOf(R_.sel), el = $('#profile');
+    el.innerHTML = `<p class="fam">${FAMILY[R_.sel]}</p><h3 style="font-size:1.5rem">${R_.sel}</h3><p>${SUMMARY[R_.sel]}</p><div class="pbars">${METRICS.map((m, j) => { const rk = ranks[j][i]; return `<div class="pbar"><span class="lab">${m.name} <span class="mono" style="color:var(--graphite);font-size:.7rem">L${m.lv}</span></span><span class="track"><span class="fill" style="width:${Math.round((1 - rk / 9) * 100)}%"></span></span><span class="rk">#${rk + 1}</span></div>`; }).join('')}</div><p class="note">Bar length is the rank among the ten (full bar = best), so measurements with different units sit on one scale.</p>`;
+  }
+  function insight() {
+    const it = INSIGHTS[R_.ins]; $('#insNum').textContent = it.big; $('#insText').textContent = it.text; $('#insCount').textContent = `${R_.ins + 1} / ${INSIGHTS.length}`; build();
+  }
+  heat.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.classList.contains('h')) { const j = +b.dataset.j; R_.sortBy = R_.sortBy === j ? -1 : j; sel.value = R_.sortBy; build(); }
+    else if (b.classList.contains('m')) { R_.sel = b.dataset.m; build(); profile(); }
+    else if (b.classList.contains('c')) { R_.sel = MODELS[+b.dataset.i]; build(); profile(); }
+  });
+  heat.addEventListener('pointermove', e => {
+    const b = e.target.closest('.c'); if (!b) { tip.hidden = true; return; }
+    const i = +b.dataset.i, j = +b.dataset.j, m = METRICS[j];
+    tip.innerHTML = `<b>${MODELS[i]}</b><br>${m.full}: <span class="num">${fmt(m.v[i], m.nd)}</span><br>rank ${ranks[j][i] + 1} of 10 · ${m.hib ? 'higher' : 'lower'} is better`;
+    tip.hidden = false; const x = Math.min(e.clientX + 14, window.innerWidth - 270); tip.style.left = x + 'px'; tip.style.top = (e.clientY + 14) + 'px';
+  });
+  heat.addEventListener('pointerleave', () => { tip.hidden = true; });
+  sel.addEventListener('change', () => { R_.sortBy = +sel.value; build(); });
+  $('#insPrev').addEventListener('click', () => { R_.ins = (R_.ins + INSIGHTS.length - 1) % INSIGHTS.length; insight(); });
+  $('#insNext').addEventListener('click', () => { R_.ins = (R_.ins + 1) % INSIGHTS.length; insight(); });
+  build(); profile(); insight();
+});
+
+/* ================================================================ layers and prefix */
+safe('layers', () => {
+  const s = $('#layerSvg'), range = $('#layerRange');
+  const L = { m: 'V-JEPA 2' };
+  const TASKS = ['Geometry', 'Instance identity', 'View consistency', 'Persistence', 'One-step', 'Path integration'];
+  function draw() {
+    s.innerHTML = '';
+    const blk = MEASURED[+range.value], peaks = LAYER_PEAKS[L.m];
+    const yOf = k => 304 - k * 12;
+    for (let k = 0; k < 24; k++) {
+      const m = MEASURED.includes(k), on = k === blk;
+      svg('rect', { x: 40, y: yOf(k) - 5, width: 120, height: 9, rx: 3, fill: on ? P.accent : P.cool, opacity: on ? 1 : m ? 0.55 : 0.15 }, s);
+      if (m) txt(s, 30, yOf(k) + 3, k, { 'text-anchor': 'end', 'font-size': 12, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    }
+    txt(s, 100, 22, L.m, { 'text-anchor': 'middle', 'font-size': 15, 'font-weight': 700, fill: P.ink, 'font-family': 'Archivo, sans-serif' });
+    txt(s, 100, 325, 'block (depth)', { 'text-anchor': 'middle', 'font-size': 11, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    TASKS.forEach((t, r) => {
+      const y = 52 + r * 46, k = peaks[t], on = k === blk, col = P['l' + TASK_LV[t]];
+      svg('path', { d: `M162 ${yOf(k)} C 230 ${yOf(k)}, 250 ${y}, 300 ${y}`, fill: 'none', stroke: col, 'stroke-width': on ? 3 : 1.5, opacity: on ? 1 : 0.45 }, s);
+      svg('circle', { cx: 162, cy: yOf(k), r: on ? 5 : 3.5, fill: col }, s);
+      svg('rect', { x: 300, y: y - 15, width: 240, height: 30, rx: 15, fill: col, opacity: on ? 0.22 : 0.08, stroke: col, 'stroke-width': on ? 2 : 1 }, s);
+      txt(s, 316, y + 5, `${t}`, { 'font-size': 14, 'font-weight': on ? 700 : 500, fill: P.ink, 'font-family': 'Archivo, sans-serif' });
+      txt(s, 528, y + 5, `block ${k}`, { 'text-anchor': 'end', 'font-size': 12, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    });
+    const at = TASKS.filter(t => peaks[t] === blk);
+    $('#layerText').textContent = at.length ? `In ${L.m}, block ${blk} is the best layer for ${at.join(', ').replace(/, ([^,]*)$/, ' and $1').toLowerCase()}.` : `No task peaks at block ${blk} in ${L.m}. Its peaks: ${TASKS.map(t => t.toLowerCase() + ' ' + peaks[t]).join(', ')}.`;
+  }
+  $$('#layerModel button').forEach(b => b.addEventListener('click', () => { L.m = b.dataset.m; $$('#layerModel button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); }));
+  range.addEventListener('input', draw);
+  draw(); redraw.add(draw);
+
+  const grid = $('#prefixGrid'); let hlCol = -1;
+  function colOf(d) {
+    if (d == null) return 'var(--hair-2)';
+    const a = Math.round(18 + 70 * Math.pow(Math.min(1, Math.abs(d) / 2.5), 0.8));
+    return `color-mix(in srgb, ${d < 0 ? 'var(--accent)' : 'var(--cool)'} ${a}%, var(--panel))`;
+  }
+  function build() {
+    let h = '<div></div>' + PREFIX_TASKS.map(t => `<div class="h">${t}</div>`).join('');
+    PREFIX_MODELS.forEach((m, i) => {
+      h += `<div class="m">${m}</div>`;
+      PREFIX_DELTA[i].forEach((d, j) => {
+        const strong = d != null && Math.abs(d) > 1.2;
+        h += `<div class="c${hlCol === j ? ' col-hl' : ''}" style="background:${colOf(d)};${strong ? 'color:var(--on-accent)' : ''}" title="${m} · ${PREFIX_TASKS[j]}: ${d == null ? 'not available' : (d > 0 ? '+' : '') + fmt(d, 2)}">${d == null ? '·' : d > 0 ? '+' : '−'}</div>`;
+      });
+    });
+    grid.innerHTML = h;
+  }
+  $$('#prefixHl button').forEach(b => b.addEventListener('click', () => { hlCol = +b.dataset.c; $$('#prefixHl button').forEach(x => x.setAttribute('aria-pressed', x === b)); build(); }));
+  build();
+});
+
+/* ================================================================ robot errand */
+safe('mission', () => {
+  const map = $('#mMap'), view = $('#mView');
+  const MB = {
+    'DINOv2-L': { auc: 0.0386, e2: 69.01, r3: 0.1470, p4: 53.8, s1: 1, s2: -1, txt: 'Leads path integration among these four (R@1 0.147), but has the weakest pose readout (AUC@30 0.039) and the largest persistence error (69.0°).' },
+    'Fast3R': { auc: 0.3852, e2: 56.45, r3: 0.0145, p4: 59.8, s1: -1, s2: 1, txt: 'Best of the four at pose (AUC@30 0.385), persistence (56.5°) and action progress (59.8%), yet it can barely integrate a path (R@1 0.015).' },
+    'V-JEPA 2': { auc: 0.1849, e2: 59.39, r3: 0.0839, p4: 53.8, s1: 1, s2: -1, txt: 'Second at every step and best at none. For one-step prediction, copying its last feature beats a learned predictor (19.9% against 13.0%).' },
+    'Wan2.1': { auc: 0.0603, e2: 66.44, r3: 0.0383, p4: 50.2, s1: -1, s2: 1, txt: 'The lowest action progress of the four (50.2%), and third on pose, persistence and path integration. Predicting outcomes before choosing drops its candidate selection to 63.6%.' },
+    'Ideal': { auc: 1, e2: 0, r3: 1, p4: 100, s1: 1, s2: 1, ideal: true, txt: 'What the errand needs: pose and heading within a few degrees, an imagined route that ends in the right place, and moves that each bring it closer.' }
+  };
+  const ORDER = ['DINOv2-L', 'Fast3R', 'V-JEPA 2', 'Wan2.1', 'Ideal'];
+  for (const k in MB) MB[k].e1 = 30 * (1 - MB[k].auc);
+  const P1 = { x: -3.0, y: 0.6 }, MUG = center('mug');
+  const H1 = Math.PI, TH = lookAt(P1.x, P1.y, MUG.x, MUG.y);   // facing the window; the mug is behind it
+  const HIST = [[2.75, 1.95], [1.0, 1.95], [-1.0, 1.2], [-3.0, 0.6]];
+  const ROUTE = [[-3.0, 0.6], [-1.4, 1.3], [0.4, 1.9], [2.4, 2.18]];
+  const C = { x: 2.4, y: 2.18 }, D = { x: -1.9, y: -0.55 };
+  const STEPS = [
+    { lv: 1, title: 'Know where it is', op: 'Key operation: estimate its own pose after the walk.', unit: 'pose error, capped at 30°', get: m => m.e1, lo: 30, hi: 0, f: v => fmt(v, 1) + '°', ticks: [30, 20, 10, 0] },
+    { lv: 2, title: 'Turn back to the mug', op: 'Key operation: face an object that has left the view.', unit: 'mean error to the hidden object', get: m => m.e2, lo: 90, hi: 0, f: v => fmt(v, 1) + '°', ticks: [90, 60, 30, 0], need: { v: 36, s: 'in view' } },
+    { lv: 3, title: 'Plan the trip to the counter', op: 'Key operation: imagine where four moves will take it.', unit: 'imagined trips that end in the right place', get: m => m.r3 * 100, lo: 0, hi: 100, f: v => fmt(v, 1) + '%', ticks: [0, 25, 50, 75, 100] },
+    { lv: 4, title: 'Carry it to the coffee table', op: 'Key operation: choose each move so it gets closer.', unit: 'predicted moves that make progress', get: m => m.p4, lo: 0, hi: 100, f: v => fmt(v, 1) + '%', ticks: [0, 25, 50, 75, 100] }
+  ];
+  const M = { m: 'DINOv2-L', step: 0, t: 1, playing: false, outcomes: [null, null, null, null], log: [], raf: 0, clock: 0 };
+  const steps = $('#mSteps'), chips = $('#mModels');
+  chips.innerHTML = ORDER.map(k => `<button type="button" data-m="${k}" aria-pressed="${k === M.m}"${k === 'Ideal' ? ' class="ideal"' : ''}>${k === 'Ideal' ? 'Ideal state' : k}${k === 'Ideal' ? '' : `<small>${FAMILY[k]}</small>`}</button>`).join('');
+  steps.innerHTML = STEPS.map((s, k) => `<li class="m-step" data-k="${k + 1}" tabindex="0" role="button" aria-label="Show step ${k + 1}: ${s.title}"><div class="top"><span class="lv">L${s.lv}</span><h3>${k + 1} · ${s.title}</h3></div><p class="op">${s.op}</p><div class="val"><span>${s.unit}</span><b id="mv${k + 1}"></b></div><svg id="mg${k + 1}" viewBox="0 0 320 62" aria-hidden="true"></svg>${k === 2 ? '<div class="units" id="mUnits" aria-hidden="true"></div>' : ''}<p class="out" id="mo${k + 1}"></p></li>`).join('');
+  function gauge(k) {
+    const S = STEPS[k - 1], el = $('#mg' + k); el.innerHTML = '';
+    const X = v => 14 + (v - S.lo) / (S.hi - S.lo) * 292, y = 30;
+    svg('line', { x1: 14, y1: y, x2: 306, y2: y, stroke: P.hair, 'stroke-width': 6, 'stroke-linecap': 'round' }, el);
+    S.ticks.forEach(v => txt(el, X(v), 56, S.f(v).replace('.0', ''), { 'text-anchor': 'middle', 'font-size': 11.5, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' }));
+    if (S.need) { svg('line', { x1: X(S.need.v), y1: 14, x2: X(S.need.v), y2: 44, stroke: P.good, 'stroke-width': 2, 'stroke-dasharray': '3 3' }, el); txt(el, X(S.need.v) + 4, 12, `< ${S.need.v}°: ${S.need.s}`, { 'font-size': 11.5, fill: P.good, 'font-family': 'IBM Plex Mono, monospace' }); }
+    ORDER.forEach(name => {
+      const v = S.get(MB[name]), on = name === M.m, ideal = name === 'Ideal';
+      const c = svg('circle', { cx: X(v), cy: y, r: on ? 7 : 4, fill: ideal ? 'none' : on ? P.accent : P.graphite, stroke: ideal ? P.good : P.panel, 'stroke-width': ideal ? 2 : 1.5 }, el);
+      const t = svg('title', {}, c); t.textContent = `${name}: ${S.f(v)}`;
+      if (on && !ideal) txt(el, X(v), y - 12, name, { 'text-anchor': X(v) > 250 ? 'end' : X(v) < 70 ? 'start' : 'middle', 'font-size': 12.5, 'font-weight': 700, fill: P['accent-ink'], 'font-family': 'Archivo, sans-serif' });
+    });
+    $('#mv' + k).textContent = S.f(S.get(MB[M.m]));
+  }
+  function units() { const n = Math.round(MB[M.m].r3 * 100); $('#mUnits').innerHTML = Array.from({ length: 100 }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join(''); }
+  function outcome(k) {
+    const m = MB[M.m];
+    if (k === 1) return m.ideal ? ['ok', 'Knows its pose.'] : ['mid', `Its pose estimate is off by ${fmt(m.e1, 0)}° or more.`];
+    if (k === 2) return m.e2 < 36 ? ['ok', 'Mug in view.'] : ['ko', `Turned ${fmt(m.e2, 0)}° wide of the mug: it stays out of view.`];
+    if (k === 3) { const n = Math.round(m.r3 * 10); return m.r3 >= 0.5 ? ['ok', 'Arrives where it planned.'] : ['ko', `Imagined endpoint right in ${n} of 10 trips.`]; }
+    const n = Math.round(m.p4 / 10); return m.p4 >= 90 ? ['ok', 'Every move gets closer.'] : ['mid', `${n} of 10 moves get closer.`];
+  }
+  function logLine(tag, html) { M.log.push(`<div class="ln"><span class="t">${String(Math.floor(M.clock / 60)).padStart(2, '0')}:${String(Math.floor(M.clock % 60)).padStart(2, '0')}</span><span class="tag">${tag}</span><span>${html}</span></div>`); const el = $('#mLog'); el.innerHTML = M.log.join(''); el.scrollTop = el.scrollHeight; }
+  const endpoints = () => {
+    const m = MB[M.m], n = Math.round(m.r3 * 10), pts = [];
+    const angs = [200, 250, 130, 300, 170, 230, 280, 110, 330, 150], rads = [1.1, 1.9, 0.9, 2.3, 1.5, 2.6, 1.3, 1.7, 2.1, 0.8];
+    for (let i = 0; i < 10; i++) {
+      if (i < n) pts.push({ x: C.x + (i % 2 ? 0.06 : -0.05), y: C.y - 0.04 * i / 10, ok: true });
+      else { const a = angs[i] * D2R; pts.push({ x: clamp(C.x + rads[i] * Math.cos(a), -4.6, 4.6), y: clamp(C.y + rads[i] * Math.sin(a), -2.6, 2.6), ok: false }); }
+    }
+    return pts;
+  };
+  const moves = () => {
+    const m = MB[M.m], kp = Math.round(m.p4 / 10), dd = Math.hypot(D.x - C.x, D.y - C.y), L = dd / 10;
+    const pts = [{ x: C.x, y: C.y }]; let p = { x: C.x, y: C.y }, side = 1;
+    const obst = PLAN_OBJ.filter(o => o.name !== 'coffee' && o.name !== 'mug').map(bbox);
+    const free = (x0, y0, x1, y1) => {
+      if (x1 < -4.6 || x1 > 4.6 || y1 < -2.6 || y1 > 2.6) return false;
+      for (let s = 1; s <= 6; s++) { const x = lerp(x0, x1, s / 6), y = lerp(y0, y1, s / 6); if (obst.some(b => x > b.x0 - 0.2 && x < b.x1 + 0.2 && y > b.y0 - 0.2 && y < b.y1 + 0.2)) return false; }
+      return true;
+    };
+    for (let i = 0; i < 10; i++) {
+      const prog = Math.floor((i + 1) * kp / 10) > Math.floor(i * kp / 10), toward = lookAt(p.x, p.y, D.x, D.y);
+      const d0 = Math.hypot(p.x - D.x, p.y - D.y), step = Math.min(L, prog ? d0 : L);
+      const tries = prog ? [0, 0.35, -0.35, 0.7, -0.7].map(o => toward + o) : [side * 1.75, -side * 1.75, Math.PI].map(o => toward + o);
+      let q = null;
+      for (const a of tries) {
+        const nx = p.x + step * Math.cos(a), ny = p.y + step * Math.sin(a), nd = Math.hypot(nx - D.x, ny - D.y);
+        if (free(p.x, p.y, nx, ny) && (prog ? nd < d0 : nd >= d0 - 1e-6)) { q = { x: nx, y: ny, prog }; break; }
+      }
+      if (!prog) side = -side;
+      p = q || { x: p.x, y: p.y, prog };
+      pts.push(p);
+    }
+    if (m.ideal) pts[10] = { x: D.x, y: D.y, prog: true };   // an ideal state finishes the errand
+    return pts;
+  };
+  function poseAt(k, t) {
+    const m = MB[M.m];
+    if (k <= 1) return { x: P1.x, y: P1.y, h: H1 };
+    if (k === 2) { const target = TH + m.s2 * m.e2 * D2R, d = wrapA(target - H1); return { x: P1.x, y: P1.y, h: H1 + d * ease(t) }; }
+    if (k === 3) { const target = TH + m.s2 * m.e2 * D2R; return { x: P1.x, y: P1.y, h: target }; }
+    const pts = moves(), u = t * 10, i = Math.min(9, Math.floor(u)), a = u - i, A = pts[i], B = pts[i + 1];
+    return { x: lerp(A.x, B.x, ease(a)), y: lerp(A.y, B.y, ease(a)), h: lookAt(A.x, A.y, B.x, B.y) };
+  }
+  function draw() {
+    const m = MB[M.m], k = M.step, t = M.t, pose = poseAt(k, t);
+    drawPlan(map, {
+      pose, robot: true, coneR: 2.6, pad: 12, carry: k === 4,
+      hideObj: k === 4 ? new Set([byName.mug.id]) : null,
+      states: id => id === byName.mug.id && k < 4 ? 'r' : null,
+      extras: (g, T) => {
+        g.save(); g.strokeStyle = P.graphite; g.lineWidth = 1.5 * T.d; g.setLineDash([2 * T.d, 5 * T.d]); g.beginPath(); HIST.forEach((q, i) => i ? g.lineTo(T.X(q[0]), T.Y(q[1])) : g.moveTo(T.X(q[0]), T.Y(q[1]))); g.stroke(); g.restore();
+        if (k < 4) label(g, T, 2.75, 1.7, 'saw the mug here', P.graphite, 'center', 11);
+        flag(g, T, D.x, D.y, P.good); label(g, T, D.x, D.y - 0.32, 'goal: coffee table', P.good, 'center', 11);
+        if (k === 1 && !m.ideal) {
+          drawRobot(g, T, { x: P1.x, y: P1.y, h: H1 + m.s1 * m.e1 * D2R * ease(t) }, { ghost: true, cone: false, bodyCol: P.l1 });
+          if (t > 0.5) label(g, T, P1.x + 0.7, P1.y + 0.55, `thinks it faces ${fmt(m.e1, 0)}° off`, P.l1, 'left', 12);
+        }
+        if (k >= 2 && k <= 3) {
+          const target = TH + m.s2 * m.e2 * D2R, dM = Math.hypot(MUG.x - P1.x, MUG.y - P1.y);
+          if (k === 3 || t > 0.6) {
+            arrowTo(g, T, P1.x, P1.y, MUG.x, MUG.y, P.good, 1.6, [5, 4]);
+            const bx = clamp(P1.x + dM * Math.cos(target), -4.8, 4.8), by = clamp(P1.y + dM * Math.sin(target), -2.8, 2.8);
+            if (!m.ideal) { g.save(); g.strokeStyle = P.accent; g.lineWidth = 2 * T.d; g.setLineDash([4 * T.d, 3 * T.d]); g.beginPath(); g.arc(T.X(bx), T.Y(by), 0.18 * T.s, 0, TAU); g.stroke(); g.restore(); label(g, T, bx, by + 0.36, 'believes the mug is here', P['accent-ink'], 'center', 11); }
+            label(g, T, P1.x + 0.15, P1.y - 0.55, m.ideal ? 'faces the mug' : `${fmt(m.e2, 0)}° off`, m.ideal ? P.good : P['accent-ink'], 'left', 12);
+          }
+        }
+        if (k === 3) {
+          const n = clamp(t * 1.4, 0, 1);
+          g.save(); g.strokeStyle = P.l3; g.lineWidth = 2.2 * T.d; g.beginPath(); ROUTE.forEach((q, i) => i ? g.lineTo(T.X(q[0]), T.Y(q[1])) : g.moveTo(T.X(q[0]), T.Y(q[1]))); withAlpha(g, n, () => g.stroke()); g.restore();
+          const pts = endpoints(), shown = Math.round(clamp((t - 0.3) / 0.6, 0, 1) * 10);
+          pts.slice(0, shown).forEach(q => { g.beginPath(); g.arc(T.X(q.x), T.Y(q.y), 6 * T.d, 0, TAU); g.lineWidth = 2 * T.d; g.strokeStyle = q.ok ? P.good : P.l3; if (q.ok) { g.fillStyle = P.good; g.fill(); } g.stroke(); });
+          if (shown) label(g, T, C.x, C.y + 0.42, 'real endpoint', P.good, 'center', 11);
+        }
+        if (k === 4) {
+          const pts = moves(), upto = Math.min(10, Math.ceil(t * 10));
+          g.save(); g.lineWidth = 2.2 * T.d;
+          for (let i = 1; i <= upto; i++) { g.strokeStyle = pts[i].prog ? P.l4 : P.graphite; g.beginPath(); g.moveTo(T.X(pts[i - 1].x), T.Y(pts[i - 1].y)); g.lineTo(T.X(pts[i].x), T.Y(pts[i].y)); g.stroke(); }
+          g.restore();
+          if (t >= 1) { const e = pts[10], left = Math.hypot(e.x - D.x, e.y - D.y); label(g, T, e.x, e.y + 0.42, left < 0.1 ? 'delivered' : `${fmt(left, 1)} m still to go`, left < 0.1 ? P.good : P['accent-ink'], 'center', 12); }
+        }
+      }
+    });
+    renderView(view, pose.x, pose.y, pose.h);
+    let hud = 'robot camera';
+    if (k === 2 || k === 3) { const vis = RAY.render(pose.x, pose.y, pose.h, 'rgb'); hud = vis.has(byName.mug.id) ? 'robot camera · mug in view' : 'robot camera · no mug in sight'; renderView(view, pose.x, pose.y, pose.h); }
+    if (k === 4) hud = 'robot camera · carrying the mug';
+    $('#mViewHud').textContent = hud;
+    $$('#mSteps .m-step').forEach(el => el.classList.toggle('cur', +el.dataset.k === k));
+  }
+  function setOutcome(k) { const [c, s] = outcome(k); M.outcomes[k - 1] = c; const el = $('#mo' + k); el.className = 'out ' + c; el.textContent = (c === 'ok' ? '✓ ' : c === 'ko' ? '✕ ' : '◐ ') + s; }
+  function stepLog(k) {
+    const m = MB[M.m], n3 = Math.round(m.r3 * 10), n4 = Math.round(m.p4 / 10);
+    if (k === 1) logLine('L1', m.ideal ? 'pose recovered exactly' : `pose AUC@30 ${fmt(m.auc, 3)} → error ≥ ${fmt(m.e1, 1)}° (errors capped at 30°)`);
+    if (k === 2) logLine('L2', `turn to remembered mug: true ${compass(TH)}°, believed ${compass(TH + m.s2 * m.e2 * D2R)}° → <span class="${m.e2 < 36 ? 'ok' : 'ko'}">${m.e2 < 36 ? 'mug in view' : 'error ' + fmt(m.e2, 1) + '° > 36°, mug out of view'}</span>`);
+    if (k === 3) logLine('L3', `path integration R@1 ${fmt(m.r3, 3)} → <span class="${m.r3 >= 0.5 ? 'ok' : 'ko'}">${n3}/10 imagined endpoints correct</span>`);
+    if (k === 4) logLine('L4', `positive progress ${fmt(m.p4, 1)}% → <span class="${m.p4 >= 90 ? 'ok' : 'ko'}">${n4}/10 moves get closer</span>`);
+  }
+  function banner() {
+    const b = $('#mBanner'), m = MB[M.m];
+    if (M.step === 0) { b.className = 'm-banner'; b.textContent = 'Ready: the mug is behind the robot.'; return; }
+    const done = M.outcomes.filter(Boolean).length, firstKo = M.outcomes.findIndex(o => o === 'ko');
+    if (done < 4) { b.className = 'm-banner'; b.textContent = `Step ${M.step} of 4 · ${STEPS[M.step - 1].title}`; return; }
+    if (firstKo < 0 && m.ideal) { b.className = 'm-banner good'; b.textContent = 'Mug delivered.'; }
+    else { b.className = 'm-banner bad'; b.textContent = `Errand fails at step ${firstKo + 1}: ${STEPS[firstKo].title.toLowerCase()}.`; }
+  }
+  function summary() {
+    const m = MB[M.m];
+    $('#mSummary').innerHTML = `<div><p class="eyebrow">${M.m === 'Ideal' ? 'target' : FAMILY[M.m]}</p><h3>${M.m === 'Ideal' ? 'An ideal spatial state' : M.m}</h3><p>${m.txt}</p></div><div><h3>Every backbone trips, each in its own place</h3><p>DINOv2 barely knows how it moved. Fast3R can't imagine the route. V-JEPA 2 is middling everywhere. Wan2.1 makes progress on only half its moves. And on the step all four need, turning back to the mug, every average error is wider than half the field of view.</p></div>`;
+  }
+  function refreshStatic() { for (let k = 1; k <= 4; k++) gauge(k); units(); summary(); }
+  function reset() {
+    cancelAnimationFrame(M.raf); M.playing = false; M.step = 0; M.t = 1; M.outcomes = [null, null, null, null]; M.log = []; M.clock = 0;
+    for (let k = 1; k <= 4; k++) { $('#mo' + k).textContent = ''; $('#mo' + k).className = 'out'; }
+    $('#mLog').innerHTML = ''; logLine('·', `robot stopped in the living room, facing the window · backbone ${M.m}`);
+    $('#mRun').textContent = 'Run the errand'; banner(); draw();
+  }
+  function play(fromStep, single) {
+    cancelAnimationFrame(M.raf); M.playing = true; M.step = fromStep; M.t = 0; $('#mRun').textContent = 'Running…';
+    for (let k = 1; k < fromStep; k++) if (!M.outcomes[k - 1]) { setOutcome(k); }
+    const dur = [0, 2200, 2600, 3000, 4200];
+    let last = performance.now(), hold = 0;
+    banner();
+    const tick = now => {
+      const dt = (now - last) / 1000; last = now; M.clock += dt;
+      if (hold > 0) { hold -= dt; if (hold <= 0) { if (single || M.step >= 4) { M.playing = false; $('#mRun').textContent = 'Run again'; banner(); return; } M.step += 1; M.t = 0; banner(); } M.raf = requestAnimationFrame(tick); return; }
+      M.t = REDUCED ? 1 : clamp(M.t + dt * 1000 / dur[M.step], 0, 1); draw();
+      if (M.t >= 1) { stepLog(M.step); setOutcome(M.step); banner(); hold = REDUCED ? 0.01 : 0.9; }
+      M.raf = requestAnimationFrame(tick);
+    };
+    M.raf = requestAnimationFrame(tick);
+  }
+  chips.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; M.m = b.dataset.m; $$('#mModels button').forEach(x => x.setAttribute('aria-pressed', x === b)); refreshStatic(); reset(); });
+  $('#mRun').addEventListener('click', () => { if (M.playing) return; reset(); play(1, false); });
+  $('#mReset').addEventListener('click', reset);
+  $$('#mSteps .m-step').forEach(el => {
+    const go = () => { if (M.playing) return; const k = +el.dataset.k; if (M.step === 0) { M.log = []; M.clock = 0; } play(k, true); };
+    el.addEventListener('click', go); el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { go(); e.preventDefault(); } });
+  });
+  redraw.add(() => { refreshStatic(); draw(); }); onResize(map, draw); onResize(view, draw);
+  refreshStatic(); reset();
+});
+
+/* ================================================================ controls */
+safe('controls', () => {
+  const C1 = { k: 0 };
+  function copyChart() {
+    const s = $('#copySvg'); s.innerHTML = '';
+    const base = 190, H = 150 / 22, X0 = 70;
+    svg('line', { x1: 40, y1: base, x2: 500, y2: base, stroke: P.graphite, 'stroke-width': 1.5 }, s);
+    [0, 5, 10, 15, 20].forEach(v => { svg('line', { x1: 40, y1: base - v * H, x2: 500, y2: base - v * H, stroke: P.hair, 'stroke-width': 1 }, s); txt(s, 34, base - v * H + 4, v + '%', { 'text-anchor': 'end', 'font-size': 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' }); });
+    COPY.forEach((c, i) => {
+      const x = X0 + i * 230, vals = [c.pred, c.copy], labs = ['learned', 'copy'];
+      vals.forEach((v, j) => {
+        const on = j === C1.k, bx = x + j * 86;
+        svg('rect', { x: bx, y: base - v * H, width: 70, height: v * H, rx: 4, fill: j === 0 ? P.l3 : P.graphite, opacity: on ? 0.9 : 0.25, stroke: on ? P.ink : 'none', 'stroke-width': on ? 1.5 : 0 }, s);
+        txt(s, bx + 35, base - v * H - 6, fmt(v, 1) + '%', { 'text-anchor': 'middle', 'font-size': 13, 'font-weight': on ? 700 : 400, fill: P.ink, 'font-family': 'IBM Plex Mono, monospace' });
+        txt(s, bx + 35, base + 16, labs[j], { 'text-anchor': 'middle', 'font-size': 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+      });
+      txt(s, x + 78, 20, c.m, { 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 700, fill: P.ink, 'font-family': 'Archivo, sans-serif' });
+    });
+    $('#copySay').textContent = C1.k === 0 ? 'A one-step predictor reads the current features plus the camera motion. Global retrieval R@1: Wan2.1 15.2%, V-JEPA 2 13.0%.' : 'Copying the last feature, with no prediction at all, gives Wan2.1 12.0% but V-JEPA 2 19.9%: for V-JEPA 2 the copy beats the learned predictor.';
+  }
+  $$('#copySeg button').forEach(b => b.addEventListener('click', () => { C1.k = +b.dataset.k; $$('#copySeg button').forEach(x => x.setAttribute('aria-pressed', x === b)); copyChart(); }));
+  const C2 = { k: 'motion' };
+  function ciChart() {
+    const s = $('#ciSvg'); s.innerHTML = '';
+    const rows = C2.k === 'motion' ? MOTION_GAIN : HISTORY_BENEFIT, lo = -12, hi = 28, X = v => 150 + (v - lo) / (hi - lo) * 350;
+    for (let v = -10; v <= 25; v += 5) { svg('line', { x1: X(v), y1: 16, x2: X(v), y2: 186, stroke: v === 0 ? P.graphite : P.hair, 'stroke-width': v === 0 ? 1.5 : 1, 'stroke-dasharray': v === 0 ? '4 3' : '' }, s); txt(s, X(v), 204, (v > 0 ? '+' : '') + v, { 'text-anchor': 'middle', 'font-size': 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' }); }
+    rows.forEach((r, i) => {
+      const y = 38 + i * 42, cross = r[2] < 0 && r[3] > 0, col = cross ? P.graphite : C2.k === 'motion' ? P.l3 : P.l2;
+      txt(s, 136, y + 5, r[0], { 'text-anchor': 'end', 'font-size': 14, 'font-weight': 600, fill: P.ink, 'font-family': 'Archivo, sans-serif' });
+      svg('rect', { x: Math.min(X(0), X(r[1])), y: y - 9, width: Math.abs(X(r[1]) - X(0)), height: 18, rx: 3, fill: col, opacity: 0.75 }, s);
+      svg('line', { x1: X(r[2]), y1: y, x2: X(r[3]), y2: y, stroke: P.ink, 'stroke-width': 2 }, s);
+      [r[2], r[3]].forEach(v => svg('line', { x1: X(v), y1: y - 6, x2: X(v), y2: y + 6, stroke: P.ink, 'stroke-width': 2 }, s));
+      txt(s, X(r[3]) + 6, y + 4, (r[1] > 0 ? '+' : '−') + fmt(Math.abs(r[1]), 1) + (C2.k === 'motion' ? ' pts' : '°') + (cross ? ' (crosses 0)' : ''), { 'font-size': 13, fill: cross ? P.graphite : P.ink, 'font-family': 'IBM Plex Mono, monospace' });
+    });
+    $('#ciSay').textContent = C2.k === 'motion' ? 'Retrieval with the correct camera motion minus a wrong motion of matched displacement. It helps V-JEPA 2 (+18.8 points), VideoMAE and CogVideoX; for Wan2.1 the interval crosses zero.' : 'Error reduction when the probe sees the full video rather than the final frame, with the same object query. History helps V-JEPA 2 and Wan2.1 by about 10°, but not reliably VideoMAE, the most accurate localizer.';
+  }
+  $$('#ciSeg button').forEach(b => b.addEventListener('click', () => { C2.k = b.dataset.k; $$('#ciSeg button').forEach(x => x.setAttribute('aria-pressed', x === b)); ciChart(); }));
+  const C3 = { k: 'same' };
+  function ifChart() {
+    const s = $('#ifSvg'); s.innerHTML = '';
+    const lo = 0.17, hi = 0.30, X = v => 30 + (v - lo) / (hi - lo) * 470, y = 120;
+    svg('line', { x1: 30, y1: y, x2: 500, y2: y, stroke: P.graphite, 'stroke-width': 2 }, s);
+    [0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 0.30].forEach(v => { svg('line', { x1: X(v), y1: y - 4, x2: X(v), y2: y + 4, stroke: P.graphite }, s); txt(s, X(v), y + 20, fmt(v, 2), { 'text-anchor': 'middle', 'font-size': 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' }); });
+    txt(s, 265, y + 40, 'normalized depth error at h = 2 (lower is better)', { 'text-anchor': 'middle', 'font-size': 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    const pts = [['real future features', IFACE.real[0], P.l1, 1, true, 'start'], ['layout prior, ignores input', IFACE.prior[0], P.l4, 3, true, 'middle'], ['copied context', IFACE.copy[0], P.graphite, 1, true, 'end'], ['predictions, same reader', IFACE.same[0], P.l3, 2, C3.k === 'same', 'start'], ['predictions, new reader', IFACE.fresh[0], P.cool, 2, C3.k === 'new', 'end']];
+    pts.forEach(([name, v, col, lvl, on, anchor]) => {
+      const yy = y - (lvl === 1 ? 30 : lvl === 2 ? 58 : 86);
+      svg('line', { x1: X(v), y1: y, x2: X(v), y2: yy + 6, stroke: col, 'stroke-width': on ? 2 : 1, opacity: on ? 1 : 0.35 }, s);
+      svg('circle', { cx: X(v), cy: y, r: on ? 7 : 4, fill: col, opacity: on ? 1 : 0.4 }, s);
+      const dx = anchor === 'start' ? -4 : anchor === 'end' ? 4 : 0;
+      txt(s, X(v) + dx, yy, `${name} ${fmt(v, 3)}`, { 'text-anchor': anchor, 'font-size': 14, 'font-weight': on ? 700 : 400, fill: col, opacity: on ? 1 : 0.5, 'font-family': 'Archivo, sans-serif' });
+    });
+    $('#ifSay').textContent = C3.k === 'same' ? 'A depth reader trained on real future features reaches 0.182. Fed V-JEPA 2’s own predictions, the same reader rises to 0.246, slightly worse than a layout prior that ignores the input (0.241).' : 'An equal-capacity reader retrained on the predictions gets 0.223: better than the prior, so some geometry survives, but short of real features. Prediction changes the readout interface.';
+  }
+  $$('#ifSeg button').forEach(b => b.addEventListener('click', () => { C3.k = b.dataset.k; $$('#ifSeg button').forEach(x => x.setAttribute('aria-pressed', x === b)); ifChart(); }));
+  const C4 = { k: 0, ang: 0, raf: 0 };
+  function goalChart() {
+    const s = $('#goalSvg'); s.innerHTML = '';
+    const cx = 96, cy = 112, r = 78;
+    svg('circle', { cx, cy, r, fill: P['paper-2'], stroke: P.hair, 'stroke-width': 1.5 }, s);
+    for (let a = 0; a < 360; a += 30) svg('line', { x1: cx + (r - 8) * Math.sin(a * D2R), y1: cy - (r - 8) * Math.cos(a * D2R), x2: cx + r * Math.sin(a * D2R), y2: cy - r * Math.cos(a * D2R), stroke: P.graphite }, s);
+    const a = C4.ang * D2R;
+    svg('line', { x1: cx, y1: cy, x2: cx + (r - 12) * Math.sin(0), y2: cy - (r - 12), stroke: P.graphite, 'stroke-width': 2, 'stroke-dasharray': '3 3', opacity: C4.k ? 0.9 : 0 }, s);
+    svg('path', { d: `M${cx + (r - 10) * Math.sin(a)} ${cy - (r - 10) * Math.cos(a)} L${cx + 6 * Math.cos(a)} ${cy + 6 * Math.sin(a)} L${cx - 6 * Math.cos(a)} ${cy - 6 * Math.sin(a)} Z`, fill: P.l4 }, s);
+    svg('circle', { cx, cy, r: 5, fill: P.ink }, s);
+    txt(s, cx, cy + r + 22, C4.k ? 'predicted move turns 30–46°' : 'predicted move, correct goal', { 'text-anchor': 'middle', 'font-size': 13, fill: P['ink-2'], 'font-family': 'IBM Plex Mono, monospace' });
+    const X0 = 250, W = 230, bh = 20;
+    txt(s, X0, 22, 'positive progress (% of trajectories)', { 'font-size': 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    ACT_MODELS.forEach((m, i) => {
+      const y = 46 + i * 44, full = CONT_PROGRESS[i], shuf = full - CONT_SHUFFLE[i][0], v = C4.k ? shuf : full;
+      txt(s, X0, y, m, { 'font-size': 14, 'font-weight': 600, fill: P.ink, 'font-family': 'Archivo, sans-serif' });
+      svg('rect', { x: X0, y: y + 6, width: W, height: bh, rx: 4, fill: P['hair-2'] }, s);
+      svg('rect', { x: X0, y: y + 6, width: W * v / 100, height: bh, rx: 4, fill: P.l4, opacity: 0.85 }, s);
+      svg('line', { x1: X0 + W * 0.5, y1: y + 2, x2: X0 + W * 0.5, y2: y + 30, stroke: P.graphite, 'stroke-dasharray': '2 3' }, s);
+      txt(s, X0 + W * v / 100 + 6, y + 21, fmt(v, 1) + '%', { 'font-size': 14, fill: P.ink, 'font-family': 'IBM Plex Mono, monospace' });
+    });
+    $('#goalSay').textContent = C4.k ? 'With a goal from another scene, matched for difficulty, the predicted direction swings by 29.8–45.6°. Yet progress barely moves: correct minus shuffled ranges from −2.3 to +1.2 points, and every 95% interval contains zero.' : 'With the correct goal, the full readout makes positive progress on 50.2–59.8% of trajectories. A version that never sees the goal does as well or better.';
+  }
+  $$('#goalSeg button').forEach(b => b.addEventListener('click', () => {
+    C4.k = +b.dataset.k; $$('#goalSeg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    const a0 = C4.ang, a1 = C4.k ? 38 : 0, t0 = performance.now(), dur = REDUCED ? 1 : 700; cancelAnimationFrame(C4.raf);
+    const step = now => { const t = ease(clamp((now - t0) / dur, 0, 1)); C4.ang = lerp(a0, a1, t); goalChart(); if (t < 1) C4.raf = requestAnimationFrame(step); };
+    C4.raf = requestAnimationFrame(step);
+  }));
+  const all = () => { copyChart(); ciChart(); ifChart(); goalChart(); };
+  all(); redraw.add(all);
+});
+
+/* ================================================================ video captions (cues embedded in the page) */
+safe('captions', () => {
+  const v = $('video'), data = JSON.parse($('#capdata').textContent);
+  if (!v.addTextTrack || typeof VTTCue === 'undefined') return;
+  const tr = v.addTextTrack('captions', 'English', 'en');
+  for (const [s, e, t] of data) tr.addCue(new VTTCue(s, e, t));
+  tr.mode = 'showing';
+});
+
+/* ================================================================ nav, progress, bibtex */
+safe('nav', () => {
+  const bar = $('#progress'), links = $$('.nav a'), secs = links.map(a => $(a.getAttribute('href')));
+  let ticking = false;
+  const upd = () => { ticking = false; const h = document.documentElement.scrollHeight - innerHeight; bar.style.width = (h > 0 ? scrollY / h * 100 : 0) + '%'; let cur = -1; secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top < innerHeight * 0.35) cur = i; }); links.forEach((a, i) => a.classList.toggle('on', i === cur)); };
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(upd); } }, { passive: true });
+  upd();
+  $('#copyBib').addEventListener('click', () => {
+    const t = $('#bib').textContent, b = $('#copyBib');
+    const done = ok => { b.textContent = ok ? 'Copied' : 'Select and copy'; setTimeout(() => { b.textContent = 'Copy'; }, 1800); };
+    try { navigator.clipboard.writeText(t).then(() => done(true), () => { selectBib(); done(false); }); } catch (e) { selectBib(); done(false); }
+  });
+  function selectBib() { const r = document.createRange(); r.selectNodeContents($('#bib')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+});
+})();
+</script>
+</body>
+</html>
