@@ -33,9 +33,9 @@ robot and errand are illustrations; the page says so where they appear.
 
 ## Before going public
 
-- Authors and affiliations are filled in (hero, footer, BibTeX). Still to do: paper and code links in
+- Authors, affiliations and the code link are filled in. Still to do: the paper link in
   the hero meta line.
-- Add paper and code links to the hero button row (`.btnrow` under `.verdict`).
+- Add a Paper button next to Code in the hero button row (`.btnrow` under `.verdict`).
 
 ## Deployment
 

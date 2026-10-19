@@ -52,7 +52,7 @@ button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .wrap{max-width:var(--maxw);margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.015em;color:var(--ink)}
-h1{font-size:clamp(2.5rem,5.4vw,4.7rem);font-weight:800;font-stretch:114%;line-height:.94}
+h1{font-size:clamp(2rem,3.9vw,3.45rem);font-weight:800;font-stretch:108%;line-height:1.02}
 h2{font-size:clamp(1.85rem,3.7vw,2.95rem);font-weight:760;font-stretch:114%;line-height:1.02}
 h3{font-size:1.15rem;font-weight:700;font-stretch:106%;line-height:1.22}
 p{margin:0}
@@ -97,7 +97,6 @@ p{margin:0}
 .hero-grid{display:grid;grid-template-columns:minmax(0,11fr) minmax(0,13fr);gap:clamp(24px,4vw,56px);align-items:center}
 .hero-copy{display:grid;gap:20px;min-width:0}
 .hero h1 .q{color:var(--accent)}
-.subtitle{font-style:italic;font-size:clamp(1.12rem,1.7vw,1.4rem);line-height:1.35;color:var(--ink-2);max-width:30ch}
 .verdict{display:grid;gap:6px;border-left:2px solid var(--accent);padding-left:14px;font-size:1.04rem;max-width:46ch}
 .meta{font-size:.86rem;color:var(--graphite)}
 .authors{display:grid;gap:6px;max-width:52ch}
@@ -329,8 +328,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <p class="eyebrow">Frozen-feature probing · 10 models · 4 levels</p>
-      <h1>Out of sight, <span class="q">out of mind?</span></h1>
-      <p class="subtitle">Probing Spatial State Representations in Visual Foundation Models</p>
+      <h1>Probing <span class="q">Spatial State</span> Representations in Visual Foundation Models</h1>
       <div class="authors">
         <p class="names"><span>Baiqiao Yin<sup>1,2</sup></span>, <span>Zhongang Cai<sup>2</sup></span>, <span>Ruisi Wang<sup>2</sup></span>, <span>Qiwei Liang<sup>3</sup></span>, <span>Lei Yang<sup>4</sup></span>, <span>Ziwei Liu<sup>2</sup></span></p>
         <p class="affils"><span><sup>1</sup>New York University</span><span><sup>2</sup>Nanyang Technological University</span><span><sup>3</sup>The Hong Kong University of Science and Technology</span><span><sup>4</sup>The Chinese University of Hong Kong</span></p>
@@ -341,10 +339,11 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
       </div>
       <div class="btnrow">
         <a class="btn primary" href="#play">Point to the chair</a>
+        <a class="btn" href="https://github.com/yyyybq/Probing_Spatial_State_Release" target="_blank" rel="noopener"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M7 5 2 10l5 5M13 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Code</a>
         <a class="btn" href="#mission">Watch a robot try</a>
         <a class="btn" href="#video">3-minute video</a>
       </div>
-      <p class="meta">Under review. Links to the paper and code will be added here.</p>
+      <p class="meta">Under review. The paper link will be added here.</p>
     </div>
     <div class="hero-stage">
       <figure class="vf">
