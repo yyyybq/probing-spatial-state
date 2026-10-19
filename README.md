@@ -33,7 +33,8 @@ robot and errand are illustrations; the page says so where they appear.
 
 ## Before going public
 
-- Replace "Anonymous authors" and the meta line in the hero, the footer and the BibTeX entry.
+- Authors and affiliations are filled in (hero, footer, BibTeX). Still to do: paper and code links in
+  the hero meta line.
 - Add paper and code links to the hero button row (`.btnrow` under `.verdict`).
 
 ## Deployment
