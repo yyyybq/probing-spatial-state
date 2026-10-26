@@ -249,23 +249,26 @@ but it doesn't point the way.
 00:02:38.527 --> 00:02:41.317
 Goal sensitivity is not goal utility.
 
-00:02:42.218 --> 00:02:43.573
-So readable, used,
+00:02:42.203 --> 00:02:44.020
+Two chains link the levels:
 
-00:02:43.593 --> 00:02:45.883
-and useful are three different questions.
+00:02:44.040 --> 00:02:46.508
+camera pose feeds memory and action,
 
-00:02:45.903 --> 00:02:47.323
+00:02:46.528 --> 00:02:48.833
+while the visible scene feeds prediction.
+
+00:02:48.853 --> 00:02:50.273
 To judge whether a vision model
 
-00:02:47.343 --> 00:02:48.823
+00:02:50.293 --> 00:02:51.773
 holds a spatial state,
 
-00:02:48.843 --> 00:02:50.923
+00:02:51.793 --> 00:02:53.873
 don't just ask what can be decoded.
 
-00:02:50.943 --> 00:02:53.048
+00:02:53.893 --> 00:02:55.998
 Ask whether it can be kept beyond view,
 
-00:02:53.068 --> 00:02:55.673
+00:02:56.018 --> 00:02:58.623
 updated under motion, and used to act.

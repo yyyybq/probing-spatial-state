@@ -26,12 +26,15 @@ needs no `.vtt` request; `assets/promo.en.vtt` is kept for uploading the video e
    (80%, ties shown as =).
 6. Robot errand: one task, four key operations (localize, turn back to the mug, plan the trip,
    carry it). Each backbone replays its measured numbers; the ideal state shows a success.
+   Below it, "Two ingredient chains" (paper Sec. 5.6): pose -> persistence -> action and
+   visible scene -> prediction, with a toggle for each chain and its evidence.
 7. Controls: copy vs learned prediction, motion and history effects with 95% intervals,
    reading V-JEPA 2's own predictions, goal shuffle.
 8. Video, takeaway, abstract, BibTeX.
 
 All numbers come from the paper (same values as `../video_3b1b/results_data.py`; snapshot
-`release_polished.tex`, figures `v2-20261026-paper`). The apartment, robot and errand are
+`release_polished.tex` of 2026-10-26 noon, figures `v2-20261026-paper`). Display type is Archivo at
+94-98% width (`font-stretch`), narrower than its default so headings read taller. The apartment, robot and errand are
 illustrations; the page says so where they appear.
 
 ## Before going public

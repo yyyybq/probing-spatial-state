@@ -48,7 +48,7 @@
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;font-optical-sizing:auto}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;font-optical-sizing:auto;font-stretch:98%}
 img,video,canvas,svg{max-width:100%}
 img,video,canvas{display:block}
 [hidden]{display:none!important}
@@ -57,9 +57,9 @@ button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .wrap{max-width:var(--maxw);margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.015em;color:var(--ink)}
-h1{font-size:clamp(2rem,3.9vw,3.45rem);font-weight:800;font-stretch:108%;line-height:1.02}
-h2{font-size:clamp(1.85rem,3.7vw,2.95rem);font-weight:760;font-stretch:114%;line-height:1.02}
-h3{font-size:1.15rem;font-weight:700;font-stretch:106%;line-height:1.22}
+h1{font-size:clamp(2rem,3.9vw,3.45rem);font-weight:800;font-stretch:94%;line-height:1.02}
+h2{font-size:clamp(1.85rem,3.7vw,2.95rem);font-weight:760;font-stretch:94%;line-height:1.02}
+h3{font-size:1.15rem;font-weight:700;font-stretch:96%;line-height:1.22}
 p{margin:0}
 .eyebrow{font-family:var(--f-mono);font-size:.76rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink)}
 .lede{font-size:1.15rem;color:var(--ink-2);max-width:64ch}
@@ -70,7 +70,7 @@ p{margin:0}
 .band.alt{background:var(--paper-2)}
 .panel{background:var(--panel);border:1px solid var(--hair);border-radius:14px;padding:clamp(16px,2.2vw,24px);min-width:0}
 .btnrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:.95rem;font-weight:620;font-stretch:104%;padding:10px 16px;border-radius:999px;border:1px solid var(--hair);background:var(--panel);color:var(--ink);text-decoration:none;cursor:pointer;line-height:1.1}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:.95rem;font-weight:620;font-stretch:98%;padding:10px 16px;border-radius:999px;border:1px solid var(--hair);background:var(--panel);color:var(--ink);text-decoration:none;cursor:pointer;line-height:1.1}
 .btn:hover{border-color:var(--graphite)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .btn.primary:hover{filter:brightness(1.06)}
@@ -85,7 +85,7 @@ p{margin:0}
 /* ---------- top bar ---------- */
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--paper);background:color-mix(in srgb,var(--paper) 88%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--hair)}
 .topbar .wrap{display:flex;align-items:center;gap:16px;height:56px;position:relative}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:760;font-stretch:112%;font-size:1.02rem;color:var(--ink);text-decoration:none;white-space:nowrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:760;font-stretch:98%;font-size:1.02rem;color:var(--ink);text-decoration:none;white-space:nowrap}
 .brand svg{width:26px;height:26px;flex:none}
 .nav{display:flex;gap:2px;margin-left:auto;min-width:0;overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
@@ -105,7 +105,7 @@ p{margin:0}
 .verdict{display:grid;gap:6px;border-left:2px solid var(--accent);padding-left:14px;font-size:1.04rem;max-width:46ch}
 .meta{font-size:.86rem;color:var(--graphite)}
 .authors{display:grid;gap:6px;max-width:52ch}
-.authors .names{font-family:var(--f-display);font-weight:620;font-stretch:104%;font-size:1.02rem;line-height:1.5;color:var(--ink)}
+.authors .names{font-family:var(--f-display);font-weight:620;font-stretch:98%;font-size:1.02rem;line-height:1.5;color:var(--ink)}
 .authors sup{font-size:.68em;line-height:0;color:var(--accent-ink);margin-left:1px}
 .authors .names>span,.authors .affils>span{white-space:nowrap}
 .authors .affils{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:.84rem;line-height:1.45;color:var(--graphite)}
@@ -137,12 +137,12 @@ p{margin:0}
 .game{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(18px,3vw,32px);align-items:start}
 .game-stage{display:grid;gap:12px;min-width:0}
 .game-side{display:grid;gap:16px;align-content:start}
-.prompt{font-family:var(--f-display);font-weight:650;font-size:1.12rem;font-stretch:104%;line-height:1.3}
+.prompt{font-family:var(--f-display);font-weight:650;font-size:1.12rem;font-stretch:98%;line-height:1.3}
 .dialwrap{display:grid;place-items:center}
 #dial{width:min(100%,330px);height:auto;touch-action:none;cursor:crosshair;user-select:none}
 #dial.off{cursor:default;opacity:.55}
 .game-result{display:grid;gap:8px;min-height:3.2em}
-.bigerr{font-family:var(--f-display);font-weight:800;font-stretch:118%;font-size:2.6rem;line-height:1;color:var(--accent)}
+.bigerr{font-family:var(--f-display);font-weight:800;font-stretch:96%;font-size:2.6rem;line-height:1;color:var(--accent)}
 .rounds{display:flex;flex-wrap:wrap;gap:6px}
 .rounds span{font-family:var(--f-mono);font-size:.78rem;padding:3px 8px;border-radius:999px;background:var(--paper-2);border:1px solid var(--hair)}
 .countdown{position:absolute;right:16px;bottom:16px;width:52px;height:52px;display:grid;place-items:center;font:800 1.3rem var(--f-display);color:var(--on-accent);background:var(--accent);border-radius:50%;box-shadow:var(--shadow)}
@@ -219,14 +219,14 @@ select{font-family:var(--f-display);font-size:.9rem;padding:7px 10px;border-radi
 .pbar{display:grid;grid-template-columns:7.2em minmax(0,1fr) 3.4em;gap:8px;align-items:center;font-size:.82rem}
 .pbar .lab{font-family:var(--f-display);font-weight:600;color:var(--ink-2);font-size:.8rem;line-height:1.1}
 .pbar .track{height:10px;border-radius:5px;background:var(--hair-2);overflow:hidden}
-.pbar .fill{height:100%;border-radius:5px;background:var(--accent);transition:width .45s ease}
+.pbar .fill{display:block;height:100%;border-radius:5px;background:var(--accent);transition:width .45s ease}
 .pbar .rk{font-family:var(--f-mono);font-size:.74rem;color:var(--graphite);text-align:right}
 .insights{margin-top:clamp(16px,2.5vw,24px);display:grid;gap:12px}
 .ins-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .pager{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.8rem;color:var(--graphite)}
 .pager button{width:34px;height:34px;border-radius:50%;border:1px solid var(--hair);background:var(--panel);cursor:pointer;font-size:1rem}
 .ins-body{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start}
-.ins-num{font-family:var(--f-display);font-weight:800;font-stretch:118%;font-size:2.3rem;line-height:1;color:var(--accent)}
+.ins-num{font-family:var(--f-display);font-weight:800;font-stretch:96%;font-size:2.3rem;line-height:1;color:var(--accent)}
 .ins-body p{max-width:70ch}
 @media (max-width:1120px){.results-grid{grid-template-columns:minmax(0,1fr)}}
 
@@ -243,7 +243,7 @@ select{font-family:var(--f-display);font-size:.9rem;padding:7px 10px;border-radi
 .prefix .c{font-family:var(--f-mono);font-weight:600;text-align:center;padding:6px 0;border-radius:6px;font-size:.92rem;cursor:default}
 .prefix .c.col-hl{outline:2px solid var(--ink);outline-offset:-1px}
 .stat{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.stat .big{font-family:var(--f-display);font-weight:800;font-stretch:120%;font-size:3.4rem;line-height:.9;color:var(--accent)}
+.stat .big{font-family:var(--f-display);font-weight:800;font-stretch:96%;font-size:3.4rem;line-height:.9;color:var(--accent)}
 @media (max-width:980px){.two{grid-template-columns:minmax(0,1fr)}}
 
 /* ---------- mission ---------- */
@@ -281,6 +281,21 @@ select{font-family:var(--f-display);font-size:.9rem;padding:7px 10px;border-radi
 .units i.on{background:var(--accent)}
 .m-summary{margin-top:clamp(16px,2.5vw,24px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
 .m-summary h3{margin-bottom:6px}
+.chains{margin-top:clamp(16px,2.5vw,24px)}
+.chains-head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;justify-content:space-between;margin-bottom:10px}
+.chains-head h3{margin-top:4px}
+.chain{display:flex;align-items:stretch;gap:6px;padding:8px;border-radius:16px;cursor:pointer;transition:opacity .25s,background .25s}
+.chain:hover{background:var(--paper-2)}
+.chain.dim{opacity:.35}
+.cnode{flex:1 1 0;min-width:0;display:flex;gap:10px;align-items:center;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 12%,var(--panel));border-radius:14px;padding:10px 12px;font-family:var(--f-display);font-weight:650;font-size:1rem;line-height:1.2;color:var(--ink)}
+.cnode .lv{background:var(--c)}
+.cnode small{display:block;font-family:var(--f-mono);font-weight:400;font-size:.68rem;color:var(--graphite);margin-top:3px}
+.carrow{flex:0 0 120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:var(--f-mono);font-size:.7rem;line-height:1.25;color:var(--graphite)}
+.carrow b{font-size:1.5rem;line-height:1;color:var(--ink-2);font-family:var(--f-display)}
+.chain .gap{visibility:hidden}
+.cross{font-family:var(--f-mono);font-size:.74rem;color:var(--graphite);margin:4px 8px}
+#chainSay{margin-top:10px;color:var(--ink-2)}
+@media (max-width:760px){.chain{flex-direction:column}.carrow{flex:none;padding:4px 0}.carrow b{transform:rotate(90deg)}.chain .gap{display:none}}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font-family:var(--f-display);font-weight:640;font-size:.9rem;padding:8px 14px;border-radius:999px;border:1px solid var(--hair);background:var(--panel);cursor:pointer;color:var(--ink)}
 .chips button small{font-family:var(--f-mono);font-weight:400;color:var(--graphite);margin-left:4px;font-size:.7rem}
@@ -301,7 +316,7 @@ select{font-family:var(--f-display);font-size:.9rem;padding:7px 10px;border-radi
 .videofig video{width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;border:1px solid var(--hair);background:#0e1117}
 .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
 .three .panel{display:grid;gap:8px;align-content:start}
-.three .q{font-family:var(--f-display);font-weight:800;font-stretch:118%;font-size:1.9rem;line-height:1}
+.three .q{font-family:var(--f-display);font-weight:800;font-stretch:96%;font-size:1.9rem;line-height:1}
 .three .sub{font-family:var(--f-mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--graphite)}
 .takeaway{font-size:clamp(1.15rem,2vw,1.45rem);line-height:1.45;max-width:58ch;margin-block:clamp(24px,4vw,40px)}
 .takeaway b{font-weight:600;color:var(--accent-ink)}
@@ -408,7 +423,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     <div class="sechead">
       <p class="eyebrow">Four levels</p>
       <h2>What a spatial state lets you do</h2>
-      <p class="lede">We don't assume a 3D map, a scene graph or any particular architecture. A spatial state is characterized by what it supports, at four levels that climb from reading the scene to acting in it.</p>
+      <p class="lede">We don't assume a 3D map, a scene graph or any particular architecture. A spatial state is characterized by what it supports, at four levels ordered by what each demands beyond the current view: reading the scene, keeping what left it, anticipating what comes next, and acting on it.</p>
     </div>
     <div class="spread">
       <div class="panel">
@@ -490,7 +505,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
 
     <div class="protocol panel" id="protocol">
       <h3>How we ask a frozen model</h3>
-      <p class="note">The backbone never changes. A causal prefix of <span class="num">p</span> frames goes through it, we take the features of one layer and train a small probe to read out a spatial target. The future frame <span class="num">h</span> steps ahead is encoded on its own, so the answer can't leak into the input.</p>
+      <p class="note">The backbone never changes. A causal prefix of <span class="num">p</span> frames goes through it, we take the features of one layer and train a small probe to read out a spatial target. The future frame <span class="num">h</span> steps ahead is encoded on its own, so the answer can't leak into the input. Each prefix is encoded independently, so we test what its representation affords, not an online state.</p>
       <div class="ptools">
         <span class="lab">prefix p</span>
         <div class="seg" id="pSeg" role="group" aria-label="Prefix length"><button type="button" data-p="8" aria-pressed="false">8</button><button type="button" data-p="12" aria-pressed="false">12</button><button type="button" data-p="16" aria-pressed="true">16</button><button type="button" data-p="24" aria-pressed="false">24</button></div>
@@ -523,7 +538,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
           <select id="sortSel"></select>
         </div>
         <div class="heat-scroll"><div class="heat" id="heat"></div></div>
-        <p class="note" style="margin-top:10px">Cell shading follows the rank within each column (darker is better). Outlined cells are the best in the column. Values from the paper's main table, ScanNet++. † MiniMax-H3 prediction uses a different protocol (171 of 276 windows; direct prediction one frame ahead only) and is not ranked. ‡ CogVideoX instance identity averages two of the four prefixes.</p>
+        <p class="note" style="margin-top:10px">Cell shading follows the rank within each column (darker is better). Outlined cells are the best in the column. Values from the paper's main table, ScanNet++. † MiniMax-H3 prediction uses a different protocol (171 of 276 windows; direct prediction one frame ahead only) and is not ranked. ‡ CogVideoX instance identity averages prefixes 8 and 12.</p>
       </div>
       <aside class="panel profile" id="profile" aria-live="polite"></aside>
     </div>
@@ -589,6 +604,28 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     </div>
     <div class="panel m-summary" id="mSummary"></div>
     <p class="note" style="margin-top:14px">The robot, apartment and errand are an illustration, and no robot ran. Each step replays the number the paper measured for that backbone with frozen features and a trained probe on ScanNet++. A step counts as broken when that average misses what the step needs, such as bringing the mug back inside the 72° field of view.</p>
+    <div class="panel chains" id="chains">
+      <div class="chains-head">
+        <div><p class="eyebrow">How the four levels relate</p><h3>Two ingredient chains run through the levels</h3></div>
+        <div class="seg" id="chainSeg" role="group" aria-label="Highlight a chain"><button type="button" data-c="pose" aria-pressed="true">Pose chain</button><button type="button" data-c="scene" aria-pressed="false">Scene chain</button></div>
+      </div>
+      <div class="chain" data-c="pose" role="button" tabindex="0" aria-label="Pose chain: camera pose, object persistence, goal-directed action">
+        <div class="cnode" style="--c:var(--l1)"><span class="lv">L1</span><span>Camera pose<small>AUC@30</small></span></div>
+        <div class="carrow"><b>→</b><span>ρ 0.76 · same peak layer</span></div>
+        <div class="cnode" style="--c:var(--l2)"><span class="lv">L2</span><span>Object persistence<small>out-of-view localization</small></span></div>
+        <div class="carrow"><b>→</b><span>Fast3R leads both action tests</span></div>
+        <div class="cnode" style="--c:var(--l4)"><span class="lv">L4</span><span>Goal-directed action<small>choose a move · output a move</small></span></div>
+      </div>
+      <p class="cross">Object persistence and feature prediction rank models unrelatedly (|ρ| &lt; 0.1).</p>
+      <div class="chain" data-c="scene" role="button" tabindex="0" aria-label="Scene chain: visible scene, feature prediction">
+        <div class="cnode" style="--c:var(--l1)"><span class="lv">L1</span><span>Visible scene<small>depth · instance · view</small></span></div>
+        <div class="carrow"><b>→</b><span>ρ 0.52–0.63 (pose ≤ 0.25)</span></div>
+        <div class="cnode" style="--c:var(--l3)"><span class="lv">L3</span><span>Feature prediction<small>direct · path integration</small></span></div>
+        <div class="carrow gap" aria-hidden="true"></div>
+        <div class="cnode gap" aria-hidden="true"></div>
+      </div>
+      <p class="say" id="chainSay" aria-live="polite"></p>
+    </div>
   </div>
 </section>
 
@@ -638,7 +675,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
       <video controls playsinline preload="metadata" poster="assets/poster.jpg">
         <source src="assets/promo.mp4" type="video/mp4">
       </video>
-      <script type="application/json" id="capdata">[[0,0.65,"Turn your head,"],[0.67,2.21,"and the chair leaves your view."],[2.23,3.533,"But not your mind."],[3.553,4.903,"You still know where it is,"],[4.923,6.328,"what one step would reveal,"],[6.348,7.803,"and how to get back to it."],[7.823,9.417,"That's a spatial state."],[9.437,11.292,"Visual foundation models learn"],[11.312,13.757,"from huge amounts of images and video."],[13.777,15.667,"But do they hold a spatial state?"],[19.47,21.852,"We put ten frozen models to the test:"],[21.872,24.753,"image and video encoders, a 3D model,"],[24.773,26.915,"video generators, a world model,"],[26.935,28.95,"and a multimodal LLM."],[28.97,30.685,"Each model watches a camera move"],[30.705,32.048,"through indoor scenes,"],[32.068,34.76,"frame by frame, never seeing the future."],[34.78,36.15,"A small trained probe"],[36.17,38.167,"then reads out what its features know."],[38.187,39.747,"We ask four questions."],[39.767,41.285,"Can it read the visible scene:"],[41.305,43.187,"depth, pose, and objects?"],[43.207,44.504,"Does it remember objects"],[44.524,45.907,"after they leave the view?"],[45.927,46.584,"Can it predict"],[46.604,48.237,"what it will see after a move?"],[48.257,49.332,"And can it pick a move"],[49.352,51.227,"that brings it closer to a goal?"],[52.125,53.49,"Here's what we found."],[53.51,55.333,"No model wins everywhere."],[55.353,57.521,"Fast3R reads camera pose"],[57.541,59.983,"nine times better than DINOv2,"],[60.003,61.308,"and best locates objects"],[61.328,62.473,"that left the view."],[62.493,64.348,"VideoMAE is second,"],[64.368,66.925,"despite weaker readout of the visible scene."],[66.945,67.962,"Seeing a scene well"],[67.982,69.53,"does not mean remembering it."],[69.55,70.595,"Across models,"],[70.615,73.017,"remembering tracks camera pose instead."],[73.037,74.312,"And for future prediction,"],[74.332,77.227,"DINOv2 and V-JEPA 2 take the lead."],[78.113,80.323,"Where and when you read also matters."],[80.343,81.543,"In V-JEPA 2,"],[81.563,83.343,"prediction peaks at the last layer"],[83.363,84.863,"and persistence earlier."],[84.883,87.75,"In VideoMAE, it's the other way around."],[87.77,90.21,"And more history is not always better."],[90.23,92.165,"Going from 8 frames to 24"],[92.185,94.49,"hurts four in five comparisons,"],[94.51,96.265,"and makes object persistence worse"],[96.285,98.09,"for every model we tested."],[98.975,101.767,"Next, decodable is not the same as used."],[101.787,104.537,"For V-JEPA 2, simply copying the last feature"],[104.557,106.717,"beats a learned one-step predictor."],[106.737,108.677,"And VideoMAE,"],[108.697,110.939,"the most accurate localizer in this test,"],[110.959,112.602,"shows no reliable benefit"],[112.622,114.177,"from its visual history."],[115.053,116.928,"V-JEPA 2 can also predict"],[116.948,118.543,"future features natively."],[118.563,119.733,"But hand those predictions"],[119.753,122.433,"to a depth reader trained on real features,"],[122.453,126.695,"and the error jumps from 0.18 to 0.25,"],[126.715,128.108,"worse than a layout prior"],[128.128,129.717,"that ignores the input."],[129.737,130.787,"Retrain the reader,"],[130.807,133.242,"and the error falls to 0.22."],[133.262,134.792,"Some geometry survives,"],[134.812,136.707,"but the interface has changed."],[137.602,139.567,"Finally, acting toward a goal."],[139.587,142.142,"Picking the better of two candidate moves works,"],[142.162,143.987,"and clearly depends on the goal."],[144.007,144.752,"But what if the probe"],[144.772,146.535,"must output the move itself?"],[146.555,148.635,"Swap in a goal from another scene,"],[148.655,150.285,"and the predicted direction swings"],[150.305,152.48,"by 30 to 46 degrees."],[152.5,153.6,"Yet the correct goal"],[153.62,156.017,"does not reliably beat a shuffled one."],[156.037,157.022,"The needle turns,"],[157.042,158.507,"but it doesn't point the way."],[158.527,161.317,"Goal sensitivity is not goal utility."],[162.218,163.573,"So readable, used,"],[163.593,165.883,"and useful are three different questions."],[165.903,167.323,"To judge whether a vision model"],[167.343,168.823,"holds a spatial state,"],[168.843,170.923,"don't just ask what can be decoded."],[170.943,173.048,"Ask whether it can be kept beyond view,"],[173.068,175.673,"updated under motion, and used to act."]]</script>
+      <script type="application/json" id="capdata">[[0,0.65,"Turn your head,"],[0.67,2.21,"and the chair leaves your view."],[2.23,3.533,"But not your mind."],[3.553,4.903,"You still know where it is,"],[4.923,6.328,"what one step would reveal,"],[6.348,7.803,"and how to get back to it."],[7.823,9.417,"That's a spatial state."],[9.437,11.292,"Visual foundation models learn"],[11.312,13.757,"from huge amounts of images and video."],[13.777,15.667,"But do they hold a spatial state?"],[19.47,21.852,"We put ten frozen models to the test:"],[21.872,24.753,"image and video encoders, a 3D model,"],[24.773,26.915,"video generators, a world model,"],[26.935,28.95,"and a multimodal LLM."],[28.97,30.685,"Each model watches a camera move"],[30.705,32.048,"through indoor scenes,"],[32.068,34.76,"frame by frame, never seeing the future."],[34.78,36.15,"A small trained probe"],[36.17,38.167,"then reads out what its features know."],[38.187,39.747,"We ask four questions."],[39.767,41.285,"Can it read the visible scene:"],[41.305,43.187,"depth, pose, and objects?"],[43.207,44.504,"Does it remember objects"],[44.524,45.907,"after they leave the view?"],[45.927,46.584,"Can it predict"],[46.604,48.237,"what it will see after a move?"],[48.257,49.332,"And can it pick a move"],[49.352,51.227,"that brings it closer to a goal?"],[52.125,53.49,"Here's what we found."],[53.51,55.333,"No model wins everywhere."],[55.353,57.521,"Fast3R reads camera pose"],[57.541,59.983,"nine times better than DINOv2,"],[60.003,61.308,"and best locates objects"],[61.328,62.473,"that left the view."],[62.493,64.348,"VideoMAE is second,"],[64.368,66.925,"despite weaker readout of the visible scene."],[66.945,67.962,"Seeing a scene well"],[67.982,69.53,"does not mean remembering it."],[69.55,70.595,"Across models,"],[70.615,73.017,"remembering tracks camera pose instead."],[73.037,74.312,"And for future prediction,"],[74.332,77.227,"DINOv2 and V-JEPA 2 take the lead."],[78.113,80.323,"Where and when you read also matters."],[80.343,81.543,"In V-JEPA 2,"],[81.563,83.343,"prediction peaks at the last layer"],[83.363,84.863,"and persistence earlier."],[84.883,87.75,"In VideoMAE, it's the other way around."],[87.77,90.21,"And more history is not always better."],[90.23,92.165,"Going from 8 frames to 24"],[92.185,94.49,"hurts four in five comparisons,"],[94.51,96.265,"and makes object persistence worse"],[96.285,98.09,"for every model we tested."],[98.975,101.767,"Next, decodable is not the same as used."],[101.787,104.537,"For V-JEPA 2, simply copying the last feature"],[104.557,106.717,"beats a learned one-step predictor."],[106.737,108.677,"And VideoMAE,"],[108.697,110.939,"the most accurate localizer in this test,"],[110.959,112.602,"shows no reliable benefit"],[112.622,114.177,"from its visual history."],[115.053,116.928,"V-JEPA 2 can also predict"],[116.948,118.543,"future features natively."],[118.563,119.733,"But hand those predictions"],[119.753,122.433,"to a depth reader trained on real features,"],[122.453,126.695,"and the error jumps from 0.18 to 0.25,"],[126.715,128.108,"worse than a layout prior"],[128.128,129.717,"that ignores the input."],[129.737,130.787,"Retrain the reader,"],[130.807,133.242,"and the error falls to 0.22."],[133.262,134.792,"Some geometry survives,"],[134.812,136.707,"but the interface has changed."],[137.602,139.567,"Finally, acting toward a goal."],[139.587,142.142,"Picking the better of two candidate moves works,"],[142.162,143.987,"and clearly depends on the goal."],[144.007,144.752,"But what if the probe"],[144.772,146.535,"must output the move itself?"],[146.555,148.635,"Swap in a goal from another scene,"],[148.655,150.285,"and the predicted direction swings"],[150.305,152.48,"by 30 to 46 degrees."],[152.5,153.6,"Yet the correct goal"],[153.62,156.017,"does not reliably beat a shuffled one."],[156.037,157.022,"The needle turns,"],[157.042,158.507,"but it doesn't point the way."],[158.527,161.317,"Goal sensitivity is not goal utility."],[162.203,164.02,"Two chains link the levels:"],[164.04,166.508,"camera pose feeds memory and action,"],[166.528,168.833,"while the visible scene feeds prediction."],[168.853,170.273,"To judge whether a vision model"],[170.293,171.773,"holds a spatial state,"],[171.793,173.873,"don't just ask what can be decoded."],[173.893,175.998,"Ask whether it can be kept beyond view,"],[176.018,178.623,"updated under motion, and used to act."]]</script>
       <figcaption class="note">Narrated walkthrough with English captions. Room views in the video are schematic renders; the experiments use ScanNet++.</figcaption>
     </figure>
   </div>
@@ -659,7 +696,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     <div class="two">
       <div class="panel">
         <h3>Abstract</h3>
-        <p>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore involves more than recognizing individual images: it calls for a persistent spatial state that is updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We study this question through four levels of spatial capability—spatial structure, object persistence, predictive spatial update, and actionability—using frozen-feature probes on ten representations under streaming egocentric observations of static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong readout of the visible scene does not ensure accurate object persistence or future-feature retrieval. Matched controls separate readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure, but a spatial reader trained on real features does not transfer to predicted features unchanged. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: predicted actions respond to goal changes, yet supplying the correct goal does not reliably improve progress. Together, these findings motivate evaluating spatial representations not only by what can be decoded from them, but by whether that information is maintained beyond observation, updated predictively, and used for goal-directed action.</p>
+        <p>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore involves more than recognizing individual images: it calls for a persistent spatial state that is updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We study this question through four levels of spatial capability—spatial structure, object persistence, predictive spatial update, and actionability—using frozen-feature probes on ten representations under streaming egocentric observations of static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong readout of the visible scene does not ensure accurate object persistence or future-feature retrieval. Matched controls separate readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure, but a spatial reader trained on real features does not transfer to predicted features unchanged. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: predicted actions respond to goal changes, yet supplying the correct goal does not reliably improve progress. Across the four levels, object persistence and actionability build on camera-pose readout, whereas feature prediction builds on visible-scene readout. Together, these findings motivate evaluating spatial representations not only by what can be decoded from them, but by whether that information is maintained beyond observation, updated predictively, and used for goal-directed action.</p>
       </div>
       <div class="panel">
         <div class="bib-head"><h3>BibTeX</h3><button class="btn" id="copyBib" type="button">Copy</button></div>
@@ -672,7 +709,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
   year   = {2026},
   note   = {Under review}
 }</code></pre>
-        <p class="note">Scope: offline, probe-based diagnostics with frozen features in static indoor scenes. A probe that fails does not prove that a model lacks the ability.</p>
+        <p class="note">Scope: offline, probe-based diagnostics with frozen features in static indoor scenes. Each causal prefix is encoded independently, so the results describe what a representation of the observed history affords, not an online state update; retrieval scores in different feature spaces do not share a physical error scale.</p>
       </div>
     </div>
   </div>
@@ -774,8 +811,9 @@ const SUMMARY = {
 const INSIGHTS = [
   { big: '9×', text: 'Fast3R, trained for 3D reconstruction, reads camera pose about nine times better than DINOv2 (AUC@30 0.387 against 0.041). Yet DINOv2 separates object instances better (loss 1.38 against 1.61).', cells: [['Fast3R', 'pose'], ['DINOv2-L', 'pose'], ['DINOv2-L', 'inst'], ['Fast3R', 'inst']] },
   { big: '32.8°', text: 'Fast3R also locates out-of-view objects best, and VideoMAE is second (36.5°), although DINOv2 and Qwen2.5-VL read depth, instance identity and view consistency better than VideoMAE. Seeing a scene well does not guarantee remembering it.', cells: [['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['VideoMAE-L', 'depth'], ['VideoMAE-L', 'inst'], ['VideoMAE-L', 'view'], ['DINOv2-L', 'pers'], ['Qwen2.5-VL', 'pers']] },
-  { big: 'ρ 0.76', text: 'Persistence goes with camera pose. The three best localizers, Fast3R, VideoMAE and V-JEPA 2, are exactly the three with the highest pose AUC; across all ten, the rank correlation is 0.76, against at most 0.43 for depth, instance identity and view consistency. A descriptive association, not a causal account.', cells: [['Fast3R', 'pose'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose'], ['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers']] },
+  { big: 'ρ 0.76', text: 'Persistence builds on camera pose. The three best localizers, Fast3R, VideoMAE and V-JEPA 2, are exactly the three with the highest pose AUC; across all ten, the rank correlation is 0.76, against at most 0.43 for depth, instance identity and view consistency. Within VideoMAE, V-JEPA 2 and Wan2.1, persistence also peaks at the same block as metric geometry.', cells: [['Fast3R', 'pose'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose'], ['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers']] },
   { big: '⇄', text: 'Prediction has its own leaders. DINOv2 leads direct prediction (0.237) and V-JEPA 2 leads path integration (0.159), with Qwen2.5-VL second on both. DINOv2 and V-JEPA 2 swap places between the two tasks, and neither prediction ordering is related to the persistence ordering (|ρ| < 0.1).', cells: [['DINOv2-L', 'direct'], ['V-JEPA 2', 'direct'], ['DINOv2-L', 'path'], ['V-JEPA 2', 'path'], ['Qwen2.5-VL', 'direct'], ['Qwen2.5-VL', 'path']] },
+  { big: 'ρ 0.52–0.63', text: 'Prediction builds on the visible scene instead: both prediction tasks rank models like depth, instance identity and view consistency do (ρ 0.52–0.63), not like camera pose (ρ ≤ 0.25). The four best predictors are, after Fast3R, the four best at depth and view consistency. Fast3R itself is seventh of nine on both prediction tasks: seeing well is necessary for prediction, not sufficient.', cells: [['DINOv2-L', 'depth'], ['Qwen2.5-VL', 'depth'], ['V-JEPA 2', 'depth'], ['VideoMAE-L', 'depth'], ['Fast3R', 'depth'], ['Fast3R', 'direct'], ['Fast3R', 'path']] },
   { big: '≈', text: 'Model families don’t decide the profile. VideoMAE and V-JEPA 2 are both video encoders with similar view consistency (0.912 and 0.926), but VideoMAE is better at pose and persistence while V-JEPA 2 is better at depth, instance identity and both prediction tasks.', cells: [['VideoMAE-L', 'view'], ['V-JEPA 2', 'view'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose']] },
   { big: '56.0°', text: 'Among the video generators and the world model, Aether localizes better than Wan2.1 and CogVideoX despite weaker results on the other six measurements, and MiniMax-H3 localizes best of the group.', cells: [['MiniMax-H3', 'pers'], ['Aether', 'pers'], ['Wan2.1', 'pers'], ['CogVideoX', 'pers'], ['LingBot-video', 'pers']] }
 ];
@@ -1503,7 +1541,7 @@ safe('layers', () => {
     const at = TASKS.filter(t => peaks[t] === blk), list = a => a.join(', ').replace(/, ([^,]*)$/, ' and $1').toLowerCase();
     let say = at.length ? `In ${L.m}, block ${blk} is the best measured layer for ${list(at)}.` : `No readout peaks at block ${blk} in ${L.m}. Its peaks: ${TASKS.map(t => t.toLowerCase() + ' ' + peaks[t]).join(', ')}.`;
     if (lm.main != null) say += ` The main table reads block ${lm.main} (marked *).`;
-    if ((lm.prov || []).length) say += ' † provisional: that block averages two of four prefixes.';
+    if ((lm.prov || []).length) say += ' † that cell averages prefixes 8 and 12.';
     $('#layerText').textContent = say;
   }
   $$('#layerModel button').forEach(b => b.addEventListener('click', () => { L.m = b.dataset.m; $$('#layerModel button').forEach(x => x.setAttribute('aria-pressed', x === b)); const lm = LAYER_MODELS[L.m]; ticks(); range.value = Math.max(0, lm.measured.indexOf(lm.peaks['Persistence'])); draw(); }));
@@ -1698,7 +1736,7 @@ safe('mission', () => {
   }
   function summary() {
     const m = MB[M.m];
-    $('#mSummary').innerHTML = `<div><p class="eyebrow">${M.m === 'Ideal' ? 'target' : FAMILY[M.m]}</p><h3>${M.m === 'Ideal' ? 'An ideal spatial state' : M.m}</h3><p>${m.txt}</p></div><div><h3>Every backbone trips, each in its own place</h3><p>DINOv2 barely knows how it moved and turns 65° wide of the mug. Fast3R is the only one of the four that brings the mug back into view, but it can't imagine the route. V-JEPA 2 imagines routes best, yet still misses the mug by 45° and gets fewer than one in five trips right. Wan2.1 makes progress on only half its moves. None of them finishes the errand.</p></div>`;
+    $('#mSummary').innerHTML = `<div><p class="eyebrow">${M.m === 'Ideal' ? 'target' : FAMILY[M.m]}</p><h3>${M.m === 'Ideal' ? 'An ideal spatial state' : M.m}</h3><p>${m.txt}</p></div><div><h3>Every backbone trips, each in its own place</h3><p>DINOv2 barely knows how it moved and turns 65° wide of the mug. Fast3R is the only one of the four that brings the mug back into view, but it can't imagine the route. V-JEPA 2 imagines routes best, yet still misses the mug by 45° and gets fewer than one in five trips right. Wan2.1 makes progress on only half its moves. None of them finishes the errand. Who gets furthest follows the pose chain below: Fast3R, best at pose and persistence, also leads both action tests.</p></div>`;
   }
   function refreshStatic() { for (let k = 1; k <= 4; k++) gauge(k); units(); summary(); }
   function reset() {
@@ -1731,6 +1769,25 @@ safe('mission', () => {
   });
   redraw.add(() => { refreshStatic(); draw(); }); onResize(map, draw); onResize(view, draw);
   refreshStatic(); reset();
+});
+
+/* ================================================================ how the levels relate */
+safe('chains', () => {
+  const SAY = {
+    pose: 'Camera-pose readout supports object persistence: the three best localizers (Fast3R, VideoMAE, V-JEPA 2) have the three highest pose AUCs (ρ = 0.76 across all ten), and within VideoMAE, V-JEPA 2 and Wan2.1 persistence peaks at the same block as metric geometry. Persistence in turn supports action: among the four backbones tested on L4, Fast3R, best at pose and persistence, leads both settings (79.9% candidate selection, 59.8% positive progress) and V-JEPA 2 is second at choosing a move, while DINOv2, the best predictor, leads neither.',
+    scene: 'Visible-scene readout supports feature prediction: both prediction tasks rank models like depth, instance identity and view consistency do (ρ 0.52–0.63 over nine models), not like camera pose (ρ ≤ 0.25) or persistence (|ρ| < 0.1). The four best predictors are, after Fast3R, the four best at depth and view consistency, yet Fast3R itself is seventh of nine on both prediction tasks. In each chain the lower level bounds the higher one without guaranteeing it.'
+  };
+  function set(k) {
+    $$('#chainSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.c === k));
+    $$('#chains .chain').forEach(r => r.classList.toggle('dim', r.dataset.c !== k));
+    $('#chainSay').textContent = SAY[k];
+  }
+  $$('#chainSeg button').forEach(b => b.addEventListener('click', () => set(b.dataset.c)));
+  $$('#chains .chain').forEach(r => {
+    r.addEventListener('click', () => set(r.dataset.c));
+    r.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { set(r.dataset.c); e.preventDefault(); } });
+  });
+  set('pose');
 });
 
 /* ================================================================ controls */
