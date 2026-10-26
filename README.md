@@ -20,16 +20,19 @@ needs no `.vtt` request; `assets/promo.en.vtt` is kept for uploading the video e
 2. Memory test: the visitor points to a hidden object; their error is compared with the ten models.
 3. Four levels (L1 to L4) with live demos: depth / instance views, memory arrows, expected next view,
    pick-the-better-move; plus the paper's Fig. 1 and the causal-prefix protocol strip.
-4. Results: rank-shaded main table (sortable), per-model profile, five findings.
-5. Layers and prefix: peak block per task (V-JEPA 2, VideoMAE); p24 vs p8 sign grid (82%).
+4. Results: rank-shaded main table (sortable; MiniMax-H3 prediction cells hatched and unranked, as in
+   the paper), per-model profile, six findings.
+5. Layers and prefix: peak block per task (V-JEPA 2, VideoMAE, Wan2.1, CogVideoX); p24 vs p8 sign grid
+   (80%, ties shown as =).
 6. Robot errand: one task, four key operations (localize, turn back to the mug, plan the trip,
    carry it). Each backbone replays its measured numbers; the ideal state shows a success.
 7. Controls: copy vs learned prediction, motion and history effects with 95% intervals,
    reading V-JEPA 2's own predictions, goal shuffle.
 8. Video, takeaway, abstract, BibTeX.
 
-All numbers come from the paper (same values as `../video_3b1b/results_data.py`). The apartment,
-robot and errand are illustrations; the page says so where they appear.
+All numbers come from the paper (same values as `../video_3b1b/results_data.py`; snapshot
+`release_polished.tex`, figures `v2-20261026-paper`). The apartment, robot and errand are
+illustrations; the page says so where they appear.
 
 ## Before going public
 

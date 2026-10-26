@@ -204,6 +204,7 @@ select{font-family:var(--f-display);font-size:.9rem;padding:7px 10px;border-radi
 .heat .m.sel{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .heat .c{position:relative;font-family:var(--f-mono);font-size:.78rem;font-variant-numeric:tabular-nums;text-align:center;padding:8px 2px;border-radius:7px;border:0;cursor:pointer;color:var(--ink)}
 .heat .c.best{box-shadow:inset 0 0 0 2px var(--ink)}
+.heat .c.nr{color:var(--graphite);background-image:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--graphite) 16%,transparent) 5px 6px)!important}
 .heat .c.hl{outline:2.5px solid var(--accent);outline-offset:1px;z-index:1}
 .heat .c.dim{opacity:.35}
 .tip{position:fixed;z-index:80;pointer-events:none;font-size:.8rem;line-height:1.35;background:var(--ink);color:var(--paper);padding:7px 10px;border-radius:8px;max-width:260px;font-family:var(--f-display)}
@@ -420,10 +421,10 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
             <button type="button" data-mode="inst" aria-pressed="false">Objects</button>
           </div>
           <div class="measure">
-            <div class="row"><span class="lab">Depth loss, lower is better</span><b>Fast3R 0.135</b></div>
-            <div class="row"><span class="lab">Camera pose AUC@30, higher</span><b>Fast3R 0.385</b></div>
-            <div class="row"><span class="lab">Instance identity loss, lower</span><b>DINOv2 1.26</b></div>
-            <div class="row"><span class="lab">View consistency, balanced acc.</span><b>Fast3R 0.983</b></div>
+            <div class="row"><span class="lab">Depth loss, lower is better</span><b>Fast3R 0.139</b></div>
+            <div class="row"><span class="lab">Camera pose AUC@30, higher</span><b>Fast3R 0.387</b></div>
+            <div class="row"><span class="lab">Instance identity loss, lower</span><b>DINOv2 1.38</b></div>
+            <div class="row"><span class="lab">View consistency, balanced acc.</span><b>Fast3R 0.981</b></div>
             <p class="note">Best of the ten frozen representations on each measurement.</p>
           </div>
         </div>
@@ -432,14 +433,14 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
           <p>The probe gets an object's appearance from an early frame and must point to it from the final camera, after the object is out of view. It is never told where the object was or how the camera moved. Drag the view to turn; arrows on the plan point to what you remember.</p>
           <label class="note"><input type="checkbox" id="lvArrows" checked> Point to remembered objects</label>
           <div class="measure">
-            <div class="row"><span class="lab">Angular error to the hidden object</span><b>VideoMAE 55.5°</b></div>
-            <div class="row"><span class="lab">Worst of ten</span><b>MiniMax-H3 79.5°</b></div>
+            <div class="row"><span class="lab">Angular error to the hidden object</span><b>Fast3R 32.8°</b></div>
+            <div class="row"><span class="lab">Worst of ten</span><b>CogVideoX 70.6°</b></div>
             <p class="note">Scored over 16 azimuth × 8 elevation bins around the final camera; random pointing would average 90°.</p>
           </div>
         </div>
         <div class="tabpanel" role="tabpanel" id="lvp3" aria-labelledby="tab3" hidden>
           <h3>Anticipate the view after a move</h3>
-          <p>Given the current features and the next camera motion, predict the next frame's features, or integrate a whole sequence of moves. Pick a move to see the view you should expect, then make it.</p>
+          <p>Given the current features and the camera motion to a future frame, predict that frame's features in one update, or integrate a whole sequence of moves. Pick a move to see the view you should expect, then make it.</p>
           <div class="btnrow" id="lvMoves">
             <button class="btn" type="button" data-move="left">Step left</button>
             <button class="btn" type="button" data-move="fwd">Step forward</button>
@@ -448,9 +449,9 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
           </div>
           <p class="note" id="lvMoveMsg" aria-live="polite">Pick a move.</p>
           <div class="measure">
-            <div class="row"><span class="lab">One-step prediction R@1</span><b>Qwen2.5-VL 0.238</b></div>
-            <div class="row"><span class="lab">Path integration R@1</span><b>DINOv2 0.147</b></div>
-            <p class="note">A prediction counts when it retrieves the true future frame among all samples, scored in each model's own feature space.</p>
+            <div class="row"><span class="lab">Direct prediction R@1</span><b>DINOv2 0.237</b></div>
+            <div class="row"><span class="lab">Path integration R@1</span><b>V-JEPA 2 0.159</b></div>
+            <p class="note">A prediction counts when it retrieves the true future frame among all samples, scored in each model's own feature space. Targets are 1, 2 and 4 frames ahead.</p>
           </div>
         </div>
         <div class="tabpanel" role="tabpanel" id="lvp4" aria-labelledby="tab4" hidden>
@@ -496,7 +497,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
         <span class="node"><svg viewBox="0 0 20 20" aria-hidden="true"><g stroke="var(--cool)" stroke-width="1.6" stroke-linecap="round"><path d="M10 2v16M3 6l14 8M3 14l14-8"/><path d="M8 3.5l2 1.5 2-1.5M8 16.5l2-1.5 2 1.5"/></g></svg>frozen encoder, layer ℓ</span><span class="arr">→</span>
         <span class="node">features Z</span><span class="arr">→</span>
         <span class="node"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2c1 3 5 5 5 9.5A5 5 0 0 1 5 11.5C5 9 7 8 7 6c1.5 1 2 2 2 3 1-2 1-4 1-7z" fill="var(--accent)"/></svg>trained probe</span><span class="arr">→</span>
-        <span class="node" id="pipeOut">depth, pose, objects, direction, next frame…</span>
+        <span class="node" id="pipeOut">depth, pose, objects, direction, future frame…</span>
       </div>
     </div>
   </div>
@@ -507,7 +508,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     <div class="sechead">
       <p class="eyebrow">Benchmark</p>
       <h2>No model wins everywhere</h2>
-      <p class="lede">Ten frozen representations, seven measurements, four different winners. Click a column to rank by it, or pick a model to see its profile.</p>
+      <p class="lede">Ten frozen representations, seven measurements, three different winners. Click a column to rank by it, or pick a model to see its profile.</p>
     </div>
     <div class="results-grid">
       <div class="panel">
@@ -516,16 +517,16 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
           <select id="sortSel"></select>
         </div>
         <div class="heat-scroll"><div class="heat" id="heat"></div></div>
-        <p class="note" style="margin-top:10px">Cell shading follows the rank within each column (darker is better). Outlined cells are the best of ten. Values from the paper's main table, ScanNet++.</p>
+        <p class="note" style="margin-top:10px">Cell shading follows the rank within each column (darker is better). Outlined cells are the best in the column. Values from the paper's main table, ScanNet++. † MiniMax-H3 prediction uses a different protocol (171 of 276 windows; direct prediction one frame ahead only) and is not ranked. ‡ CogVideoX instance identity averages two of the four prefixes.</p>
       </div>
       <aside class="panel profile" id="profile" aria-live="polite"></aside>
     </div>
     <div class="panel insights">
       <div class="ins-head">
         <h3>What the table says</h3>
-        <div class="pager"><button type="button" id="insPrev" aria-label="Previous finding">←</button><span id="insCount">1 / 5</span><button type="button" id="insNext" aria-label="Next finding">→</button></div>
+        <div class="pager"><button type="button" id="insPrev" aria-label="Previous finding">←</button><span id="insCount">1 / 6</span><button type="button" id="insNext" aria-label="Next finding">→</button></div>
       </div>
-      <div class="ins-body"><span class="ins-num" id="insNum">10×</span><p id="insText"></p></div>
+      <div class="ins-body"><span class="ins-num" id="insNum">9×</span><p id="insText"></p></div>
     </div>
   </div>
 </section>
@@ -540,17 +541,17 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     <div class="two">
       <div class="panel">
         <h3>Network depth</h3>
-        <div class="seg" id="layerModel" role="group" aria-label="Backbone"><button type="button" data-m="V-JEPA 2" aria-pressed="true">V-JEPA 2</button><button type="button" data-m="VideoMAE" aria-pressed="false">VideoMAE</button></div>
+        <div class="seg" id="layerModel" role="group" aria-label="Backbone"><button type="button" data-m="V-JEPA 2" aria-pressed="true">V-JEPA 2</button><button type="button" data-m="VideoMAE" aria-pressed="false">VideoMAE</button><button type="button" data-m="Wan2.1" aria-pressed="false">Wan2.1</button><button type="button" data-m="CogVideoX" aria-pressed="false">CogVideoX</button></div>
         <svg id="layerSvg" viewBox="0 0 560 330" role="img" aria-label="Which block each task peaks at"></svg>
-        <div><input class="range" type="range" id="layerRange" min="0" max="4" step="1" value="1" aria-label="Measured block"><div class="rangelabels"><span>block 0</span><span>5</span><span>11</span><span>17</span><span>23</span></div></div>
+        <div><input class="range" type="range" id="layerRange" min="0" max="3" step="1" value="2" aria-label="Measured block"><div class="rangelabels" id="layerTicks"><span>block 5</span><span>11</span><span>17</span><span>23</span></div></div>
         <p id="layerText" aria-live="polite"></p>
       </div>
       <div class="panel">
         <h3>Streaming context: 24 frames against 8</h3>
-        <div class="stat"><span class="big">82%</span><p>of 55 paired comparisons favour the shorter prefix. Every model gets worse at object persistence and path integration with the longer one.</p></div>
+        <div class="stat"><span class="big">80%</span><p>of 55 paired comparisons favour the shorter prefix; 8 favour the longer one and 3 tie. Every model gets worse at object persistence with the longer prefix, and six of eight at path integration.</p></div>
         <div class="prefix-scroll"><div class="prefix" id="prefixGrid"></div></div>
         <div class="seg" id="prefixHl" role="group" aria-label="Highlight a task"><button type="button" data-c="-1" aria-pressed="true">All tasks</button><button type="button" data-c="4" aria-pressed="false">Persistence</button><button type="button" data-c="6" aria-pressed="false">Path integration</button></div>
-        <p class="note">Standardized, direction-corrected change from p8 to p24; − means the longer prefix hurts. A longer prefix also moves the endpoint, so this does not isolate history alone.</p>
+        <p class="note">Standardized, direction-corrected change from p8 to p24; − means the longer prefix hurts, = a tie. The CogVideoX instance-identity pair has no p24 result. A longer prefix also moves the endpoint, so this does not isolate history alone.</p>
       </div>
     </div>
   </div>
@@ -631,7 +632,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
       <video controls playsinline preload="metadata" poster="assets/poster.jpg">
         <source src="assets/promo.mp4" type="video/mp4">
       </video>
-      <script type="application/json" id="capdata">[[0,0.65,"Turn your head,"],[0.67,2.21,"and the chair leaves your view."],[2.23,3.533,"But not your mind."],[3.553,4.903,"You still know where it is,"],[4.923,6.328,"what one step would reveal,"],[6.348,7.803,"and how to get back to it."],[7.823,9.417,"That's a spatial state."],[9.437,11.292,"Visual foundation models learn"],[11.312,13.757,"from huge amounts of images and video."],[13.777,15.667,"But do they hold a spatial state?"],[19.47,21.852,"We put ten frozen models to the test:"],[21.872,24.753,"image and video encoders, a 3D model,"],[24.773,26.915,"video generators, a world model,"],[26.935,28.95,"and a multimodal LLM."],[28.97,30.685,"Each model watches a camera move"],[30.705,32.048,"through indoor scenes,"],[32.068,34.76,"frame by frame, never seeing the future."],[34.78,36.15,"A small trained probe"],[36.17,38.167,"then reads out what its features know."],[38.187,39.747,"We ask four questions."],[39.767,41.285,"Can it read the visible scene:"],[41.305,43.187,"depth, pose, and objects?"],[43.207,44.504,"Does it remember objects"],[44.524,45.907,"after they leave the view?"],[45.927,46.584,"Can it predict"],[46.604,48.237,"what it will see after a move?"],[48.257,49.332,"And can it pick a move"],[49.352,51.227,"that brings it closer to a goal?"],[52.125,53.49,"Here's what we found."],[53.51,55.333,"No model wins everywhere."],[55.353,57.29,"Fast3R reads camera pose"],[57.31,59.583,"ten times better than DINOv2."],[59.603,61.068,"Yet the best at locating objects"],[61.088,63.618,"out of view is VideoMAE,"],[63.638,66.113,"despite weaker readout of the visible scene."],[66.133,69.048,"And DINOv2 and Qwen lead future prediction,"],[69.068,71.475,"despite weaker object persistence."],[71.495,72.512,"Seeing a scene well"],[72.532,74.19,"does not mean remembering it."],[75.08,77.29,"Where and when you read also matters."],[77.31,80.2,"In V-JEPA 2, prediction, object identity,"],[80.22,81.687,"and persistence each peak"],[81.707,82.967,"at a different layer."],[82.987,85.427,"And more history is not always better."],[85.447,87.312,"Going from 8 frames to 24"],[87.332,88.862,"makes object persistence"],[88.882,90.612,"and path integration worse,"],[90.632,92.487,"for every model we tested."],[93.375,96.15,"Next, decodable is not the same as used."],[96.17,98.92,"For V-JEPA 2, simply copying the last feature"],[98.94,101.1,"beats a learned one-step predictor."],[101.12,103.505,"And VideoMAE, the best"],[103.525,105.243,"at locating hidden objects,"],[105.263,106.88,"shows no reliable benefit"],[106.9,108.46,"from its visual history."],[109.337,111.212,"V-JEPA 2 can also predict"],[111.232,112.827,"future features natively."],[112.847,114.017,"But hand those predictions"],[114.037,116.717,"to a depth reader trained on real features,"],[116.737,120.979,"and the error jumps from 0.18 to 0.25,"],[120.999,122.392,"worse than a layout prior"],[122.412,123.999,"that ignores the input."],[124.02,125.07,"Retrain the reader,"],[125.09,127.525,"and the error falls to 0.22."],[127.545,129.075,"Some geometry survives,"],[129.095,130.99,"but the interface has changed."],[131.885,133.85,"Finally, acting toward a goal."],[133.87,136.425,"Picking the better of two candidate moves works,"],[136.445,138.27,"and clearly depends on the goal."],[138.29,139.035,"But what if the probe"],[139.055,140.818,"must output the move itself?"],[140.838,142.918,"Swap in a goal from another scene,"],[142.938,144.568,"and the predicted direction swings"],[144.588,146.763,"by 30 to 46 degrees."],[146.783,147.883,"Yet the correct goal"],[147.903,150.3,"does not reliably beat a shuffled one."],[150.32,151.305,"The needle turns,"],[151.325,152.79,"but it doesn't point the way."],[152.81,155.6,"Goal sensitivity is not goal utility."],[156.502,157.857,"So readable, used,"],[157.877,160.167,"and useful are three different questions."],[160.187,161.607,"To judge whether a vision model"],[161.627,163.107,"holds a spatial state,"],[163.127,165.207,"don't just ask what can be decoded."],[165.227,167.332,"Ask whether it can be kept beyond view,"],[167.352,169.957,"updated under motion, and used to act."]]</script>
+      <script type="application/json" id="capdata">[[0,0.65,"Turn your head,"],[0.67,2.21,"and the chair leaves your view."],[2.23,3.533,"But not your mind."],[3.553,4.903,"You still know where it is,"],[4.923,6.328,"what one step would reveal,"],[6.348,7.803,"and how to get back to it."],[7.823,9.417,"That's a spatial state."],[9.437,11.292,"Visual foundation models learn"],[11.312,13.757,"from huge amounts of images and video."],[13.777,15.667,"But do they hold a spatial state?"],[19.47,21.852,"We put ten frozen models to the test:"],[21.872,24.753,"image and video encoders, a 3D model,"],[24.773,26.915,"video generators, a world model,"],[26.935,28.95,"and a multimodal LLM."],[28.97,30.685,"Each model watches a camera move"],[30.705,32.048,"through indoor scenes,"],[32.068,34.76,"frame by frame, never seeing the future."],[34.78,36.15,"A small trained probe"],[36.17,38.167,"then reads out what its features know."],[38.187,39.747,"We ask four questions."],[39.767,41.285,"Can it read the visible scene:"],[41.305,43.187,"depth, pose, and objects?"],[43.207,44.504,"Does it remember objects"],[44.524,45.907,"after they leave the view?"],[45.927,46.584,"Can it predict"],[46.604,48.237,"what it will see after a move?"],[48.257,49.332,"And can it pick a move"],[49.352,51.227,"that brings it closer to a goal?"],[52.125,53.49,"Here's what we found."],[53.51,55.333,"No model wins everywhere."],[55.353,57.521,"Fast3R reads camera pose"],[57.541,59.983,"nine times better than DINOv2,"],[60.003,61.308,"and best locates objects"],[61.328,62.473,"that left the view."],[62.493,64.348,"VideoMAE is second,"],[64.368,66.925,"despite weaker readout of the visible scene."],[66.945,67.962,"Seeing a scene well"],[67.982,69.53,"does not mean remembering it."],[69.55,70.595,"Across models,"],[70.615,73.017,"remembering tracks camera pose instead."],[73.037,74.312,"And for future prediction,"],[74.332,77.227,"DINOv2 and V-JEPA 2 take the lead."],[78.113,80.323,"Where and when you read also matters."],[80.343,81.543,"In V-JEPA 2,"],[81.563,83.343,"prediction peaks at the last layer"],[83.363,84.863,"and persistence earlier."],[84.883,87.75,"In VideoMAE, it's the other way around."],[87.77,90.21,"And more history is not always better."],[90.23,92.165,"Going from 8 frames to 24"],[92.185,94.49,"hurts four in five comparisons,"],[94.51,96.265,"and makes object persistence worse"],[96.285,98.09,"for every model we tested."],[98.975,101.767,"Next, decodable is not the same as used."],[101.787,104.537,"For V-JEPA 2, simply copying the last feature"],[104.557,106.717,"beats a learned one-step predictor."],[106.737,108.677,"And VideoMAE,"],[108.697,110.939,"the most accurate localizer in this test,"],[110.959,112.602,"shows no reliable benefit"],[112.622,114.177,"from its visual history."],[115.053,116.928,"V-JEPA 2 can also predict"],[116.948,118.543,"future features natively."],[118.563,119.733,"But hand those predictions"],[119.753,122.433,"to a depth reader trained on real features,"],[122.453,126.695,"and the error jumps from 0.18 to 0.25,"],[126.715,128.108,"worse than a layout prior"],[128.128,129.717,"that ignores the input."],[129.737,130.787,"Retrain the reader,"],[130.807,133.242,"and the error falls to 0.22."],[133.262,134.792,"Some geometry survives,"],[134.812,136.707,"but the interface has changed."],[137.602,139.567,"Finally, acting toward a goal."],[139.587,142.142,"Picking the better of two candidate moves works,"],[142.162,143.987,"and clearly depends on the goal."],[144.007,144.752,"But what if the probe"],[144.772,146.535,"must output the move itself?"],[146.555,148.635,"Swap in a goal from another scene,"],[148.655,150.285,"and the predicted direction swings"],[150.305,152.48,"by 30 to 46 degrees."],[152.5,153.6,"Yet the correct goal"],[153.62,156.017,"does not reliably beat a shuffled one."],[156.037,157.022,"The needle turns,"],[157.042,158.507,"but it doesn't point the way."],[158.527,161.317,"Goal sensitivity is not goal utility."],[162.218,163.573,"So readable, used,"],[163.593,165.883,"and useful are three different questions."],[165.903,167.323,"To judge whether a vision model"],[167.343,168.823,"holds a spatial state,"],[168.843,170.923,"don't just ask what can be decoded."],[170.943,173.048,"Ask whether it can be kept beyond view,"],[173.068,175.673,"updated under motion, and used to act."]]</script>
       <figcaption class="note">Narrated walkthrough with English captions. Room views in the video are schematic renders; the experiments use ScanNet++.</figcaption>
     </figure>
   </div>
@@ -652,7 +653,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     <div class="two">
       <div class="panel">
         <h3>Abstract</h3>
-        <p>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore concerns more than recognizing individual images: it calls for a persistent spatial state that can be updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We investigate this question through four levels of spatial capability: spatial structure, object persistence, predictive spatial update, and actionability, using frozen feature probes across ten representations under streaming egocentric observations in static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong visible scene readout does not ensure accurate object persistence or future feature retrieval. Matched controls further distinguish readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure but changes its interface to a fixed spatial readout. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: in the continuous output setting, predicted actions respond to goal changes, yet using the correct goal does not reliably improve progress. Together, these findings motivate evaluating spatial representations not only by what can be decoded, but by whether that information can be maintained beyond observation, predictively updated, and used for goal-directed action.</p>
+        <p>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore involves more than recognizing individual images: it calls for a persistent spatial state that is updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We study this question through four levels of spatial capability—spatial structure, object persistence, predictive spatial update, and actionability—using frozen-feature probes on ten representations under streaming egocentric observations of static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong readout of the visible scene does not ensure accurate object persistence or future-feature retrieval. Matched controls separate readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure, but a spatial reader trained on real features does not transfer to predicted features unchanged. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: predicted actions respond to goal changes, yet supplying the correct goal does not reliably improve progress. Together, these findings motivate evaluating spatial representations not only by what can be decoded from them, but by whether that information is maintained beyond observation, updated predictively, and used for goal-directed action.</p>
       </div>
       <div class="panel">
         <div class="bib-head"><h3>BibTeX</h3><button class="btn" id="copyBib" type="button">Copy</button></div>
@@ -742,51 +743,56 @@ readPalette();
 /* ================================================================ data (from the paper) */
 const MODELS = ['DINOv2-L', 'Fast3R', 'VideoMAE-L', 'V-JEPA 2', 'Qwen2.5-VL', 'Wan2.1', 'CogVideoX', 'Aether', 'MiniMax-H3', 'LingBot-video'];
 const FAMILY = { 'DINOv2-L': 'Image encoder', 'Fast3R': '3D model', 'VideoMAE-L': 'Video encoder', 'V-JEPA 2': 'Video encoder', 'Qwen2.5-VL': 'Multimodal LLM', 'Wan2.1': 'Video generator', 'CogVideoX': 'Video generator', 'Aether': 'World model', 'MiniMax-H3': 'Video generator', 'LingBot-video': 'Video generator' };
+// nr: model indices the paper leaves out of that column's ranking; mk: footnote marks
 const METRICS = [
-  { key: 'depth', name: 'Depth', full: 'Depth loss', lv: 1, hib: false, nd: 3, v: [0.1425, 0.1347, 0.2888, 0.2687, 0.2193, 0.3599, 0.4375, 0.5413, 0.4864, 0.5683] },
-  { key: 'pose', name: 'Pose', full: 'Camera pose AUC@30', lv: 1, hib: true, nd: 3, v: [0.0386, 0.3852, 0.2124, 0.1849, 0.0269, 0.0603, 0.0302, 0.0198, 0.0893, 0.0098] },
-  { key: 'inst', name: 'Instance', full: 'Instance identity loss', lv: 1, hib: false, nd: 2, v: [1.2563, 1.4804, 4.2575, 3.0291, 2.8522, 4.8688, 5.7245, 7.9184, 4.7338, 2.9600] },
-  { key: 'view', name: 'View', full: 'View consistency (balanced acc.)', lv: 1, hib: true, nd: 3, v: [0.9597, 0.9827, 0.9210, 0.9240, 0.9403, 0.8175, 0.7918, 0.7238, 0.5000, 0.9164] },
-  { key: 'pers', name: 'Persist.', full: 'Persistence angular error (°)', lv: 2, hib: false, nd: 1, v: [69.01, 56.45, 55.53, 59.39, 71.36, 66.44, 70.80, 62.46, 79.54, 74.46] },
-  { key: 'one', name: '1-step', full: 'One-step prediction R@1', lv: 3, hib: true, nd: 3, v: [0.1592, 0.0263, 0.0888, 0.1232, 0.2375, 0.1150, 0.0272, 0.0109, 0.0041, 0.0851] },
-  { key: 'path', name: 'Path', full: 'Path integration R@1', lv: 3, hib: true, nd: 3, v: [0.1470, 0.0145, 0.0685, 0.0839, 0.1374, 0.0383, 0.0112, 0.0015, 0.0014, 0.0290] }
+  { key: 'depth', name: 'Depth', full: 'Depth loss', lv: 1, hib: false, nd: 3, v: [0.1422, 0.1386, 0.2968, 0.2708, 0.2244, 0.3609, 0.4340, 0.5270, 0.4252, 0.4314] },
+  { key: 'pose', name: 'Pose', full: 'Camera pose AUC@30', lv: 1, hib: true, nd: 3, v: [0.0412, 0.3870, 0.2026, 0.1854, 0.0269, 0.0650, 0.0276, 0.0185, 0.0477, 0.0232] },
+  { key: 'inst', name: 'Instance', full: 'Instance identity loss', lv: 1, hib: false, nd: 2, v: [1.3828, 1.6072, 4.1571, 2.9211, 2.9476, 4.9301, 4.6097, 7.1847, 6.2265, 5.5875], mk: { 6: '‡' } },
+  { key: 'view', name: 'View', full: 'View consistency (balanced acc.)', lv: 1, hib: true, nd: 3, v: [0.9557, 0.9808, 0.9118, 0.9256, 0.9385, 0.8215, 0.8001, 0.6928, 0.8255, 0.7858] },
+  { key: 'pers', name: 'Persist.', full: 'Persistence angular error (°)', lv: 2, hib: false, nd: 1, v: [65.38, 32.79, 36.45, 45.31, 68.59, 62.38, 70.62, 61.18, 55.97, 70.30] },
+  { key: 'direct', name: 'Direct', full: 'Direct prediction R@1', lv: 3, hib: true, nd: 3, v: [0.2373, 0.0133, 0.0531, 0.0625, 0.1712, 0.0260, 0.0088, 0.0024, 0.0249, 0.0302], nr: [8], mk: { 8: '†' } },
+  { key: 'path', name: 'Path', full: 'Path integration R@1', lv: 3, hib: true, nd: 3, v: [0.0900, 0.0190, 0.0685, 0.1588, 0.0903, 0.0405, 0.0160, 0.0042, 0.0117, 0.0429], nr: [8], mk: { 8: '†' } }
 ];
 const SUMMARY = {
-  'DINOv2-L': 'Best at instance identity and path integration, second on depth and one-step prediction, but a low camera pose score (AUC 0.039) and mid-table persistence.',
-  'Fast3R': 'Leads depth, camera pose and view consistency and is second on persistence, yet sits near the bottom on both prediction tasks.',
-  'VideoMAE-L': 'Locates out-of-view objects best of all ten (55.5°) even though its depth and view readout are mid-table.',
-  'V-JEPA 2': 'Third to fifth on everything. For one-step prediction, copying its last feature beats a learned predictor.',
-  'Qwen2.5-VL': 'Best one-step prediction and second on path integration, but eighth on persistence and on camera pose.',
-  'Wan2.1': 'Middle of the pack. It beats VideoMAE on one-step prediction but not on path integration.',
-  'CogVideoX': 'In the lower half on every measurement.',
-  'Aether': 'Weak visible-scene readout, yet fourth on persistence.',
-  'MiniMax-H3': 'Fourth on camera pose, but last on persistence and both prediction tasks, with view consistency at chance (0.500).',
-  'LingBot-video': 'Fourth on instance identity, but last on depth and camera pose.'
+  'DINOv2-L': 'Leads direct prediction and instance identity and is second on depth and view consistency, but sixth on camera pose (AUC 0.041) and seventh on persistence (65.4°).',
+  'Fast3R': 'Leads depth, camera pose, view consistency and object persistence (32.8°), and is second on instance identity, yet seventh on both prediction tasks.',
+  'VideoMAE-L': 'Second at locating out-of-view objects (36.5°) and on camera pose, even though its depth, instance and view readout are mid-table.',
+  'V-JEPA 2': 'Leads path integration (0.159) and is third on pose, instance identity, persistence and direct prediction. For one-step prediction, copying its last feature beats a learned predictor.',
+  'Qwen2.5-VL': 'Second on both prediction tasks and third on depth and view consistency, but eighth on persistence and on camera pose.',
+  'Wan2.1': 'Middle of the pack: fourth on camera pose, sixth on depth, persistence and both prediction tasks. Its layer sweep peaks at block 15, earlier than the block 20 used here.',
+  'CogVideoX': 'In the lower half on every measurement, and last on persistence (70.6°).',
+  'Aether': 'Last on all four visible-scene measurements, yet fifth on persistence, ahead of Wan2.1 and CogVideoX.',
+  'MiniMax-H3': 'Best persistence among the generators and the world model (56.0°, fourth overall) and fifth on camera pose. Its prediction cells use a different protocol and are not ranked.',
+  'LingBot-video': 'Fifth on both prediction tasks, but ninth on camera pose, view consistency and persistence.'
 };
 const INSIGHTS = [
-  { big: '10×', text: 'Fast3R, trained for 3D reconstruction, reads camera pose about ten times better than DINOv2 (AUC@30 0.385 against 0.039). Yet DINOv2 separates object instances better (loss 1.26 against 1.48).', cells: [['Fast3R', 'pose'], ['DINOv2-L', 'pose'], ['DINOv2-L', 'inst'], ['Fast3R', 'inst']] },
-  { big: '55.5°', text: 'VideoMAE locates out-of-view objects best, although DINOv2 and Qwen2.5-VL read depth and view consistency better. Seeing a scene well does not guarantee remembering it.', cells: [['VideoMAE-L', 'pers'], ['VideoMAE-L', 'depth'], ['VideoMAE-L', 'view'], ['DINOv2-L', 'depth'], ['Qwen2.5-VL', 'view']] },
-  { big: 'Top 2', text: 'DINOv2 and Qwen2.5-VL take the top two spots on both prediction tasks, despite weaker persistence (69.0° and 71.4°).', cells: [['DINOv2-L', 'one'], ['DINOv2-L', 'path'], ['Qwen2.5-VL', 'one'], ['Qwen2.5-VL', 'path'], ['DINOv2-L', 'pers'], ['Qwen2.5-VL', 'pers']] },
-  { big: '⇄', text: 'Even the two prediction tasks disagree. Wan2.1 beats VideoMAE on one-step prediction (0.115 against 0.089), and VideoMAE beats Wan2.1 on path integration (0.069 against 0.038).', cells: [['Wan2.1', 'one'], ['VideoMAE-L', 'one'], ['Wan2.1', 'path'], ['VideoMAE-L', 'path']] },
-  { big: '≈', text: 'Model families don’t decide the profile. VideoMAE and V-JEPA 2 are both video encoders with nearly the same view consistency (0.921 and 0.924), but VideoMAE is better at pose and persistence while V-JEPA 2 is better at depth, identity and prediction.', cells: [['VideoMAE-L', 'view'], ['V-JEPA 2', 'view'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose']] }
+  { big: '9×', text: 'Fast3R, trained for 3D reconstruction, reads camera pose about nine times better than DINOv2 (AUC@30 0.387 against 0.041). Yet DINOv2 separates object instances better (loss 1.38 against 1.61).', cells: [['Fast3R', 'pose'], ['DINOv2-L', 'pose'], ['DINOv2-L', 'inst'], ['Fast3R', 'inst']] },
+  { big: '32.8°', text: 'Fast3R also locates out-of-view objects best, and VideoMAE is second (36.5°), although DINOv2 and Qwen2.5-VL read depth, instance identity and view consistency better than VideoMAE. Seeing a scene well does not guarantee remembering it.', cells: [['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['VideoMAE-L', 'depth'], ['VideoMAE-L', 'inst'], ['VideoMAE-L', 'view'], ['DINOv2-L', 'pers'], ['Qwen2.5-VL', 'pers']] },
+  { big: 'ρ 0.76', text: 'Persistence goes with camera pose. The three best localizers, Fast3R, VideoMAE and V-JEPA 2, are exactly the three with the highest pose AUC; across all ten, the rank correlation is 0.76, against at most 0.43 for depth, instance identity and view consistency. A descriptive association, not a causal account.', cells: [['Fast3R', 'pose'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose'], ['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers']] },
+  { big: '⇄', text: 'Prediction has its own leaders. DINOv2 leads direct prediction (0.237) and V-JEPA 2 leads path integration (0.159), with Qwen2.5-VL second on both. DINOv2 and V-JEPA 2 swap places between the two tasks, and neither prediction ordering is related to the persistence ordering (|ρ| < 0.1).', cells: [['DINOv2-L', 'direct'], ['V-JEPA 2', 'direct'], ['DINOv2-L', 'path'], ['V-JEPA 2', 'path'], ['Qwen2.5-VL', 'direct'], ['Qwen2.5-VL', 'path']] },
+  { big: '≈', text: 'Model families don’t decide the profile. VideoMAE and V-JEPA 2 are both video encoders with similar view consistency (0.912 and 0.926), but VideoMAE is better at pose and persistence while V-JEPA 2 is better at depth, instance identity and both prediction tasks.', cells: [['VideoMAE-L', 'view'], ['V-JEPA 2', 'view'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose']] },
+  { big: '56.0°', text: 'Among the video generators and the world model, Aether localizes better than Wan2.1 and CogVideoX despite weaker results on the other six measurements, and MiniMax-H3 localizes best of the group.', cells: [['MiniMax-H3', 'pers'], ['Aether', 'pers'], ['Wan2.1', 'pers'], ['CogVideoX', 'pers'], ['LingBot-video', 'pers']] }
 ];
-const LAYER_PEAKS = {
-  'V-JEPA 2': { 'Geometry': 17, 'Instance identity': 11, 'View consistency': 11, 'Persistence': 17, 'One-step': 5, 'Path integration': 5 },
-  'VideoMAE': { 'Geometry': 23, 'Instance identity': 23, 'View consistency': 23, 'Persistence': 23, 'One-step': 17, 'Path integration': 17 }
+// Layer sweeps (paper Fig. 4a): blocks in the network, measured blocks, best block per readout
+const LAYER_MODELS = {
+  'V-JEPA 2': { n: 24, measured: [5, 11, 17, 23], peaks: { 'Geometry': 17, 'Instance identity': 23, 'View consistency': 17, 'Persistence': 17, 'Direct prediction': 23, 'Path integration': 23 } },
+  'VideoMAE': { n: 24, measured: [5, 11, 17, 23], peaks: { 'Geometry': 23, 'Instance identity': 23, 'View consistency': 23, 'Persistence': 23, 'Direct prediction': 17, 'Path integration': 17 } },
+  'Wan2.1': { n: 30, measured: [0, 5, 10, 15, 20, 25, 29], main: 20, peaks: { 'Geometry': 15, 'Instance identity': 20, 'View consistency': 15, 'Persistence': 15, 'Direct prediction': 15, 'Path integration': 15 } },
+  'CogVideoX': { n: 42, measured: [0, 5, 10, 20, 30, 35, 40], main: 20, prov: ['Instance identity'], peaks: { 'Geometry': 10, 'Instance identity': 20, 'View consistency': 20, 'Persistence': 10, 'Direct prediction': 0, 'Path integration': 10 } }
 };
-const MEASURED = [0, 5, 11, 17, 23];
-const TASK_LV = { 'Geometry': 1, 'Instance identity': 1, 'View consistency': 1, 'Persistence': 2, 'One-step': 3, 'Path integration': 3 };
+const TASK_LV = { 'Geometry': 1, 'Instance identity': 1, 'View consistency': 1, 'Persistence': 2, 'Direct prediction': 3, 'Path integration': 3 };
 const PREFIX_MODELS = ['DINOv2', 'Fast3R', 'VideoMAE', 'V-JEPA 2', 'Qwen2.5-VL', 'Wan2.1', 'CogVideoX', 'Aether'];
-const PREFIX_TASKS = ['Depth', 'Mask', 'Camera', 'View', 'Persist.', 'One-step', 'Path'];
+const PREFIX_TASKS = ['Depth', 'Inst.', 'Camera', 'View', 'Persist.', 'Direct', 'Path'];
+// standardized, direction-corrected p24 - p8; 0 = tie, null = no accepted p24 result
 const PREFIX_DELTA = [
-  [0.1010, 0.0234, -0.3753, 0.0120, -1.2873, -0.1635, -2.3363],
-  [0.1110, 0.0041, 0.3753, -0.0083, null, 0.0273, -0.1183],
-  [-0.6646, -3.3418, -1.4228, -0.6041, -0.6781, -0.4360, -2.0701],
-  [-0.0029, -0.4520, -0.7259, -0.1255, -0.7164, -0.0273, -0.1183],
-  [0.1683, -0.2908, -0.2606, 0.0556, -0.4178, -0.1908, -2.2475],
-  [-0.3129, -1.3304, -0.5852, -0.2435, -1.2742, -0.4360, -0.1479],
-  [-0.1654, -1.3567, -0.3443, -0.4501, -1.1956, 0.0818, -0.1774],
-  [-0.3223, -3.7814, -0.2874, -0.1631, -0.4962, -0.0273, -0.0296]
+  [0.1225, -0.0713, -0.4788, 0.0124, -1.0453, -0.4286, -1.5137],
+  [0.1861, -0.1524, 0.8414, -0.0282, -0.8329, -0.0756, -0.2355],
+  [-1.1666, -2.7590, -1.9392, -1.8269, -1.6981, -1.3868, -2.6573],
+  [-0.0878, -0.4771, -0.6967, -0.1402, -2.1356, -0.1009, -0.1009],
+  [0.1798, -0.3968, -0.3117, 0.00001, -0.8295, -0.1765, -1.3791],
+  [-0.4484, -1.4175, -0.5661, -0.3243, -1.2385, -0.1009, -0.2018],
+  [-0.4961, null, -0.3840, -0.7988, -1.1093, 0, 0.0673],
+  [-0.2769, -2.5635, -0.2187, 0.3309, -0.9084, 0, 0]
 ];
 const COPY = [{ m: 'Wan2.1', pred: 15.22, copy: 11.96 }, { m: 'V-JEPA 2', pred: 13.04, copy: 19.93 }];
 const MOTION_GAIN = [['V-JEPA 2', 18.84, 13.04, 25.36], ['VideoMAE', 10.51, 6.16, 15.22], ['Wan2.1', 2.90, -1.45, 7.25], ['CogVideoX', 4.35, 0.35, 7.97]];
@@ -796,6 +802,7 @@ const ACT_MODELS = ['DINOv2-L', 'Fast3R', 'V-JEPA 2', 'Wan2.1'];
 const CONT_PROGRESS = [53.8, 59.8, 53.8, 50.2];
 const CONT_SHUFFLE = [[0.78, -2.12, 3.69], [1.17, -2.66, 5.20], [0.31, -2.86, 3.59], [-2.27, -6.28, 1.67]];
 const PERSIST = MODELS.map((m, i) => ({ m, e: METRICS[4].v[i] }));
+const BEST_P = PERSIST.reduce((a, b) => (b.e < a.e ? b : a));
 
 /* ================================================================ the apartment */
 const ROOM = { x0: -5, x1: 5, y0: -3, y1: 3 }, WALL_H = 2.7, CAM_H = 1.35, FOV = 72 * D2R;
@@ -1249,7 +1256,7 @@ safe('game', () => {
     const avg = G.errs.reduce((a, b) => a + b, 0) / G.errs.length;
     const better = PERSIST.filter(p => p.e > avg).length;
     $('#gamePrompt').textContent = err < 20 ? 'Close. Your spatial state held.' : err < 45 ? 'In the right half of the room.' : 'Lost it. Rooms are harder than they look.';
-    $('#gameResult').innerHTML = `<div class="bigerr">${fmt(err, 0)}°</div><p>off this round. Your average over ${G.errs.length} round${G.errs.length > 1 ? 's' : ''}: <b class="num">${fmt(avg, 1)}°</b>. ${better === 10 ? 'That beats the mean error of all ten frozen models.' : better === 0 ? 'Every frozen model does better on average.' : `That beats the mean error of ${better} of the ten frozen models.`} The best, VideoMAE, is off by 55.5° on average; random pointing averages 90°.</p><div class="rounds">${G.errs.map((e, k) => `<span>R${k + 1} ${fmt(e, 0)}°</span>`).join('')}</div>`;
+    $('#gameResult').innerHTML = `<div class="bigerr">${fmt(err, 0)}°</div><p>off this round. Your average over ${G.errs.length} round${G.errs.length > 1 ? 's' : ''}: <b class="num">${fmt(avg, 1)}°</b>. ${better === 10 ? 'That beats the mean error of all ten frozen models.' : better === 0 ? 'Every frozen model does better on average.' : `That beats the mean error of ${better} of the ten frozen models.`} The best, ${BEST_P.m}, is off by ${fmt(BEST_P.e, 1)}° on average; random pointing averages 90°.</p><div class="rounds">${G.errs.map((e, k) => `<span>R${k + 1} ${fmt(e, 0)}°</span>`).join('')}</div>`;
     all(); drawRuler();
   }
   function next() { G.i += 1; setup(G.i); $('#startBtn').hidden = false; $('#nextBtn').hidden = true; map.hidden = true; phaseLabel('ready'); $('#gamePrompt').textContent = `Ready for round ${G.i % ROUNDS.length + 1}? This time: the ${G.tgt.label}.`; $('#gameResult').innerHTML = ''; all(); start(); }
@@ -1274,8 +1281,8 @@ safe('game', () => {
     const narrow = s.getBoundingClientRect().width < 620;
     svg('line', { x1: x0, y1: y, x2: x1, y2: y, stroke: P.graphite, 'stroke-width': 2 }, s);
     for (let v = 0; v <= 100; v += 10) { svg('line', { x1: X(v), y1: y - 5, x2: X(v), y2: y + 5, stroke: P.graphite, 'stroke-width': 1.5 }, s); txt(s, X(v), y + 24, v + '°', { 'text-anchor': 'middle', 'font-size': narrow ? 20 : 14, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' }); }
-    svg('rect', { x: X(55.53), y: y - 9, width: X(79.54) - X(55.53), height: 18, fill: P.accent, opacity: 0.12 }, s);
-    const sorted = PERSIST.slice().sort((a, b) => a.e - b.e);
+    const sorted = PERSIST.slice().sort((a, b) => a.e - b.e), eLo = sorted[0].e, eHi = sorted[sorted.length - 1].e;
+    svg('rect', { x: X(eLo), y: y - 9, width: X(eHi) - X(eLo), height: 18, fill: P.accent, opacity: 0.12 }, s);
     sorted.forEach(p => {
       const g = svg('g', {}, s); svg('line', { x1: X(p.e), y1: y - 12, x2: X(p.e), y2: y + 12, stroke: P['accent-ink'], 'stroke-width': 2.5 }, g);
       const t = svg('title', {}, g); t.textContent = `${p.m}: ${fmt(p.e, 1)}°`;
@@ -1286,7 +1293,7 @@ safe('game', () => {
     $('#rulerList').textContent = 'Mean error of each frozen model: ' + sorted.map(p => `${p.m} ${fmt(p.e, 1)}°`).join(' · ') + '.';
     svg('line', { x1: X(90), y1: y - 30, x2: X(90), y2: y + 12, stroke: P.graphite, 'stroke-width': 2, 'stroke-dasharray': '5 4' }, s);
     txt(s, X(90), y - 36, 'random 90°', { 'text-anchor': 'middle', 'font-size': narrow ? 19 : 13, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
-    txt(s, (X(55.53) + X(79.54)) / 2, y - 36, 'frozen models', { 'text-anchor': 'middle', 'font-size': narrow ? 19 : 13, fill: P['accent-ink'], 'font-family': 'IBM Plex Mono, monospace' });
+    txt(s, (X(eLo) + X(eHi)) / 2, y - 36, 'frozen models', { 'text-anchor': 'middle', 'font-size': narrow ? 19 : 13, fill: P['accent-ink'], 'font-family': 'IBM Plex Mono, monospace' });
     G.errs.forEach((e, k) => svg('circle', { cx: X(e), cy: y - 22 - (k % 3) * 9, r: 6, fill: P.ink, opacity: 0.55 }, s));
     if (G.errs.length) {
       const avg = G.errs.reduce((a, b) => a + b, 0) / G.errs.length;
@@ -1405,13 +1412,18 @@ safe('levels', () => {
 /* ================================================================ results explorer */
 safe('results', () => {
   const heat = $('#heat'), sel = $('#sortSel'), tip = $('#tip');
-  const ranks = METRICS.map(m => { const order = m.v.map((v, i) => i).sort((a, b) => m.hib ? m.v[b] - m.v[a] : m.v[a] - m.v[b]); const r = []; order.forEach((i, k) => { r[i] = k; }); return r; });
+  // rank 0 = best; cells the paper leaves unranked get null
+  const ranks = METRICS.map(m => { const nr = m.nr || [], order = m.v.map((v, i) => i).filter(i => !nr.includes(i)).sort((a, b) => m.hib ? m.v[b] - m.v[a] : m.v[a] - m.v[b]); const r = m.v.map(() => null); order.forEach((i, k) => { r[i] = k; }); return r; });
+  const nRanked = j => ranks[j].filter(r => r != null).length;
+  const valTxt = (m, i) => fmt(m.v[i], m.nd) + ((m.mk && m.mk[i]) || '');
+  const NR_NOTE = 'not ranked: MiniMax-H3 prediction uses 171 of 276 windows, and its direct predictor only the next frame';
   const R_ = { sortBy: -1, sel: 'VideoMAE-L', ins: 0 };
   sel.innerHTML = '<option value="-1">Paper order</option>' + METRICS.map((m, j) => `<option value="${j}">${m.full}</option>`).join('');
-  function cellColor(rank) { const s = 1 - rank / 9; return `color-mix(in srgb, var(--accent) ${Math.round(6 + 78 * Math.pow(s, 1.5))}%, var(--panel))`; }
+  function cellColor(rank, n) { if (rank == null) return 'var(--hair-2)'; const s = 1 - rank / (n - 1); return `color-mix(in srgb, var(--accent) ${Math.round(6 + 78 * Math.pow(s, 1.5))}%, var(--panel))`; }
   function build() {
     const order = MODELS.map((m, i) => i);
-    if (R_.sortBy >= 0) order.sort((a, b) => ranks[R_.sortBy][a] - ranks[R_.sortBy][b]);
+    const rk_ = (j, i) => ranks[j][i] == null ? 99 : ranks[j][i];
+    if (R_.sortBy >= 0) order.sort((a, b) => rk_(R_.sortBy, a) - rk_(R_.sortBy, b));
     const hl = new Set(INSIGHTS[R_.ins].cells.map(c => c[0] + '|' + c[1]));
     let h = '<div class="corner">model</div>';
     METRICS.forEach((m, j) => { h += `<button type="button" class="h lv${m.lv}${R_.sortBy === j ? ' sorted' : ''}" data-j="${j}" aria-label="Rank by ${m.full}">${m.name}<small>L${m.lv} ${m.hib ? '↑' : '↓'}</small></button>`; });
@@ -1419,15 +1431,16 @@ safe('results', () => {
       const name = MODELS[i];
       h += `<button type="button" class="m${R_.sel === name ? ' sel' : ''}" data-m="${name}">${name}<small>${FAMILY[name]}</small></button>`;
       METRICS.forEach((m, j) => {
-        const rk = ranks[j][i], key = name + '|' + m.key, dark = rk <= 2;
-        h += `<button type="button" class="c${rk === 0 ? ' best' : ''}${hl.has(key) ? ' hl' : ''}" style="background:${cellColor(rk)};${dark ? 'color:var(--on-accent)' : ''}" data-i="${i}" data-j="${j}" aria-label="${name}, ${m.full}: ${fmt(m.v[i], m.nd)}, rank ${rk + 1} of 10">${fmt(m.v[i], m.nd)}</button>`;
+        const rk = ranks[j][i], key = name + '|' + m.key, dark = rk != null && rk <= 2;
+        const lab = rk == null ? NR_NOTE : `rank ${rk + 1} of ${nRanked(j)}`;
+        h += `<button type="button" class="c${rk === 0 ? ' best' : ''}${rk == null ? ' nr' : ''}${hl.has(key) ? ' hl' : ''}" style="background:${cellColor(rk, nRanked(j))};${dark ? 'color:var(--on-accent)' : ''}" data-i="${i}" data-j="${j}" aria-label="${name}, ${m.full}: ${valTxt(m, i)}, ${lab}">${valTxt(m, i)}</button>`;
       });
     }
     heat.innerHTML = h;
   }
   function profile() {
     const i = MODELS.indexOf(R_.sel), el = $('#profile');
-    el.innerHTML = `<p class="fam">${FAMILY[R_.sel]}</p><h3 style="font-size:1.5rem">${R_.sel}</h3><p>${SUMMARY[R_.sel]}</p><div class="pbars">${METRICS.map((m, j) => { const rk = ranks[j][i]; return `<div class="pbar"><span class="lab">${m.name} <span class="mono" style="color:var(--graphite);font-size:.7rem">L${m.lv}</span></span><span class="track"><span class="fill" style="width:${Math.round((1 - rk / 9) * 100)}%"></span></span><span class="rk">#${rk + 1}</span></div>`; }).join('')}</div><p class="note">Bar length is the rank among the ten (full bar = best), so measurements with different units sit on one scale.</p>`;
+    el.innerHTML = `<p class="fam">${FAMILY[R_.sel]}</p><h3 style="font-size:1.5rem">${R_.sel}</h3><p>${SUMMARY[R_.sel]}</p><div class="pbars">${METRICS.map((m, j) => { const rk = ranks[j][i], n = nRanked(j); return `<div class="pbar"><span class="lab">${m.name} <span class="mono" style="color:var(--graphite);font-size:.7rem">L${m.lv}</span></span><span class="track"><span class="fill" style="width:${rk == null ? 0 : Math.round((1 - rk / (n - 1)) * 100)}%"></span></span><span class="rk"${rk == null ? ' title="not ranked"' : ''}>${rk == null ? '–' : '#' + (rk + 1)}</span></div>`; }).join('')}</div><p class="note">Bar length is the rank within each measurement (full bar = best), so measurements with different units sit on one scale.${i === MODELS.indexOf('MiniMax-H3') ? ' Its prediction cells use a different protocol and are not ranked.' : ''}</p>`;
   }
   function insight() {
     const it = INSIGHTS[R_.ins]; $('#insNum').textContent = it.big; $('#insText').textContent = it.text; $('#insCount').textContent = `${R_.ins + 1} / ${INSIGHTS.length}`; build();
@@ -1441,7 +1454,8 @@ safe('results', () => {
   heat.addEventListener('pointermove', e => {
     const b = e.target.closest('.c'); if (!b) { tip.hidden = true; return; }
     const i = +b.dataset.i, j = +b.dataset.j, m = METRICS[j];
-    tip.innerHTML = `<b>${MODELS[i]}</b><br>${m.full}: <span class="num">${fmt(m.v[i], m.nd)}</span><br>rank ${ranks[j][i] + 1} of 10 · ${m.hib ? 'higher' : 'lower'} is better`;
+    const rk = ranks[j][i];
+    tip.innerHTML = `<b>${MODELS[i]}</b><br>${m.full}: <span class="num">${valTxt(m, i)}</span><br>${rk == null ? NR_NOTE : `rank ${rk + 1} of ${nRanked(j)} · ${m.hib ? 'higher' : 'lower'} is better`}${m.mk && m.mk[i] === '‡' ? '<br>‡ averages prefixes 8 and 12 only' : ''}`;
     tip.hidden = false; const x = Math.min(e.clientX + 14, window.innerWidth - 270); tip.style.left = x + 'px'; tip.style.top = (e.clientY + 14) + 'px';
   });
   heat.addEventListener('pointerleave', () => { tip.hidden = true; });
@@ -1455,36 +1469,46 @@ safe('results', () => {
 safe('layers', () => {
   const s = $('#layerSvg'), range = $('#layerRange');
   const L = { m: 'V-JEPA 2' };
-  const TASKS = ['Geometry', 'Instance identity', 'View consistency', 'Persistence', 'One-step', 'Path integration'];
+  const TASKS = ['Geometry', 'Instance identity', 'View consistency', 'Persistence', 'Direct prediction', 'Path integration'];
+  function ticks() {
+    const lm = LAYER_MODELS[L.m];
+    range.max = lm.measured.length - 1;
+    $('#layerTicks').innerHTML = lm.measured.map((k, i) => `<span>${i ? k : 'block ' + k}</span>`).join('');
+  }
   function draw() {
     s.innerHTML = '';
-    const blk = MEASURED[+range.value], peaks = LAYER_PEAKS[L.m];
-    const yOf = k => 304 - k * 12;
-    for (let k = 0; k < 24; k++) {
-      const m = MEASURED.includes(k), on = k === blk;
-      svg('rect', { x: 40, y: yOf(k) - 5, width: 120, height: 9, rx: 3, fill: on ? P.accent : P.cool, opacity: on ? 1 : m ? 0.55 : 0.15 }, s);
-      if (m) txt(s, 30, yOf(k) + 3, k, { 'text-anchor': 'end', 'font-size': 12, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    const lm = LAYER_MODELS[L.m], blk = lm.measured[Math.min(+range.value, lm.measured.length - 1)], peaks = lm.peaks;
+    const step = 276 / (lm.n - 1), yOf = k => 304 - k * step, h = Math.max(3, Math.min(9, step - 3));
+    for (let k = 0; k < lm.n; k++) {
+      const m = lm.measured.includes(k), on = k === blk;
+      svg('rect', { x: 40, y: yOf(k) - h / 2, width: 120, height: h, rx: Math.min(3, h / 2), fill: on ? P.accent : P.cool, opacity: on ? 1 : m ? 0.55 : 0.15 }, s);
+      if (m) txt(s, 30, yOf(k) + 4, k + (k === lm.main ? '*' : ''), { 'text-anchor': 'end', 'font-size': 12, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
     }
     txt(s, 100, 22, L.m, { 'text-anchor': 'middle', 'font-size': 15, 'font-weight': 700, fill: P.ink, 'font-family': 'Archivo, sans-serif' });
-    txt(s, 100, 325, 'block (depth)', { 'text-anchor': 'middle', 'font-size': 11, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+    txt(s, 100, 325, `block (${lm.n} in all)`, { 'text-anchor': 'middle', 'font-size': 11, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
     TASKS.forEach((t, r) => {
-      const y = 52 + r * 46, k = peaks[t], on = k === blk, col = P['l' + TASK_LV[t]];
+      const y = 52 + r * 46, k = peaks[t], on = k === blk, col = P['l' + TASK_LV[t]], prov = (lm.prov || []).includes(t);
       svg('path', { d: `M162 ${yOf(k)} C 230 ${yOf(k)}, 250 ${y}, 300 ${y}`, fill: 'none', stroke: col, 'stroke-width': on ? 3 : 1.5, opacity: on ? 1 : 0.45 }, s);
       svg('circle', { cx: 162, cy: yOf(k), r: on ? 5 : 3.5, fill: col }, s);
       svg('rect', { x: 300, y: y - 15, width: 240, height: 30, rx: 15, fill: col, opacity: on ? 0.22 : 0.08, stroke: col, 'stroke-width': on ? 2 : 1 }, s);
       txt(s, 316, y + 5, `${t}`, { 'font-size': 14, 'font-weight': on ? 700 : 500, fill: P.ink, 'font-family': 'Archivo, sans-serif' });
-      txt(s, 528, y + 5, `block ${k}`, { 'text-anchor': 'end', 'font-size': 12, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
+      txt(s, 528, y + 5, `block ${k}${prov ? '†' : ''}`, { 'text-anchor': 'end', 'font-size': 12, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' });
     });
-    const at = TASKS.filter(t => peaks[t] === blk);
-    $('#layerText').textContent = at.length ? `In ${L.m}, block ${blk} is the best layer for ${at.join(', ').replace(/, ([^,]*)$/, ' and $1').toLowerCase()}.` : `No task peaks at block ${blk} in ${L.m}. Its peaks: ${TASKS.map(t => t.toLowerCase() + ' ' + peaks[t]).join(', ')}.`;
+    const at = TASKS.filter(t => peaks[t] === blk), list = a => a.join(', ').replace(/, ([^,]*)$/, ' and $1').toLowerCase();
+    let say = at.length ? `In ${L.m}, block ${blk} is the best measured layer for ${list(at)}.` : `No readout peaks at block ${blk} in ${L.m}. Its peaks: ${TASKS.map(t => t.toLowerCase() + ' ' + peaks[t]).join(', ')}.`;
+    if (lm.main != null) say += ` The main table reads block ${lm.main} (marked *).`;
+    if ((lm.prov || []).length) say += ' † provisional: that block averages two of four prefixes.';
+    $('#layerText').textContent = say;
   }
-  $$('#layerModel button').forEach(b => b.addEventListener('click', () => { L.m = b.dataset.m; $$('#layerModel button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); }));
+  $$('#layerModel button').forEach(b => b.addEventListener('click', () => { L.m = b.dataset.m; $$('#layerModel button').forEach(x => x.setAttribute('aria-pressed', x === b)); const lm = LAYER_MODELS[L.m]; ticks(); range.value = Math.max(0, lm.measured.indexOf(lm.peaks['Persistence'])); draw(); }));
+  ticks();
   range.addEventListener('input', draw);
   draw(); redraw.add(draw);
 
   const grid = $('#prefixGrid'); let hlCol = -1;
   function colOf(d) {
     if (d == null) return 'var(--hair-2)';
+    if (d === 0) return 'color-mix(in srgb, var(--graphite) 14%, var(--panel))';
     const a = Math.round(18 + 70 * Math.pow(Math.min(1, Math.abs(d) / 2.5), 0.8));
     return `color-mix(in srgb, ${d < 0 ? 'var(--accent)' : 'var(--cool)'} ${a}%, var(--panel))`;
   }
@@ -1494,7 +1518,7 @@ safe('layers', () => {
       h += `<div class="m">${m}</div>`;
       PREFIX_DELTA[i].forEach((d, j) => {
         const strong = d != null && Math.abs(d) > 1.2;
-        h += `<div class="c${hlCol === j ? ' col-hl' : ''}" style="background:${colOf(d)};${strong ? 'color:var(--on-accent)' : ''}" title="${m} · ${PREFIX_TASKS[j]}: ${d == null ? 'not available' : (d > 0 ? '+' : '') + fmt(d, 2)}">${d == null ? '·' : d > 0 ? '+' : '−'}</div>`;
+        h += `<div class="c${hlCol === j ? ' col-hl' : ''}" style="background:${colOf(d)};${strong ? 'color:var(--on-accent)' : ''}" title="${m} · ${PREFIX_TASKS[j]}: ${d == null ? 'no p24 result' : d === 0 ? 'tie (same score at p8 and p24)' : (d > 0 ? '+' : '') + fmt(d, Math.abs(d) < 0.005 ? 5 : 2)}">${d == null ? '·' : d === 0 ? '=' : d > 0 ? '+' : '−'}</div>`;
       });
     });
     grid.innerHTML = h;
@@ -1507,10 +1531,10 @@ safe('layers', () => {
 safe('mission', () => {
   const map = $('#mMap'), view = $('#mView');
   const MB = {
-    'DINOv2-L': { auc: 0.0386, e2: 69.01, r3: 0.1470, p4: 53.8, s1: 1, s2: -1, txt: 'Leads path integration among these four (R@1 0.147), but has the weakest pose readout (AUC@30 0.039) and the largest persistence error (69.0°).' },
-    'Fast3R': { auc: 0.3852, e2: 56.45, r3: 0.0145, p4: 59.8, s1: -1, s2: 1, txt: 'Best of the four at pose (AUC@30 0.385), persistence (56.5°) and action progress (59.8%), yet it can barely integrate a path (R@1 0.015).' },
-    'V-JEPA 2': { auc: 0.1849, e2: 59.39, r3: 0.0839, p4: 53.8, s1: 1, s2: -1, txt: 'Second at every step and best at none. For one-step prediction, copying its last feature beats a learned predictor (19.9% against 13.0%).' },
-    'Wan2.1': { auc: 0.0603, e2: 66.44, r3: 0.0383, p4: 50.2, s1: -1, s2: 1, txt: 'The lowest action progress of the four (50.2%), and third on pose, persistence and path integration. Predicting outcomes before choosing drops its candidate selection to 63.6%.' },
+    'DINOv2-L': { auc: 0.0412, e2: 65.38, r3: 0.0900, p4: 53.8, s1: 1, s2: -1, txt: 'The weakest pose readout of these four (AUC@30 0.041) and the largest persistence error (65.4°), so it turns well wide of the mug. Its path integration is second of the four (R@1 0.090).' },
+    'Fast3R': { auc: 0.3870, e2: 32.79, r3: 0.0190, p4: 59.8, s1: -1, s2: 1, txt: 'Best of the four at pose (AUC@30 0.387), persistence (32.8°, the only one that brings the mug back into view) and action progress (59.8%), yet it can barely integrate a path (R@1 0.019).' },
+    'V-JEPA 2': { auc: 0.1854, e2: 45.31, r3: 0.1588, p4: 53.8, s1: 1, s2: -1, txt: 'The best path integration of all ten (R@1 0.159) and second of these four on pose and persistence (45.3°), which is still too wide to bring the mug into view. For one-step prediction, copying its last feature beats a learned predictor (19.9% against 13.0%).' },
+    'Wan2.1': { auc: 0.0650, e2: 62.38, r3: 0.0405, p4: 50.2, s1: -1, s2: 1, txt: 'The lowest action progress of the four (50.2%), and third on pose, persistence and path integration. Predicting outcomes before choosing drops its candidate selection to 63.6%.' },
     'Ideal': { auc: 1, e2: 0, r3: 1, p4: 100, s1: 1, s2: 1, ideal: true, txt: 'What the errand needs: pose and heading within a few degrees, an imagined route that ends in the right place, and moves that each bring it closer.' }
   };
   const ORDER = ['DINOv2-L', 'Fast3R', 'V-JEPA 2', 'Wan2.1', 'Ideal'];
@@ -1535,12 +1559,21 @@ safe('mission', () => {
     const X = v => 14 + (v - S.lo) / (S.hi - S.lo) * 292, y = 30;
     svg('line', { x1: 14, y1: y, x2: 306, y2: y, stroke: P.hair, 'stroke-width': 6, 'stroke-linecap': 'round' }, el);
     S.ticks.forEach(v => txt(el, X(v), 56, S.f(v).replace('.0', ''), { 'text-anchor': 'middle', 'font-size': 11.5, fill: P.graphite, 'font-family': 'IBM Plex Mono, monospace' }));
-    if (S.need) { svg('line', { x1: X(S.need.v), y1: 14, x2: X(S.need.v), y2: 44, stroke: P.good, 'stroke-width': 2, 'stroke-dasharray': '3 3' }, el); txt(el, X(S.need.v) + 4, 12, `< ${S.need.v}°: ${S.need.s}`, { 'font-size': 11.5, fill: P.good, 'font-family': 'IBM Plex Mono, monospace' }); }
+    if (S.need) {
+      // put the threshold label on the side away from the selected model's dot
+      const xn = X(S.need.v), right = X(S.get(MB[M.m])) <= xn;
+      svg('line', { x1: xn, y1: 14, x2: xn, y2: 44, stroke: P.good, 'stroke-width': 2, 'stroke-dasharray': '3 3' }, el);
+      txt(el, xn + (right ? 4 : -4), 12, `< ${S.need.v}°: ${S.need.s}`, { 'text-anchor': right ? 'start' : 'end', 'font-size': 11.5, fill: P.good, 'font-family': 'IBM Plex Mono, monospace' });
+    }
     ORDER.forEach(name => {
       const v = S.get(MB[name]), on = name === M.m, ideal = name === 'Ideal';
       const c = svg('circle', { cx: X(v), cy: y, r: on ? 7 : 4, fill: ideal ? 'none' : on ? P.accent : P.graphite, stroke: ideal ? P.good : P.panel, 'stroke-width': ideal ? 2 : 1.5 }, el);
       const t = svg('title', {}, c); t.textContent = `${name}: ${S.f(v)}`;
-      if (on && !ideal) txt(el, X(v), y - 12, name, { 'text-anchor': X(v) > 250 ? 'end' : X(v) < 70 ? 'start' : 'middle', 'font-size': 12.5, 'font-weight': 700, fill: P['accent-ink'], 'font-family': 'Archivo, sans-serif' });
+      if (on && !ideal) {
+        const near = S.need && Math.abs(X(v) - X(S.need.v)) < 45;   // keep clear of the threshold line
+        const anchor = near ? (X(v) >= X(S.need.v) ? 'start' : 'end') : X(v) > 250 ? 'end' : X(v) < 70 ? 'start' : 'middle';
+        txt(el, X(v) + (near ? (anchor === 'start' ? -4 : 4) : 0), y - 12, name, { 'text-anchor': anchor, 'font-size': 12.5, 'font-weight': 700, fill: P['accent-ink'], 'font-family': 'Archivo, sans-serif' });
+      }
     });
     $('#mv' + k).textContent = S.f(S.get(MB[M.m]));
   }
@@ -1659,7 +1692,7 @@ safe('mission', () => {
   }
   function summary() {
     const m = MB[M.m];
-    $('#mSummary').innerHTML = `<div><p class="eyebrow">${M.m === 'Ideal' ? 'target' : FAMILY[M.m]}</p><h3>${M.m === 'Ideal' ? 'An ideal spatial state' : M.m}</h3><p>${m.txt}</p></div><div><h3>Every backbone trips, each in its own place</h3><p>DINOv2 barely knows how it moved. Fast3R can't imagine the route. V-JEPA 2 is middling everywhere. Wan2.1 makes progress on only half its moves. And on the step all four need, turning back to the mug, every average error is wider than half the field of view.</p></div>`;
+    $('#mSummary').innerHTML = `<div><p class="eyebrow">${M.m === 'Ideal' ? 'target' : FAMILY[M.m]}</p><h3>${M.m === 'Ideal' ? 'An ideal spatial state' : M.m}</h3><p>${m.txt}</p></div><div><h3>Every backbone trips, each in its own place</h3><p>DINOv2 barely knows how it moved and turns 65° wide of the mug. Fast3R is the only one of the four that brings the mug back into view, but it can't imagine the route. V-JEPA 2 imagines routes best, yet still misses the mug by 45° and gets fewer than one in five trips right. Wan2.1 makes progress on only half its moves. None of them finishes the errand.</p></div>`;
   }
   function refreshStatic() { for (let k = 1; k <= 4; k++) gauge(k); units(); summary(); }
   function reset() {
@@ -1728,7 +1761,7 @@ safe('controls', () => {
       [r[2], r[3]].forEach(v => svg('line', { x1: X(v), y1: y - 6, x2: X(v), y2: y + 6, stroke: P.ink, 'stroke-width': 2 }, s));
       txt(s, X(r[3]) + 6, y + 4, (r[1] > 0 ? '+' : '−') + fmt(Math.abs(r[1]), 1) + (C2.k === 'motion' ? ' pts' : '°') + (cross ? ' (crosses 0)' : ''), { 'font-size': 13, fill: cross ? P.graphite : P.ink, 'font-family': 'IBM Plex Mono, monospace' });
     });
-    $('#ciSay').textContent = C2.k === 'motion' ? 'Retrieval with the correct camera motion minus a wrong motion of matched displacement. It helps V-JEPA 2 (+18.8 points), VideoMAE and CogVideoX; for Wan2.1 the interval crosses zero.' : 'Error reduction when the probe sees the full video rather than the final frame, with the same object query. History helps V-JEPA 2 and Wan2.1 by about 10°, but not reliably VideoMAE, the most accurate localizer.';
+    $('#ciSay').textContent = C2.k === 'motion' ? 'Retrieval with the correct camera motion minus a wrong motion of matched displacement. It helps V-JEPA 2 (+18.8 points), VideoMAE and CogVideoX; for Wan2.1 the interval crosses zero.' : 'Error reduction when the probe sees the full video rather than the final frame, with the same object query. History helps V-JEPA 2 and Wan2.1 by about 10°, but not reliably VideoMAE, the most accurate localizer of these four.';
   }
   $$('#ciSeg button').forEach(b => b.addEventListener('click', () => { C2.k = b.dataset.k; $$('#ciSeg button').forEach(x => x.setAttribute('aria-pressed', x === b)); ciChart(); }));
   const C3 = { k: 'same' };
