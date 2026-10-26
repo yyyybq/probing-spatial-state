@@ -21,7 +21,7 @@ needs no `.vtt` request; `assets/promo.en.vtt` is kept for uploading the video e
 3. Four levels (L1 to L4) with live demos: depth / instance views, memory arrows, expected next view,
    pick-the-better-move; plus the paper's Fig. 1 and the causal-prefix protocol strip.
 4. Results: rank-shaded main table (sortable; MiniMax-H3 prediction cells hatched and unranked, as in
-   the paper), per-model profile, six findings.
+   the paper), per-model profile, seven findings.
 5. Layers and prefix: peak block per task (V-JEPA 2, VideoMAE, Wan2.1, CogVideoX); p24 vs p8 sign grid
    (80%, ties shown as =).
 6. Robot errand: one task, four key operations (localize, turn back to the mug, plan the trip,
