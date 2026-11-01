@@ -7,12 +7,14 @@ Everything runs client-side: a small raycaster renders the toy apartment live in
 | --- | --- |
 | `page.html` | Source of truth. Body-only HTML (no `<html>/<head>`), also published as the Claude artifact preview |
 | `index.html` | Standalone page generated from `page.html` by `build.sh`; this is what you host |
-| `assets/` | `promo.mp4` (720p cut of the 3-minute video), `poster.jpg`, `teaser.jpg` (paper Fig. 1), `promo.en.vtt` |
+| `assets/` | `promo.mp4` (720p of the 3-minute video) + `poster.jpg`; `explainer.mp4` (720p of the full walkthrough) + `poster_explainer.jpg` + `explainer.en.srt`; `probing_spatial_state_3min.mp4` (1080p 3-minute cut with burned-in subtitles, the file to share); `teaser.jpg` (paper Fig. 1); `promo.en.vtt` |
 | `build.sh` | `bash build.sh` regenerates `index.html` after editing `page.html` |
 | `serve.js` | Local preview with video byte ranges: `node serve.js . 8765`, then open http://127.0.0.1:8765 |
 
-Captions for the video are embedded in `page.html` (`#capdata`) and attached in script, so the page
-needs no `.vtt` request; `assets/promo.en.vtt` is kept for uploading the video elsewhere.
+Captions for both videos are embedded in `page.html` (`#capdata` for the 3-minute cut, `#capdata2`
+for the full walkthrough) and attached in script, so the page needs no `.vtt` request;
+`assets/promo.en.vtt` is kept for uploading the video elsewhere. The artifact preview cannot hold the
+long video, so its player falls back to the copy on the live site (`data-fallback`).
 
 ## Sections
 
@@ -23,17 +25,17 @@ needs no `.vtt` request; `assets/promo.en.vtt` is kept for uploading the video e
 4. Results: rank-shaded main table (sortable; MiniMax-H3 prediction cells hatched and unranked, as in
    the paper), per-model profile, seven findings.
 5. Layers and prefix: peak block per task (V-JEPA 2, VideoMAE, Wan2.1, CogVideoX); p24 vs p8 sign grid
-   (80%, ties shown as =).
+   (51 of 63 pairs favor p8, ties shown as =).
 6. Robot errand: one task, four key operations (localize, turn back to the mug, plan the trip,
    carry it). Each backbone replays its measured numbers; the ideal state shows a success.
-   Below it, "Two ingredient chains" (paper Sec. 5.6): pose -> persistence -> action and
-   visible scene -> prediction, with a toggle for each chain and its evidence.
+   Below it, "Two chains of association" (paper Sec. 5.6): camera pose — persistence — action and
+   scene content (depth, instance, view) — prediction, with a toggle for each chain and its evidence.
 7. Controls: copy vs learned prediction, motion and history effects with 95% intervals,
    reading V-JEPA 2's own predictions, goal shuffle.
-8. Video, takeaway, abstract, BibTeX.
+8. Video (3-minute overview and full walkthrough), takeaway, abstract, BibTeX.
 
 All numbers come from the paper (same values as `../video_3b1b/results_data.py`; snapshot
-`release_polished.tex` of 2026-10-26 noon, figures `v2-20261026-paper`). Display type is Archivo at
+`release_polished.tex` of paper folder (7), 2026-11-01). Display type is Archivo at
 94-98% width (`font-stretch`), narrower than its default so headings read taller. The apartment, robot and errand are
 illustrations; the page says so where they appear.
 

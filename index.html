@@ -319,6 +319,8 @@ select{font-family:var(--f-display);font-size:.9rem;padding:7px 10px;border-radi
 /* ---------- video and paper ---------- */
 .videofig{margin:0;display:grid;gap:10px}
 .videofig video{width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;border:1px solid var(--hair);background:#0e1117}
+.videofig video[hidden],.videofig [data-vid][hidden]{display:none}
+.vidseg{margin-bottom:14px}
 .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
 .three .panel{display:grid;gap:8px;align-content:start}
 .three .q{font-family:var(--f-display);font-weight:800;font-stretch:96%;font-size:1.9rem;line-height:1}
@@ -550,7 +552,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
           <select id="sortSel"></select>
         </div>
         <div class="heat-scroll"><div class="heat" id="heat"></div></div>
-        <p class="note" style="margin-top:10px">Cell shading follows the rank within each column (darker is better). Outlined cells are the best in the column. Values from the paper's main table, ScanNet++. † MiniMax-H3 prediction uses a different protocol (171 of 276 windows; direct prediction one frame ahead only) and is not ranked. ‡ CogVideoX instance identity averages prefixes 8 and 12.</p>
+        <p class="note" style="margin-top:10px">Cell shading follows the rank within each column (darker is better). Outlined cells are the best in the column, plus any result statistically tied with it (paired 95% scene-bootstrap interval), as in the paper. Values from the paper's main table, ScanNet++. † MiniMax-H3 prediction uses a different protocol (171 of 276 windows; direct prediction one frame ahead only) and is not ranked. Fast3R's training data include ScanNet++, and some validation scenes are among them, so its leads may partly reflect familiarity.</p>
       </div>
       <aside class="panel profile" id="profile" aria-live="polite"></aside>
     </div>
@@ -581,10 +583,10 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
       </div>
       <div class="panel">
         <h3>Streaming context: 24 frames against 8</h3>
-        <div class="stat"><span class="big">80%</span><p>of 55 paired comparisons favour the shorter prefix; 8 favour the longer one and 3 tie. Every model gets worse at object persistence with the longer prefix, and six of eight at path integration.</p></div>
+        <div class="stat"><span class="big">81%</span><p>of 63 paired comparisons favour the shorter prefix; 8 favour the longer one and 4 tie. All nine models get worse at object persistence with the longer prefix, and seven of nine at path integration.</p></div>
         <div class="prefix-scroll"><div class="prefix" id="prefixGrid"></div></div>
         <div class="seg" id="prefixHl" role="group" aria-label="Highlight a task"><button type="button" data-c="-1" aria-pressed="true">All tasks</button><button type="button" data-c="4" aria-pressed="false">Persistence</button><button type="button" data-c="6" aria-pressed="false">Path integration</button></div>
-        <p class="note">Standardized, direction-corrected change from p8 to p24; − means the longer prefix hurts, = a tie. The CogVideoX instance-identity pair has no p24 result. A longer prefix also moves the endpoint, so this does not isolate history alone.</p>
+        <p class="note">Standardized, direction-corrected change from p8 to p24; − means the longer prefix hurts, = a tie. A longer prefix also moves the endpoint, so this does not isolate history alone.</p>
       </div>
     </div>
   </div>
@@ -618,20 +620,20 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     <p class="note" style="margin-top:14px">The robot, apartment and errand are an illustration, and no robot ran. Each step replays the number the paper measured for that backbone with frozen features and a trained probe on ScanNet++. A step counts as broken when that average misses what the step needs, such as bringing the mug back inside the 72° field of view.</p>
     <div class="panel chains" id="chains">
       <div class="chains-head">
-        <div><p class="eyebrow">How the four levels relate</p><h3>Two ingredient chains run through the levels</h3></div>
+        <div><p class="eyebrow">How the four levels relate</p><h3>Two chains of association run through the levels</h3></div>
         <div class="seg" id="chainSeg" role="group" aria-label="Highlight a chain"><button type="button" data-c="pose" aria-pressed="true">Pose chain</button><button type="button" data-c="scene" aria-pressed="false">Scene chain</button></div>
       </div>
       <div class="chain" data-c="pose" role="button" tabindex="0" aria-label="Pose chain: camera pose, object persistence, goal-directed action">
         <div class="cnode" style="--c:var(--l1)"><span class="lv">L1</span><span>Camera pose<small>AUC@30</small></span></div>
-        <div class="carrow"><b>→</b><span>ρ 0.76 · same peak layer</span></div>
+        <div class="carrow"><b>—</b><span>ρ 0.76 · same peak layer</span></div>
         <div class="cnode" style="--c:var(--l2)"><span class="lv">L2</span><span>Object persistence<small>out-of-view localization</small></span></div>
-        <div class="carrow"><b>→</b><span>Fast3R leads both action tests</span></div>
+        <div class="carrow"><b>—</b><span>same top two in action</span></div>
         <div class="cnode" style="--c:var(--l4)"><span class="lv">L4</span><span>Goal-directed action<small>choose a move · output a move</small></span></div>
       </div>
       <p class="cross">Object persistence and feature prediction rank models unrelatedly (|ρ| &lt; 0.1).</p>
-      <div class="chain" data-c="scene" role="button" tabindex="0" aria-label="Scene chain: visible scene, feature prediction">
-        <div class="cnode" style="--c:var(--l1)"><span class="lv">L1</span><span>Visible scene<small>depth · instance · view</small></span></div>
-        <div class="carrow"><b>→</b><span>ρ 0.52–0.63 (pose ≤ 0.25)</span></div>
+      <div class="chain" data-c="scene" role="button" tabindex="0" aria-label="Scene chain: scene content, feature prediction">
+        <div class="cnode" style="--c:var(--l1)"><span class="lv">L1</span><span>Scene content<small>depth · instance · view</small></span></div>
+        <div class="carrow"><b>—</b><span>ρ ≥ 0.52 (pose ≤ 0.25)</span></div>
         <div class="cnode" style="--c:var(--l3)"><span class="lv">L3</span><span>Feature prediction<small>direct · path integration</small></span></div>
         <div class="carrow gap" aria-hidden="true"></div>
         <div class="cnode gap" aria-hidden="true"></div>
@@ -681,14 +683,24 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
   <div class="wrap">
     <div class="sechead">
       <p class="eyebrow">Video</p>
-      <h2>The paper in three minutes</h2>
+      <h2>The paper on video</h2>
+    </div>
+    <div class="seg vidseg" id="vidSeg" role="group" aria-label="Which video" style="display:none">
+      <button type="button" data-v="short" aria-pressed="true">3-minute overview</button>
+      <button type="button" data-v="long" aria-pressed="false">Full walkthrough · <span id="longLen">17 min</span></button>
     </div>
     <figure class="videofig">
-      <video controls playsinline preload="metadata" poster="assets/poster.jpg">
+      <video data-vid="short" data-cap="capdata" controls playsinline preload="metadata" poster="assets/poster.jpg">
         <source src="assets/promo.mp4" type="video/mp4">
       </video>
-      <script type="application/json" id="capdata">[[0,0.65,"Turn your head,"],[0.67,2.21,"and the chair leaves your view."],[2.23,3.533,"But not your mind."],[3.553,4.903,"You still know where it is,"],[4.923,6.328,"what one step would reveal,"],[6.348,7.803,"and how to get back to it."],[7.823,9.417,"That's a spatial state."],[9.437,11.292,"Visual foundation models learn"],[11.312,13.757,"from huge amounts of images and video."],[13.777,15.667,"But do they hold a spatial state?"],[19.47,21.852,"We put ten frozen models to the test:"],[21.872,24.753,"image and video encoders, a 3D model,"],[24.773,26.915,"video generators, a world model,"],[26.935,28.95,"and a multimodal LLM."],[28.97,30.685,"Each model watches a camera move"],[30.705,32.048,"through indoor scenes,"],[32.068,34.76,"frame by frame, never seeing the future."],[34.78,36.15,"A small trained probe"],[36.17,38.167,"then reads out what its features know."],[38.187,39.747,"We ask four questions."],[39.767,41.285,"Can it read the visible scene:"],[41.305,43.187,"depth, pose, and objects?"],[43.207,44.504,"Does it remember objects"],[44.524,45.907,"after they leave the view?"],[45.927,46.584,"Can it predict"],[46.604,48.237,"what it will see after a move?"],[48.257,49.332,"And can it pick a move"],[49.352,51.227,"that brings it closer to a goal?"],[52.125,53.49,"Here's what we found."],[53.51,55.333,"No model wins everywhere."],[55.353,57.521,"Fast3R reads camera pose"],[57.541,59.983,"nine times better than DINOv2,"],[60.003,61.308,"and best locates objects"],[61.328,62.473,"that left the view."],[62.493,64.348,"VideoMAE is second,"],[64.368,66.925,"despite weaker readout of the visible scene."],[66.945,67.962,"Seeing a scene well"],[67.982,69.53,"does not mean remembering it."],[69.55,70.595,"Across models,"],[70.615,73.017,"remembering tracks camera pose instead."],[73.037,74.312,"And for future prediction,"],[74.332,77.227,"DINOv2 and V-JEPA 2 take the lead."],[78.113,80.323,"Where and when you read also matters."],[80.343,81.543,"In V-JEPA 2,"],[81.563,83.343,"prediction peaks at the last layer"],[83.363,84.863,"and persistence earlier."],[84.883,87.75,"In VideoMAE, it's the other way around."],[87.77,90.21,"And more history is not always better."],[90.23,92.165,"Going from 8 frames to 24"],[92.185,94.49,"hurts four in five comparisons,"],[94.51,96.265,"and makes object persistence worse"],[96.285,98.09,"for every model we tested."],[98.975,101.767,"Next, decodable is not the same as used."],[101.787,104.537,"For V-JEPA 2, simply copying the last feature"],[104.557,106.717,"beats a learned one-step predictor."],[106.737,108.677,"And VideoMAE,"],[108.697,110.939,"the most accurate localizer in this test,"],[110.959,112.602,"shows no reliable benefit"],[112.622,114.177,"from its visual history."],[115.053,116.928,"V-JEPA 2 can also predict"],[116.948,118.543,"future features natively."],[118.563,119.733,"But hand those predictions"],[119.753,122.433,"to a depth reader trained on real features,"],[122.453,126.695,"and the error jumps from 0.18 to 0.25,"],[126.715,128.108,"worse than a layout prior"],[128.128,129.717,"that ignores the input."],[129.737,130.787,"Retrain the reader,"],[130.807,133.242,"and the error falls to 0.22."],[133.262,134.792,"Some geometry survives,"],[134.812,136.707,"but the interface has changed."],[137.602,139.567,"Finally, acting toward a goal."],[139.587,142.142,"Picking the better of two candidate moves works,"],[142.162,143.987,"and clearly depends on the goal."],[144.007,144.752,"But what if the probe"],[144.772,146.535,"must output the move itself?"],[146.555,148.635,"Swap in a goal from another scene,"],[148.655,150.285,"and the predicted direction swings"],[150.305,152.48,"by 30 to 46 degrees."],[152.5,153.6,"Yet the correct goal"],[153.62,156.017,"does not reliably beat a shuffled one."],[156.037,157.022,"The needle turns,"],[157.042,158.507,"but it doesn't point the way."],[158.527,161.317,"Goal sensitivity is not goal utility."],[162.203,164.02,"Two chains link the levels:"],[164.04,166.508,"camera pose feeds memory and action,"],[166.528,168.833,"while the visible scene feeds prediction."],[168.853,170.273,"To judge whether a vision model"],[170.293,171.773,"holds a spatial state,"],[171.793,173.873,"don't just ask what can be decoded."],[173.893,175.998,"Ask whether it can be kept beyond view,"],[176.018,178.623,"updated under motion, and used to act."]]</script>
-      <figcaption class="note">Narrated walkthrough with English captions. Room views in the video are schematic renders; the experiments use ScanNet++.</figcaption>
+      <video data-vid="long" data-cap="capdata2" data-fallback="https://yyyybq.github.io/probing-spatial-state/assets/explainer.mp4" controls playsinline preload="none" poster="assets/poster_explainer.jpg" hidden>
+        <source src="assets/explainer.mp4" type="video/mp4">
+      </video>
+      <script type="application/json" id="capdata2">[]</script>
+      <script type="application/json" id="capdata">[[0,0.64,"Turn your head,"],[0.66,2.31,"and the chair leaves your view."],[2.48,3.8,"But not your mind."],[4.187,5.537,"You still know where it is,"],[5.557,6.962,"what one step would reveal,"],[6.982,8.547,"and how to get back to it."],[8.717,10.327,"That's a spatial state."],[10.703,12.558,"Visual foundation models learn"],[12.578,15.133,"from huge amounts of images and video."],[15.303,17.193,"But do they hold a spatial state?"],[21.37,23.752,"We put ten frozen models to the test:"],[23.772,26.653,"image and video encoders, a 3D model,"],[26.673,28.815,"video generators, a world model,"],[28.835,30.89,"and a multimodal LLM."],[31.253,32.968,"Each model watches a camera move"],[32.988,34.331,"through indoor scenes,"],[34.351,37.153,"frame by frame, never seeing the future."],[37.323,38.693,"A small trained probe"],[38.713,40.743,"then reads out what its features know."],[41.103,42.773,"We ask four questions."],[42.943,44.46,"Can it read the visible scene:"],[44.48,46.473,"depth, pose, and objects?"],[46.643,47.94,"Does it remember objects"],[47.96,49.453,"after they leave the view?"],[49.623,50.28,"Can it predict"],[50.3,52.043,"what it will see after a move?"],[52.213,53.288,"And can it pick a move"],[53.308,55.183,"that brings it closer to a goal?"],[56.475,57.94,"Here's what we found."],[58.12,59.98,"No model wins everywhere."],[60.337,62.505,"Fast3R reads camera pose"],[62.525,64.967,"nine times better than DINOv2,"],[64.987,66.292,"and best locates objects"],[66.312,67.567,"that left the view."],[67.737,69.592,"VideoMAE is second,"],[69.612,72.187,"despite weaker readout of the visible scene."],[72.578,73.595,"Seeing a scene well"],[73.615,75.273,"does not mean remembering it."],[75.443,76.488,"Across models,"],[76.508,78.943,"remembering tracks camera pose instead."],[79.303,80.578,"And for future prediction,"],[80.598,83.493,"DINOv2 and V-JEPA 2 take the lead."],[84.763,87.083,"Where and when you read also matters."],[87.253,88.453,"In V-JEPA 2,"],[88.473,90.253,"prediction peaks at the last layer"],[90.273,91.883,"and persistence earlier."],[92.053,94.953,"In VideoMAE, it's the other way around."],[95.32,97.87,"And more history is not always better."],[98.04,99.975,"Going from 8 frames to 24"],[99.995,102.3,"hurts four in five comparisons,"],[102.32,104.075,"and makes object persistence worse"],[104.095,105.9,"for every model we tested."],[107.158,109.973,"Next, decodable is not the same as used."],[110.337,113.087,"For V-JEPA 2, simply copying the last feature"],[113.107,115.377,"beats a learned one-step predictor."],[115.547,117.487,"And VideoMAE,"],[117.507,119.75,"the most accurate localizer in this test,"],[119.77,121.412,"shows no reliable benefit"],[121.432,122.987,"from its visual history."],[124.253,126.128,"V-JEPA 2 can also predict"],[126.148,127.853,"future features natively."],[128.023,129.193,"But hand those predictions"],[129.213,131.893,"to a depth reader trained on real features,"],[131.913,136.155,"and the error jumps from 0.18 to 0.25,"],[136.175,137.568,"worse than a layout prior"],[137.588,139.203,"that ignores the input."],[139.57,140.62,"Retrain the reader,"],[140.64,143.17,"and the error falls to 0.22."],[143.355,144.885,"Some geometry survives,"],[144.905,146.8,"but the interface has changed."],[148.085,150.09,"Finally, acting toward a goal."],[150.453,153.008,"Picking the better of two candidate moves works,"],[153.028,154.963,"and clearly depends on the goal."],[155.133,155.878,"But what if the probe"],[155.898,157.663,"must output the move itself?"],[158.055,160.135,"Swap in a goal from another scene,"],[160.155,161.785,"and the predicted direction swings"],[161.805,164.09,"by 30 to 46 degrees."],[164.26,165.36,"Yet the correct goal"],[165.38,167.82,"does not reliably beat a shuffled one."],[168.187,169.172,"The needle turns,"],[169.192,170.767,"but it doesn't point the way."],[170.937,173.727,"Goal sensitivity is not goal utility."],[174.987,176.817,"Two chains link the levels:"],[176.837,179.317,"memory and action go with camera pose,"],[179.337,181.997,"while prediction goes with the scene's content."],[182.353,183.773,"To judge whether a vision model"],[183.793,185.273,"holds a spatial state,"],[185.293,187.473,"don't just ask what can be decoded."],[187.653,189.758,"Ask whether it can be kept beyond view,"],[189.778,192.383,"updated under motion, and used to act."]]</script>
+      <figcaption class="note">Narrated, with English captions. Room views in the videos are schematic renders; the experiments use ScanNet++.
+        <span data-vid="short">Download: <a href="https://yyyybq.github.io/probing-spatial-state/assets/probing_spatial_state_3min.mp4" download target="_blank" rel="noopener">1080p, subtitles burned in</a>.</span>
+        <span data-vid="long" hidden>Download: <a href="https://yyyybq.github.io/probing-spatial-state/assets/explainer.mp4" download target="_blank" rel="noopener">720p</a> · <a href="https://yyyybq.github.io/probing-spatial-state/assets/explainer.en.srt" download target="_blank" rel="noopener">subtitles (.srt)</a>.</span></figcaption>
     </figure>
   </div>
 </section>
@@ -708,7 +720,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     <div class="two">
       <div class="panel">
         <div class="bib-head"><h3>Abstract</h3><a class="btn" href="https://arxiv.org/abs/2610.40636" target="_blank" rel="noopener">Read on arXiv</a></div>
-        <p>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore involves more than recognizing individual images: it calls for a persistent spatial state that is updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We study this question through four levels of spatial capability—spatial structure, object persistence, predictive spatial update, and actionability—using frozen-feature probes on ten representations under streaming egocentric observations of static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong readout of the visible scene does not ensure accurate object persistence or future-feature retrieval. Matched controls separate readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure, but a spatial reader trained on real features does not transfer to predicted features unchanged. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: predicted actions respond to goal changes, yet supplying the correct goal does not reliably improve progress. Across the four levels, object persistence and actionability build on camera-pose readout, whereas feature prediction builds on visible-scene readout. Together, these findings motivate evaluating spatial representations not only by what can be decoded from them, but by whether that information is maintained beyond observation, updated predictively, and used for goal-directed action.</p>
+        <p>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore involves more than recognizing individual images: it calls for a persistent spatial state that is updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We study this question through four levels of spatial capability—spatial structure, object persistence, predictive spatial update, and actionability—using frozen-feature probes on ten representations under streaming egocentric observations of static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong depth, instance, and view-consistency readout does not ensure accurate object persistence or future-feature retrieval. Matched controls separate readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure, but a spatial reader trained on real features does not transfer to predicted features unchanged. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: predicted actions respond to goal changes, yet supplying the correct goal does not reliably improve progress. Across the four levels, object persistence and actionability align with camera-pose readout, whereas feature prediction aligns with depth, instance, and view-consistency readout. Together, these findings motivate evaluating spatial representations not only by what can be decoded from them, but by whether that information is maintained beyond observation, updated predictively, and used for goal-directed action.</p>
       </div>
       <div class="panel">
         <div class="bib-head"><h3>BibTeX</h3><button class="btn" id="copyBib" type="button">Copy</button></div>
@@ -798,57 +810,59 @@ readPalette();
 /* ================================================================ data (from the paper) */
 const MODELS = ['DINOv2-L', 'Fast3R', 'VideoMAE-L', 'V-JEPA 2', 'Qwen2.5-VL', 'Wan2.1', 'CogVideoX', 'Aether', 'MiniMax-H3', 'LingBot-video'];
 const FAMILY = { 'DINOv2-L': 'Image encoder', 'Fast3R': '3D model', 'VideoMAE-L': 'Video encoder', 'V-JEPA 2': 'Video encoder', 'Qwen2.5-VL': 'Multimodal LLM', 'Wan2.1': 'Video generator', 'CogVideoX': 'Video generator', 'Aether': 'World model', 'MiniMax-H3': 'Video generator', 'LingBot-video': 'Video generator' };
-// nr: model indices the paper leaves out of that column's ranking; mk: footnote marks
+// nr: model indices the paper leaves out of that column's ranking; mk: footnote marks;
+// tie: indices bold in the paper because their 95% interval of the difference from the best contains zero
 const METRICS = [
-  { key: 'depth', name: 'Depth', full: 'Depth loss', lv: 1, hib: false, nd: 3, v: [0.1422, 0.1386, 0.2968, 0.2708, 0.2244, 0.3609, 0.4340, 0.5270, 0.4252, 0.4314] },
+  { key: 'depth', name: 'Depth', full: 'Depth loss', lv: 1, hib: false, nd: 3, v: [0.1422, 0.1386, 0.2968, 0.2708, 0.2244, 0.3609, 0.4340, 0.5270, 0.4252, 0.4314], tie: [0] },
   { key: 'pose', name: 'Pose', full: 'Camera pose AUC@30', lv: 1, hib: true, nd: 3, v: [0.0412, 0.3870, 0.2026, 0.1854, 0.0269, 0.0650, 0.0276, 0.0185, 0.0477, 0.0232] },
-  { key: 'inst', name: 'Instance', full: 'Instance identity loss', lv: 1, hib: false, nd: 2, v: [1.3828, 1.6072, 4.1571, 2.9211, 2.9476, 4.9301, 4.6097, 7.1847, 6.2265, 5.5875], mk: { 6: '‡' } },
+  { key: 'inst', name: 'Instance', full: 'Instance identity loss', lv: 1, hib: false, nd: 2, v: [1.3828, 1.6072, 4.1571, 2.9211, 2.9476, 4.9301, 6.6992, 7.1847, 6.2265, 5.5875] },
   { key: 'view', name: 'View', full: 'View consistency (balanced acc.)', lv: 1, hib: true, nd: 3, v: [0.9557, 0.9808, 0.9118, 0.9256, 0.9385, 0.8215, 0.8001, 0.6928, 0.8255, 0.7858] },
   { key: 'pers', name: 'Persist.', full: 'Persistence angular error (°)', lv: 2, hib: false, nd: 1, v: [65.38, 32.79, 36.45, 45.31, 68.59, 62.38, 70.62, 61.18, 55.97, 70.30] },
   { key: 'direct', name: 'Direct', full: 'Direct prediction R@1', lv: 3, hib: true, nd: 3, v: [0.2373, 0.0133, 0.0531, 0.0625, 0.1712, 0.0260, 0.0088, 0.0024, 0.0249, 0.0302], nr: [8], mk: { 8: '†' } },
   { key: 'path', name: 'Path', full: 'Path integration R@1', lv: 3, hib: true, nd: 3, v: [0.0900, 0.0190, 0.0685, 0.1588, 0.0903, 0.0405, 0.0160, 0.0042, 0.0117, 0.0429], nr: [8], mk: { 8: '†' } }
 ];
 const SUMMARY = {
-  'DINOv2-L': 'Leads direct prediction and instance identity and is second on depth and view consistency, but sixth on camera pose (AUC 0.041) and seventh on persistence (65.4°).',
-  'Fast3R': 'Leads depth, camera pose, view consistency and object persistence (32.8°), and is second on instance identity, yet seventh on both prediction tasks.',
+  'DINOv2-L': 'Leads direct prediction and instance identity, is statistically tied with Fast3R on depth and second on view consistency, but sixth on camera pose (AUC 0.041) and seventh on persistence (65.4°).',
+  'Fast3R': 'Leads depth, camera pose, view consistency and object persistence (32.8°), and is second on instance identity, yet seventh on both prediction tasks. Its training data include ScanNet++, including some validation scenes, so part of its lead may be familiarity.',
   'VideoMAE-L': 'Second at locating out-of-view objects (36.5°) and on camera pose, even though its depth, instance and view readout are mid-table.',
   'V-JEPA 2': 'Leads path integration (0.159) and is third on pose, instance identity, persistence and direct prediction. For one-step prediction, copying its last feature beats a learned predictor.',
-  'Qwen2.5-VL': 'Second on both prediction tasks and third on depth and view consistency, but eighth on persistence and on camera pose.',
+  'Qwen2.5-VL': 'Second on direct prediction and tied with DINOv2 for second on path integration (0.0903 against 0.0900), third on depth and view consistency, but eighth on persistence and on camera pose.',
   'Wan2.1': 'Middle of the pack: fourth on camera pose, sixth on depth, persistence and both prediction tasks. Its layer sweep peaks at block 15, earlier than the block 20 used here.',
   'CogVideoX': 'In the lower half on every measurement, and last on persistence (70.6°).',
-  'Aether': 'Last on all four visible-scene measurements, yet fifth on persistence, ahead of Wan2.1 and CogVideoX.',
+  'Aether': 'Last on depth, camera pose, instance identity and view consistency, yet fifth on persistence: better than CogVideoX and on par with Wan2.1 (61.2° against 62.4°).',
   'MiniMax-H3': 'Best persistence among the generators and the world model (56.0°, fourth overall) and fifth on camera pose. Its prediction cells use a different protocol and are not ranked.',
   'LingBot-video': 'Fifth on both prediction tasks, but ninth on camera pose, view consistency and persistence.'
 };
 const INSIGHTS = [
   { big: '9×', text: 'Fast3R, trained for 3D reconstruction, reads camera pose about nine times better than DINOv2 (AUC@30 0.387 against 0.041). Yet DINOv2 separates object instances better (loss 1.38 against 1.61).', cells: [['Fast3R', 'pose'], ['DINOv2-L', 'pose'], ['DINOv2-L', 'inst'], ['Fast3R', 'inst']] },
-  { big: '32.8°', text: 'Fast3R also locates out-of-view objects best, and VideoMAE is second (36.5°), although DINOv2 and Qwen2.5-VL read depth, instance identity and view consistency better than VideoMAE. Seeing a scene well does not guarantee remembering it.', cells: [['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['VideoMAE-L', 'depth'], ['VideoMAE-L', 'inst'], ['VideoMAE-L', 'view'], ['DINOv2-L', 'pers'], ['Qwen2.5-VL', 'pers']] },
-  { big: 'ρ 0.76', text: 'Persistence builds on camera pose. The three best localizers, Fast3R, VideoMAE and V-JEPA 2, are exactly the three with the highest pose AUC; across all ten, the rank correlation is 0.76, against at most 0.43 for depth, instance identity and view consistency. Within VideoMAE, V-JEPA 2 and Wan2.1, persistence also peaks at the same block as metric geometry.', cells: [['Fast3R', 'pose'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose'], ['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers']] },
-  { big: '⇄', text: 'Prediction has its own leaders. DINOv2 leads direct prediction (0.237) and V-JEPA 2 leads path integration (0.159), with Qwen2.5-VL second on both. DINOv2 and V-JEPA 2 swap places between the two tasks, and neither prediction ordering is related to the persistence ordering (|ρ| < 0.1).', cells: [['DINOv2-L', 'direct'], ['V-JEPA 2', 'direct'], ['DINOv2-L', 'path'], ['V-JEPA 2', 'path'], ['Qwen2.5-VL', 'direct'], ['Qwen2.5-VL', 'path']] },
-  { big: 'ρ 0.52–0.63', text: 'Prediction builds on the visible scene instead: both prediction tasks rank models like depth, instance identity and view consistency do (ρ 0.52–0.63), not like camera pose (ρ ≤ 0.25). The four best predictors are, after Fast3R, the four best at depth and view consistency. Fast3R itself is seventh of nine on both prediction tasks: seeing well is necessary for prediction, not sufficient.', cells: [['DINOv2-L', 'depth'], ['Qwen2.5-VL', 'depth'], ['V-JEPA 2', 'depth'], ['VideoMAE-L', 'depth'], ['Fast3R', 'depth'], ['Fast3R', 'direct'], ['Fast3R', 'path']] },
-  { big: '≈', text: 'Model families don’t decide the profile. VideoMAE and V-JEPA 2 are both video encoders with similar view consistency (0.912 and 0.926), but VideoMAE is better at pose and persistence while V-JEPA 2 is better at depth, instance identity and both prediction tasks.', cells: [['VideoMAE-L', 'view'], ['V-JEPA 2', 'view'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose']] },
-  { big: '56.0°', text: 'Among the video generators and the world model, Aether localizes better than Wan2.1 and CogVideoX despite weaker results on the other six measurements, and MiniMax-H3 localizes best of the group.', cells: [['MiniMax-H3', 'pers'], ['Aether', 'pers'], ['Wan2.1', 'pers'], ['CogVideoX', 'pers'], ['LingBot-video', 'pers']] }
+  { big: '32.8°', text: 'Fast3R also locates out-of-view objects best, and VideoMAE is second (36.5°), although DINOv2 and Qwen2.5-VL read depth, instance identity and view consistency better than VideoMAE. Seeing a scene well does not guarantee remembering it. (Fast3R was trained partly on ScanNet++, including some validation scenes.)', cells: [['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['VideoMAE-L', 'depth'], ['VideoMAE-L', 'inst'], ['VideoMAE-L', 'view'], ['DINOv2-L', 'pers'], ['Qwen2.5-VL', 'pers']] },
+  { big: 'ρ 0.76', text: 'Persistence aligns with camera pose. The three best localizers, Fast3R, VideoMAE and V-JEPA 2, are exactly the three with the highest pose AUC; across all ten, the rank correlation is 0.76, against at most 0.43 for depth, instance identity and view consistency. In all four backbones with layer sweeps, persistence also peaks at the same block as metric geometry.', cells: [['Fast3R', 'pose'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose'], ['Fast3R', 'pers'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers']] },
+  { big: '⇄', text: 'Prediction has its own leaders. DINOv2 leads direct prediction (0.237) and V-JEPA 2 leads path integration (0.159), with Qwen2.5-VL second on direct prediction and tied with DINOv2 for second on path integration. DINOv2 and V-JEPA 2 swap places between the two tasks, and neither prediction ordering is related to the persistence ordering (|ρ| < 0.1).', cells: [['DINOv2-L', 'direct'], ['V-JEPA 2', 'direct'], ['DINOv2-L', 'path'], ['V-JEPA 2', 'path'], ['Qwen2.5-VL', 'direct'], ['Qwen2.5-VL', 'path']] },
+  { big: 'ρ ≥ 0.52', text: 'Prediction aligns with scene content instead: both prediction tasks rank models like depth, instance identity and view consistency do (ρ ≥ 0.52), not like camera pose (ρ ≤ 0.25). The four best predictors are, after Fast3R, the four best at depth and view consistency. Fast3R itself is seventh of nine on both prediction tasks: strong scene-content readout goes with good prediction but does not guarantee it.', cells: [['DINOv2-L', 'depth'], ['Qwen2.5-VL', 'depth'], ['V-JEPA 2', 'depth'], ['VideoMAE-L', 'depth'], ['Fast3R', 'depth'], ['Fast3R', 'direct'], ['Fast3R', 'path']] },
+  { big: '≈', text: 'Model families don’t decide the profile. VideoMAE and V-JEPA 2 are both video encoders with close view consistency (0.912 and 0.926), but VideoMAE is better at pose and persistence while V-JEPA 2 is better at depth and path integration; on direct prediction each lies within the other’s interval.', cells: [['VideoMAE-L', 'view'], ['V-JEPA 2', 'view'], ['VideoMAE-L', 'pers'], ['V-JEPA 2', 'pers'], ['VideoMAE-L', 'pose'], ['V-JEPA 2', 'pose']] },
+  { big: '56.0°', text: 'Among the video generators and the world model, Aether localizes better than CogVideoX and on par with Wan2.1 (61.2° against 62.4°) despite weaker results on the other six measurements, and MiniMax-H3 localizes best of the group.', cells: [['MiniMax-H3', 'pers'], ['Aether', 'pers'], ['Wan2.1', 'pers'], ['CogVideoX', 'pers'], ['LingBot-video', 'pers']] }
 ];
 // Layer sweeps (paper Fig. 4a): blocks in the network, measured blocks, best block per readout
 const LAYER_MODELS = {
   'V-JEPA 2': { n: 24, measured: [5, 11, 17, 23], peaks: { 'Geometry': 17, 'Instance identity': 23, 'View consistency': 17, 'Persistence': 17, 'Direct prediction': 23, 'Path integration': 23 } },
   'VideoMAE': { n: 24, measured: [5, 11, 17, 23], peaks: { 'Geometry': 23, 'Instance identity': 23, 'View consistency': 23, 'Persistence': 23, 'Direct prediction': 17, 'Path integration': 17 } },
   'Wan2.1': { n: 30, measured: [0, 5, 10, 15, 20, 25, 29], main: 20, peaks: { 'Geometry': 15, 'Instance identity': 20, 'View consistency': 15, 'Persistence': 15, 'Direct prediction': 15, 'Path integration': 15 } },
-  'CogVideoX': { n: 42, measured: [0, 5, 10, 20, 30, 35, 40], main: 20, prov: ['Instance identity'], peaks: { 'Geometry': 10, 'Instance identity': 20, 'View consistency': 20, 'Persistence': 10, 'Direct prediction': 0, 'Path integration': 10 } }
+  'CogVideoX': { n: 42, measured: [0, 5, 10, 20, 30, 35, 40], main: 20, peaks: { 'Geometry': 10, 'Instance identity': 30, 'View consistency': 20, 'Persistence': 10, 'Direct prediction': 0, 'Path integration': 10 } }
 };
 const TASK_LV = { 'Geometry': 1, 'Instance identity': 1, 'View consistency': 1, 'Persistence': 2, 'Direct prediction': 3, 'Path integration': 3 };
-const PREFIX_MODELS = ['DINOv2', 'Fast3R', 'VideoMAE', 'V-JEPA 2', 'Qwen2.5-VL', 'Wan2.1', 'CogVideoX', 'Aether'];
+const PREFIX_MODELS = ['DINOv2', 'Fast3R', 'VideoMAE', 'V-JEPA 2', 'Qwen2.5-VL', 'Wan2.1', 'CogVideoX', 'Aether', 'LingBot-video'];
 const PREFIX_TASKS = ['Depth', 'Inst.', 'Camera', 'View', 'Persist.', 'Direct', 'Path'];
-// standardized, direction-corrected p24 - p8; 0 = tie, null = no accepted p24 result
+// standardized, direction-corrected p24 - p8; 0 = tie (rounds to zero at the paper's table precision)
 const PREFIX_DELTA = [
-  [0.1225, -0.0713, -0.4788, 0.0124, -1.0453, -0.4286, -1.5137],
-  [0.1861, -0.1524, 0.8414, -0.0282, -0.8329, -0.0756, -0.2355],
-  [-1.1666, -2.7590, -1.9392, -1.8269, -1.6981, -1.3868, -2.6573],
-  [-0.0878, -0.4771, -0.6967, -0.1402, -2.1356, -0.1009, -0.1009],
-  [0.1798, -0.3968, -0.3117, 0.00001, -0.8295, -0.1765, -1.3791],
-  [-0.4484, -1.4175, -0.5661, -0.3243, -1.2385, -0.1009, -0.2018],
-  [-0.4961, null, -0.3840, -0.7988, -1.1093, 0, 0.0673],
-  [-0.2769, -2.5635, -0.2187, 0.3309, -0.9084, 0, 0]
+  [0.1225, -0.0707, -0.4788, 0.0124, -1.0453, -0.4286, -1.5137],
+  [0.1861, -0.1510, 0.8414, -0.0282, -0.8329, -0.0756, -0.2355],
+  [-1.1666, -2.7342, -1.9392, -1.8269, -1.6981, -1.3868, -2.6573],
+  [-0.0878, -0.4729, -0.6967, -0.1402, -2.1356, -0.1009, -0.1009],
+  [0.1798, -0.3932, -0.3117, 0, -0.8295, -0.1765, -1.3791],
+  [-0.4484, -1.4048, -0.5661, -0.3243, -1.2385, -0.1009, -0.2018],
+  [-0.4961, -2.6564, -0.3840, -0.7988, -1.1093, 0, 0.0673],
+  [-0.2769, -2.5405, -0.2187, 0.3309, -0.9084, 0, 0],
+  [-0.3432, -1.7602, -0.3460, -0.3032, -0.4284, 0.0252, -0.2018]
 ];
 const COPY = [{ m: 'Wan2.1', pred: 15.22, copy: 11.96 }, { m: 'V-JEPA 2', pred: 13.04, copy: 19.93 }];
 const MOTION_GAIN = [['V-JEPA 2', 18.84, 13.04, 25.36], ['VideoMAE', 10.51, 6.16, 15.22], ['Wan2.1', 2.90, -1.45, 7.25], ['CogVideoX', 4.35, 0.35, 7.97]];
@@ -1503,7 +1517,7 @@ safe('results', () => {
       METRICS.forEach((m, j) => {
         const rk = ranks[j][i], key = name + '|' + m.key, dark = rk != null && rk <= 2;
         const lab = rk == null ? NR_NOTE : `rank ${rk + 1} of ${nRanked(j)}`;
-        h += `<button type="button" class="c${rk === 0 ? ' best' : ''}${rk == null ? ' nr' : ''}${hl.has(key) ? ' hl' : ''}" style="background:${cellColor(rk, nRanked(j))};${dark ? 'color:var(--on-accent)' : ''}" data-i="${i}" data-j="${j}" aria-label="${name}, ${m.full}: ${valTxt(m, i)}, ${lab}">${valTxt(m, i)}</button>`;
+        h += `<button type="button" class="c${rk === 0 || (m.tie || []).includes(i) ? ' best' : ''}${rk == null ? ' nr' : ''}${hl.has(key) ? ' hl' : ''}" style="background:${cellColor(rk, nRanked(j))};${dark ? 'color:var(--on-accent)' : ''}" data-i="${i}" data-j="${j}" aria-label="${name}, ${m.full}: ${valTxt(m, i)}, ${lab}">${valTxt(m, i)}</button>`;
       });
     }
     heat.innerHTML = h;
@@ -1567,7 +1581,6 @@ safe('layers', () => {
     const at = TASKS.filter(t => peaks[t] === blk), list = a => a.join(', ').replace(/, ([^,]*)$/, ' and $1').toLowerCase();
     let say = at.length ? `In ${L.m}, block ${blk} is the best measured layer for ${list(at)}.` : `No readout peaks at block ${blk} in ${L.m}. Its peaks: ${TASKS.map(t => t.toLowerCase() + ' ' + peaks[t]).join(', ')}.`;
     if (lm.main != null) say += ` The main table reads block ${lm.main} (marked *).`;
-    if ((lm.prov || []).length) say += ' † that cell averages prefixes 8 and 12.';
     $('#layerText').textContent = say;
   }
   $$('#layerModel button').forEach(b => b.addEventListener('click', () => { L.m = b.dataset.m; $$('#layerModel button').forEach(x => x.setAttribute('aria-pressed', x === b)); const lm = LAYER_MODELS[L.m]; ticks(); range.value = Math.max(0, lm.measured.indexOf(lm.peaks['Persistence'])); draw(); }));
@@ -1769,7 +1782,7 @@ safe('mission', () => {
   }
   function summary() {
     const m = MB[M.m];
-    $('#mSummary').innerHTML = `<div><p class="eyebrow">${M.m === 'Ideal' ? 'target' : FAMILY[M.m]}</p><h3>${M.m === 'Ideal' ? 'An ideal spatial state' : M.m}</h3><p>${m.txt}</p></div><div><h3>Every backbone trips, each in its own place</h3><p>DINOv2 barely knows how it moved and turns 65° wide of the mug. Fast3R is the only one of the four that brings the mug back into view, but it can't imagine the route. V-JEPA 2 imagines routes best, yet still misses the mug by 45° and gets fewer than one in five trips right. Wan2.1 makes progress on only half its moves. None of them finishes the errand. Who gets furthest follows the pose chain below: Fast3R, best at pose and persistence, also leads both action tests.</p></div>`;
+    $('#mSummary').innerHTML = `<div><p class="eyebrow">${M.m === 'Ideal' ? 'target' : FAMILY[M.m]}</p><h3>${M.m === 'Ideal' ? 'An ideal spatial state' : M.m}</h3><p>${m.txt}</p></div><div><h3>Every backbone trips, each in its own place</h3><p>DINOv2 barely knows how it moved and turns 65° wide of the mug. Fast3R is the only one of the four that brings the mug back into view, but it can't imagine the route. V-JEPA 2 imagines routes best, yet still misses the mug by 45° and gets fewer than one in five trips right. Wan2.1 makes progress on only half its moves. None of them finishes the errand. Who gets furthest lines up with the pose chain below: Fast3R, best at pose and persistence, also leads both action tests (its training data include ScanNet++).</p></div>`;
   }
   function refreshStatic() { for (let k = 1; k <= 4; k++) gauge(k); units(); summary(); }
   function reset() {
@@ -1825,8 +1838,8 @@ safe('mission', () => {
 /* ================================================================ how the levels relate */
 safe('chains', () => {
   const SAY = {
-    pose: 'Camera-pose readout supports object persistence: the three best localizers (Fast3R, VideoMAE, V-JEPA 2) have the three highest pose AUCs (ρ = 0.76 across all ten), and within VideoMAE, V-JEPA 2 and Wan2.1 persistence peaks at the same block as metric geometry. Persistence in turn supports action: among the four backbones tested on L4, Fast3R, best at pose and persistence, leads both settings (79.9% candidate selection, 59.8% positive progress) and V-JEPA 2 is second at choosing a move, while DINOv2, the best predictor, leads neither.',
-    scene: 'Visible-scene readout supports feature prediction: both prediction tasks rank models like depth, instance identity and view consistency do (ρ 0.52–0.63 over nine models), not like camera pose (ρ ≤ 0.25) or persistence (|ρ| < 0.1). The four best predictors are, after Fast3R, the four best at depth and view consistency, yet Fast3R itself is seventh of nine on both prediction tasks. In each chain the lower level bounds the higher one without guaranteeing it.'
+    pose: 'Object persistence aligns with camera-pose readout: the three best localizers (Fast3R, VideoMAE, V-JEPA 2) have the three highest pose AUCs (ρ = 0.76 across all ten), and in all four backbones with layer sweeps persistence peaks at the same block as metric geometry. Action aligns with the same chain: among the four backbones tested on L4, the two best at pose and persistence, Fast3R and V-JEPA 2, are the top two at choosing a move (79.9% and 78.1%), and Fast3R makes the most progress (59.8%), while DINOv2, the best predictor, leads neither. Fast3R was trained partly on ScanNet++, including some validation scenes.',
+    scene: 'Feature prediction aligns with scene-content readout: both prediction tasks rank models like depth, instance identity and view consistency do (ρ ≥ 0.52 over nine models), not like camera pose (ρ ≤ 0.25) or persistence (|ρ| < 0.1). The four best predictors are, after Fast3R, the four best at depth and view consistency, yet Fast3R itself is seventh of nine on both prediction tasks. In each chain, strong lower-level readout goes with the higher level without guaranteeing it.'
   };
   function set(k) {
     $$('#chainSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.c === k));
@@ -1931,11 +1944,38 @@ safe('controls', () => {
 
 /* ================================================================ video captions (cues embedded in the page) */
 safe('captions', () => {
-  const v = $('video'), data = JSON.parse($('#capdata').textContent);
-  if (!v.addTextTrack || typeof VTTCue === 'undefined') return;
-  const tr = v.addTextTrack('captions', 'English', 'en');
-  for (const [s, e, t] of data) tr.addCue(new VTTCue(s, e, t));
-  tr.mode = 'showing';
+  if (typeof VTTCue === 'undefined') return;
+  for (const v of $$('video[data-cap]')) {
+    if (!v.addTextTrack) continue;
+    const tr = v.addTextTrack('captions', 'English', 'en');
+    for (const [s, e, t] of JSON.parse($('#' + v.dataset.cap).textContent)) tr.addCue(new VTTCue(s, e, t));
+    tr.mode = 'showing';
+  }
+});
+
+/* ================================================================ video switcher (3-minute overview / full walkthrough) */
+safe('videos', () => {
+  const seg = $('#vidSeg'), parts = $$('#video [data-vid]');
+  seg.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    for (const p of parts) {
+      const on = p.dataset.vid === b.dataset.v;
+      if (!on && p.pause) p.pause();
+      p.hidden = !on;
+    }
+  });
+  // the long cut is too large for the artifact preview: play it from the project site instead
+  for (const v of $$('video[data-fallback]')) {
+    const s = v.querySelector('source');
+    s.addEventListener('error', () => {
+      if (s.src === v.dataset.fallback) return;
+      s.src = v.dataset.fallback;
+      v.load();
+      v.play().catch(() => {});
+    });
+  }
 });
 
 /* ================================================================ nav, progress, bibtex */
