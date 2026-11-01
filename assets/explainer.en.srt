@@ -1,0 +1,1300 @@
+1
+00:00:02,620 --> 00:00:04,210
+Look around the room you're in.
+
+2
+00:00:04,405 --> 00:00:05,690
+Now turn your head.
+
+3
+00:00:07,620 --> 00:00:10,250
+The chair you just saw has
+left your field of view.
+
+4
+00:00:10,420 --> 00:00:12,110
+But it hasn't left your mind.
+
+5
+00:00:12,487 --> 00:00:14,117
+You could still point to it.
+
+6
+00:00:14,287 --> 00:00:17,267
+You could guess what you would
+see after a step to the left.
+
+7
+00:00:17,437 --> 00:00:21,247
+And if someone asked you to walk over
+to it, you would know which way to go.
+
+8
+00:00:21,620 --> 00:00:24,830
+This internal picture,
+of where things are relative to you,
+
+9
+00:00:24,850 --> 00:00:29,300
+including things you can't currently see,
+is what we will call a spatial state.
+
+10
+00:00:30,487 --> 00:00:35,527
+Modern visual foundation models learn
+from enormous amounts of images and video.
+
+11
+00:00:35,697 --> 00:00:37,872
+They estimate depth, track objects,
+
+12
+00:00:37,892 --> 00:00:40,937
+and even generate convincing
+camera fly-throughs.
+
+13
+00:00:41,345 --> 00:00:42,990
+So here is the question.
+
+14
+00:00:43,160 --> 00:00:47,450
+Do their internal representations
+support a spatial state like this one?
+
+15
+00:00:48,320 --> 00:00:50,220
+Let's find out, by probing them.
+
+16
+00:00:55,520 --> 00:00:58,520
+The idea has deep roots
+in the study of perception.
+
+17
+00:00:58,887 --> 00:01:03,602
+Object-file theories describe how information
+stays attached to the same object,
+
+18
+00:01:03,622 --> 00:01:05,637
+even as its appearance changes.
+
+19
+00:01:06,003 --> 00:01:09,688
+Path integration describes how an
+animal keeps track of where it is,
+
+20
+00:01:09,708 --> 00:01:11,793
+by adding up its own movements.
+
+21
+00:01:12,153 --> 00:01:15,243
+And sensorimotor theories
+argue that to perceive is
+
+22
+00:01:15,263 --> 00:01:17,953
+to know how your input
+would change if you moved.
+
+23
+00:01:18,355 --> 00:01:22,935
+So, an observer's spatial state is the
+configuration of the surroundings relative
+
+24
+00:01:22,955 --> 00:01:27,880
+to the observer, including objects seen
+earlier that are no longer visible.
+
+25
+00:01:28,050 --> 00:01:31,885
+A spatial state representation
+is an internal encoding of it,
+
+26
+00:01:31,905 --> 00:01:33,920
+inferred from visual history.
+
+27
+00:01:34,313 --> 00:01:37,868
+Notice what this does not assume:
+no explicit 3D map,
+
+28
+00:01:37,888 --> 00:01:40,813
+no scene graph, no particular architecture.
+
+29
+00:01:40,983 --> 00:01:45,503
+Instead, the state is characterized
+by what it lets you do, at four levels.
+
+30
+00:01:45,892 --> 00:01:48,037
+Level one, spatial structure.
+
+31
+00:01:48,207 --> 00:01:52,162
+Can you read out the geometry
+of what you see: depth, camera pose,
+
+32
+00:01:52,182 --> 00:01:56,127
+which pixels belong to which object,
+and how two views correspond?
+
+33
+00:01:56,503 --> 00:01:58,783
+Level two, object persistence.
+
+34
+00:01:58,953 --> 00:02:02,793
+When an object leaves the field of view,
+can you still say where it is?
+
+35
+00:02:03,170 --> 00:02:05,860
+Level three, predictive spatial update.
+
+36
+00:02:06,030 --> 00:02:09,115
+When the camera moves,
+can you anticipate what you will see,
+
+37
+00:02:09,135 --> 00:02:12,880
+in one direct jump,
+or across a whole sequence of steps?
+
+38
+00:02:13,253 --> 00:02:15,303
+Level four, actionability.
+
+39
+00:02:15,473 --> 00:02:17,258
+Given a goal, can you use the state
+
+40
+00:02:17,278 --> 00:02:19,993
+to pick an action that
+actually brings you closer?
+
+41
+00:02:20,370 --> 00:02:22,730
+The levels climb from
+reading the current scene,
+
+42
+00:02:22,750 --> 00:02:25,850
+to retaining it,
+to updating it, to acting on it.
+
+43
+00:02:26,020 --> 00:02:30,230
+And acting closes the loop:
+every action changes what you see next.
+
+44
+00:02:32,353 --> 00:02:34,533
+How do you ask a network what it knows?
+
+45
+00:02:34,713 --> 00:02:35,873
+You probe it.
+
+46
+00:02:36,237 --> 00:02:38,667
+Freeze the foundation model completely.
+
+47
+00:02:38,837 --> 00:02:42,577
+Pass video through it, and take the
+features from one of its layers.
+
+48
+00:02:42,747 --> 00:02:45,532
+Then train a small readout network, the probe,
+
+49
+00:02:45,552 --> 00:02:48,317
+to predict a spatial target
+from those features.
+
+50
+00:02:48,670 --> 00:02:50,955
+If a light probe can recover the target,
+
+51
+00:02:50,975 --> 00:02:54,190
+that information is accessible
+in the representation.
+
+52
+00:02:54,360 --> 00:02:56,230
+The backbone never changes.
+
+53
+00:02:56,400 --> 00:02:57,970
+Only the probe learns.
+
+54
+00:02:58,337 --> 00:02:59,877
+The setting is streaming.
+
+55
+00:03:00,047 --> 00:03:04,047
+The observer sees past and present frames,
+but never the future.
+
+56
+00:03:04,403 --> 00:03:08,526
+For model m and layer l,
+the encoder processes a causal prefix:
+
+57
+00:03:08,546 --> 00:03:13,293
+frames one through p,
+where p is 8, 12, 16, or 24.
+
+58
+00:03:13,463 --> 00:03:15,673
+Each prefix is encoded on its own,
+
+59
+00:03:15,693 --> 00:03:18,833
+and each one is treated as
+a candidate spatial state.
+
+60
+00:03:19,203 --> 00:03:22,323
+Prediction and action
+also need a future frame.
+
+61
+00:03:22,493 --> 00:03:26,293
+That frame, h steps ahead,
+is encoded in isolation,
+
+62
+00:03:26,313 --> 00:03:30,723
+with no access to the prefix,
+so the answer never leaks into the input.
+
+63
+00:03:31,087 --> 00:03:33,527
+And because knowledge may
+live at different depths,
+
+64
+00:03:33,547 --> 00:03:35,852
+and may depend on how much has been seen,
+
+65
+00:03:35,872 --> 00:03:41,667
+the analyses are organized along two axes:
+network depth, and streaming context.
+
+66
+00:03:42,353 --> 00:03:45,803
+Ten frozen representations go
+through this pipeline.
+
+67
+00:03:46,170 --> 00:03:48,470
+An image encoder, DINOv2.
+
+68
+00:03:48,640 --> 00:03:52,140
+Two video encoders, V-JEPA 2 and VideoMAE.
+
+69
+00:03:52,310 --> 00:03:55,430
+And a 3D reconstruction model, Fast3R.
+
+70
+00:03:55,787 --> 00:04:02,337
+Four video generators: Wan 2.1,
+CogVideoX, MiniMax-H3, and LingBot-video.
+
+71
+00:04:02,507 --> 00:04:04,217
+A world model, Aether.
+
+72
+00:04:04,387 --> 00:04:08,017
+And a multimodal language model, Qwen2.5-VL.
+
+73
+00:04:08,387 --> 00:04:12,540
+All of them watch the same thing:
+camera trajectories with known poses,
+
+74
+00:04:12,560 --> 00:04:15,917
+through real indoor scenes from ScanNet++.
+
+75
+00:04:18,037 --> 00:04:22,687
+Let's open up the probes, one level at a time,
+starting with spatial structure.
+
+76
+00:04:23,053 --> 00:04:25,313
+The geometry probe is a small transformer
+
+77
+00:04:25,333 --> 00:04:27,513
+that alternates attention within each frame
+
+78
+00:04:27,533 --> 00:04:33,043
+and across frames, followed by dense
+prediction heads, in the style of VGGT.
+
+79
+00:04:33,408 --> 00:04:35,913
+One head predicts depth at every pixel.
+
+80
+00:04:36,083 --> 00:04:37,986
+A camera head predicts the pose,
+
+81
+00:04:38,006 --> 00:04:43,293
+scored by the area under the accuracy
+curve up to thirty degrees: AUC at 30.
+
+82
+00:04:43,653 --> 00:04:46,633
+A third head maps every pixel to an embedding.
+
+83
+00:04:46,803 --> 00:04:51,401
+Each pixel is classified against the mean
+embedding of every ground-truth object,
+
+84
+00:04:51,421 --> 00:04:55,203
+so a low loss means instances
+are cleanly separated.
+
+85
+00:04:55,373 --> 00:04:58,833
+This measures identity separation,
+not mask quality.
+
+86
+00:04:59,208 --> 00:05:02,013
+View consistency asks a different question.
+
+87
+00:05:02,183 --> 00:05:04,948
+Each view is pooled into a single vector,
+
+88
+00:05:04,968 --> 00:05:08,173
+and the probe compares two views
+through their concatenation,
+
+89
+00:05:08,193 --> 00:05:10,273
+their product, and their difference,
+
+90
+00:05:10,293 --> 00:05:13,523
+to decide whether the two views
+share a region of the scene.
+
+91
+00:05:15,637 --> 00:05:18,637
+Object persistence is
+where things get interesting.
+
+92
+00:05:19,003 --> 00:05:21,593
+A target object is seen early in the clip.
+
+93
+00:05:21,763 --> 00:05:25,733
+We pool the features inside its
+mask into a single query vector:
+
+94
+00:05:25,753 --> 00:05:30,273
+an appearance signature that carries
+no location, and no camera pose.
+
+95
+00:05:30,653 --> 00:05:35,243
+By the end of the prefix, the camera has
+turned, and the object is out of view.
+
+96
+00:05:35,953 --> 00:05:39,008
+The probe adds the query
+to a learnable belief token,
+
+97
+00:05:39,028 --> 00:05:42,258
+places it next to every
+patch token from every frame,
+
+98
+00:05:42,278 --> 00:05:44,813
+and runs self-attention over all of them.
+
+99
+00:05:45,187 --> 00:05:50,335
+The belief token then votes over 16
+azimuth bins and 8 elevation bins,
+
+100
+00:05:50,355 --> 00:05:54,837
+a sphere of directions around the final
+camera, and regresses the distance.
+
+101
+00:05:55,220 --> 00:05:57,275
+The score is the angle between the predicted
+
+102
+00:05:57,295 --> 00:06:00,180
+and the true direction, so lower is better.
+
+103
+00:06:00,350 --> 00:06:04,640
+And the probe is never told where the
+object was, or how the camera moved.
+
+104
+00:06:06,770 --> 00:06:10,070
+In direct prediction,
+the probe receives the current features,
+
+105
+00:06:10,090 --> 00:06:13,707
+plus the camera motion to a
+future frame: nine numbers,
+
+106
+00:06:13,727 --> 00:06:16,640
+six for rotation and three for translation.
+
+107
+00:06:16,810 --> 00:06:21,730
+In a single update, it predicts that frame's
+feature, one, two, or four steps ahead.
+
+108
+00:06:22,087 --> 00:06:23,957
+Path integration is harder.
+
+109
+00:06:24,127 --> 00:06:26,772
+A recurrent updater starts
+from the current state,
+
+110
+00:06:26,792 --> 00:06:31,487
+applies the motions one after another,
+and then decodes where it has ended up.
+
+111
+00:06:31,692 --> 00:06:34,067
+Small errors at each step can compound.
+
+112
+00:06:34,437 --> 00:06:36,457
+How do you score a predicted feature?
+
+113
+00:06:36,627 --> 00:06:37,837
+By retrieval.
+
+114
+00:06:38,017 --> 00:06:41,585
+Line up the true future features
+of many samples, and ask:
+
+115
+00:06:41,605 --> 00:06:45,127
+is the closest one,
+by cosine similarity, the right one?
+
+116
+00:06:45,487 --> 00:06:47,877
+The fraction of hits is recall at one.
+
+117
+00:06:48,047 --> 00:06:50,772
+Each model is scored in its own feature space,
+
+118
+00:06:50,792 --> 00:06:53,607
+so these numbers compare models within a task.
+
+119
+00:06:53,777 --> 00:06:56,167
+They are not a shared physical error scale.
+
+120
+00:06:58,302 --> 00:07:01,937
+So what happens when all ten
+models face all seven measurements?
+
+121
+00:07:02,303 --> 00:07:04,863
+Lesson one: there is no single winner.
+
+122
+00:07:05,220 --> 00:07:09,999
+Fast3R, trained for 3D reconstruction,
+reads camera pose far better
+
+123
+00:07:10,020 --> 00:07:17,230
+than anything else: an AUC of 0.39,
+against 0.04 for DINOv2.
+
+124
+00:07:17,400 --> 00:07:21,040
+Yet DINOv2 separates object instances better.
+
+125
+00:07:21,210 --> 00:07:26,010
+One caveat: Fast3R was
+trained partly on ScanNet++,
+
+126
+00:07:26,030 --> 00:07:28,310
+including some of these validation scenes,
+
+127
+00:07:28,330 --> 00:07:31,010
+so part of its lead may come from familiarity.
+
+128
+00:07:31,390 --> 00:07:33,410
+Now look at object persistence.
+
+129
+00:07:33,580 --> 00:07:39,830
+Fast3R leads again, at 32.8 degrees
+of error, with VideoMAE close behind.
+
+130
+00:07:39,999 --> 00:07:45,040
+And VideoMAE locates hidden objects
+far better than DINOv2 or Qwen,
+
+131
+00:07:45,060 --> 00:07:49,790
+even though both beat it on depth,
+instance identity, and view consistency.
+
+132
+00:07:49,985 --> 00:07:53,050
+Seeing a scene well does not
+guarantee remembering it.
+
+133
+00:07:53,435 --> 00:07:55,410
+So what does track persistence?
+
+134
+00:07:55,580 --> 00:07:56,880
+Camera pose.
+
+135
+00:07:57,050 --> 00:08:02,243
+The three best localizers,
+Fast3R, VideoMAE, and V-JEPA 2,
+
+136
+00:08:02,263 --> 00:08:05,610
+are exactly the three models
+with the highest pose AUC.
+
+137
+00:08:05,780 --> 00:08:10,338
+Across all ten models,
+the rank correlation is 0.76,
+
+138
+00:08:10,358 --> 00:08:15,060
+against at most 0.43 for depth,
+instance identity, or view.
+
+139
+00:08:15,230 --> 00:08:17,820
+And in all four backbones with layer sweeps,
+
+140
+00:08:17,840 --> 00:08:21,650
+persistence peaks at the very layer
+where metric geometry peaks.
+
+141
+00:08:22,020 --> 00:08:24,900
+Turn to prediction,
+and the order changes again.
+
+142
+00:08:25,070 --> 00:08:29,875
+DINOv2 leads direct prediction,
+V-JEPA 2 leads path integration,
+
+143
+00:08:29,895 --> 00:08:34,475
+and Qwen comes next on both,
+level with DINOv2 on path integration,
+
+144
+00:08:34,495 --> 00:08:36,590
+despite its weak persistence.
+
+145
+00:08:36,953 --> 00:08:40,673
+The two prediction tasks broadly agree,
+but their leaders swap.
+
+146
+00:08:40,843 --> 00:08:47,298
+DINOv2 beats V-JEPA 2
+on direct prediction, 0.24 to 0.06,
+
+147
+00:08:47,318 --> 00:08:53,023
+yet V-JEPA 2 wins path
+integration, 0.16 to 0.09.
+
+148
+00:08:53,193 --> 00:08:56,013
+And neither ordering tracks
+the persistence ordering.
+
+149
+00:08:56,370 --> 00:08:59,120
+And model families don't decide the profile.
+
+150
+00:08:59,290 --> 00:09:04,960
+VideoMAE and V-JEPA 2 are both video
+encoders with similar view consistency.
+
+151
+00:09:05,130 --> 00:09:10,660
+Yet VideoMAE is better on camera pose
+and persistence, while V-JEPA 2 is better
+
+152
+00:09:10,680 --> 00:09:12,810
+on depth and path integration,
+
+153
+00:09:12,830 --> 00:09:16,210
+and on direct prediction the
+two are statistically tied.
+
+154
+00:09:16,380 --> 00:09:18,980
+A single spatial score would hide all of this.
+
+155
+00:09:21,087 --> 00:09:23,837
+Lesson two: where, and when, you look matters.
+
+156
+00:09:24,238 --> 00:09:27,993
+Sweep through the layers, and different
+readouts peak at different depths.
+
+157
+00:09:28,163 --> 00:09:32,388
+In V-JEPA 2, prediction and instance
+identity peak at the last block,
+
+158
+00:09:32,408 --> 00:09:37,083
+23, but object persistence
+peaks earlier, at block 17.
+
+159
+00:09:37,442 --> 00:09:41,109
+VideoMAE flips this:
+persistence and identity peak
+
+160
+00:09:41,129 --> 00:09:44,467
+at its last block, and prediction at block 17.
+
+161
+00:09:44,637 --> 00:09:50,037
+The Wan generator peaks earlier still,
+at block 15, for five of its six readouts.
+
+162
+00:09:50,428 --> 00:09:53,608
+So a layer chosen for one
+task need not serve another,
+
+163
+00:09:53,628 --> 00:09:55,623
+and even the ranking can change.
+
+164
+00:09:55,793 --> 00:09:58,092
+With an 8-frame prefix at block 17,
+
+165
+00:09:58,112 --> 00:10:02,700
+V-JEPA 2 reaches 28.8 degrees
+of localization error,
+
+166
+00:10:02,720 --> 00:10:05,825
+just below VideoMAE's best setting,
+
+167
+00:10:05,845 --> 00:10:10,323
+although the main table puts
+VideoMAE ahead by about 9 degrees.
+
+168
+00:10:10,692 --> 00:10:12,417
+Now vary the context.
+
+169
+00:10:12,587 --> 00:10:15,277
+You might expect more history to always help.
+
+170
+00:10:15,447 --> 00:10:16,517
+It doesn't.
+
+171
+00:10:16,887 --> 00:10:20,644
+Comparing a 24-frame prefix
+with an 8-frame prefix,
+
+172
+00:10:20,664 --> 00:10:26,227
+51 of the 63 paired comparisons,
+81 percent, favor the shorter one.
+
+173
+00:10:26,397 --> 00:10:30,697
+All nine object persistence pairs
+get worse with the longer prefix,
+
+174
+00:10:30,717 --> 00:10:34,077
+and path integration worsens
+for seven of the nine models.
+
+175
+00:10:34,437 --> 00:10:40,242
+VideoMAE's localization error holds
+near 30 degrees up to 16 frames,
+
+176
+00:10:40,262 --> 00:10:42,717
+then jumps to 55 at 24.
+
+177
+00:10:42,887 --> 00:10:49,027
+DINOv2's path integration
+recall drops from 0.13 to 0.07.
+
+178
+00:10:49,197 --> 00:10:53,417
+Fast3R, by contrast,
+improves on depth and camera pose.
+
+179
+00:10:53,787 --> 00:10:57,462
+One caveat: a longer prefix
+also moves the endpoint,
+
+180
+00:10:57,482 --> 00:11:00,187
+so this does not isolate history alone.
+
+181
+00:11:00,367 --> 00:11:03,722
+Still, the extraction setting
+is part of the evaluation,
+
+182
+00:11:03,742 --> 00:11:05,797
+not an interchangeable detail.
+
+183
+00:11:07,903 --> 00:11:09,603
+Here's a subtler question.
+
+184
+00:11:09,773 --> 00:11:12,653
+When a probe succeeds,
+what is it actually using?
+
+185
+00:11:13,020 --> 00:11:15,370
+A probe can score well through shortcuts.
+
+186
+00:11:15,550 --> 00:11:18,393
+So the paper runs controls:
+keep the trained probe
+
+187
+00:11:18,413 --> 00:11:21,440
+and the target fixed,
+and change only the input.
+
+188
+00:11:21,803 --> 00:11:25,853
+First, the simplest way to predict
+the next frame: copy the current one.
+
+189
+00:11:26,023 --> 00:11:30,953
+For the Wan generator, learned prediction
+beats copying, 15 percent to 12.
+
+190
+00:11:31,123 --> 00:11:36,473
+But for V-JEPA 2, copying the last
+feature wins: 20 percent, against 13.
+
+191
+00:11:36,872 --> 00:11:39,397
+Second, does the predictor use the motion?
+
+192
+00:11:39,567 --> 00:11:42,434
+Feed it the correct camera motion,
+or a wrong one,
+
+193
+00:11:42,454 --> 00:11:45,207
+drawn from candidates
+with matched displacement.
+
+194
+00:11:45,570 --> 00:11:49,063
+Correct motion helps V-JEPA 2
+by almost 19 points,
+
+195
+00:11:49,083 --> 00:11:53,980
+VideoMAE by 10.5, and CogVideoX by about 4.
+
+196
+00:11:54,150 --> 00:11:59,080
+For the Wan generator, the gain of about 3
+points has an interval that crosses zero.
+
+197
+00:11:59,437 --> 00:12:01,887
+Third, does persistence use the history?
+
+198
+00:12:02,057 --> 00:12:07,087
+Give the probe the full video, or only the
+final frame, with the same object query.
+
+199
+00:12:07,453 --> 00:12:11,823
+History cuts the error by about 10
+degrees for V-JEPA 2, and for Wan.
+
+200
+00:12:11,993 --> 00:12:15,938
+But for VideoMAE, the most accurate
+of these four localizers,
+
+201
+00:12:15,958 --> 00:12:19,293
+the benefit is small,
+and its interval spans zero.
+
+202
+00:12:19,668 --> 00:12:23,023
+So decodability and input
+use are different things.
+
+203
+00:12:23,193 --> 00:12:27,883
+A probe can be accurate without relying
+on the very inputs the task is about.
+
+204
+00:12:30,003 --> 00:12:32,188
+A related question arises for models
+
+205
+00:12:32,208 --> 00:12:35,543
+that natively predict the future,
+like V-JEPA 2.
+
+206
+00:12:35,713 --> 00:12:39,193
+Its predictor outputs features
+for frames it has not seen.
+
+207
+00:12:39,363 --> 00:12:42,543
+Do those predictions still
+carry readable geometry?
+
+208
+00:12:42,903 --> 00:12:47,803
+Train a depth reader on real future
+features, and its error is 0.18.
+
+209
+00:12:48,170 --> 00:12:51,720
+Now feed that same frozen reader
+the model's own predictions.
+
+210
+00:12:51,890 --> 00:12:54,735
+The error jumps to about 0.25,
+
+211
+00:12:54,755 --> 00:12:59,060
+slightly worse than a layout prior
+that ignores the input entirely.
+
+212
+00:12:59,420 --> 00:13:01,090
+Is the geometry gone?
+
+213
+00:13:01,270 --> 00:13:02,400
+Not quite.
+
+214
+00:13:02,570 --> 00:13:06,135
+Retrain an equal-capacity reader
+directly on the predictions,
+
+215
+00:13:06,155 --> 00:13:10,010
+and the error drops to 0.22:
+better than the prior,
+
+216
+00:13:10,030 --> 00:13:12,280
+though still short of real features.
+
+217
+00:13:12,450 --> 00:13:15,300
+Copying the context is worse than all of them.
+
+218
+00:13:15,670 --> 00:13:20,400
+Prediction keeps recoverable spatial
+structure, but it changes the interface.
+
+219
+00:13:20,570 --> 00:13:23,080
+The original reader no longer fits.
+
+220
+00:13:25,197 --> 00:13:26,787
+Finally, level four.
+
+221
+00:13:26,957 --> 00:13:29,197
+Can the representation guide action?
+
+222
+00:13:29,553 --> 00:13:31,303
+The first test is a choice.
+
+223
+00:13:31,473 --> 00:13:35,783
+Given the current features, a goal frame,
+and two candidate camera motions,
+
+224
+00:13:35,803 --> 00:13:38,483
+pick the one that makes more
+progress toward the goal.
+
+225
+00:13:38,930 --> 00:13:42,920
+Knowing the actions alone
+gets you 67.8 percent.
+
+226
+00:13:43,090 --> 00:13:48,085
+With visual features, the four tested
+backbones reach 76 to 80 percent,
+
+227
+00:13:48,105 --> 00:13:51,350
+and shuffling the goals costs 12 to 21 points.
+
+228
+00:13:51,520 --> 00:13:53,580
+The readout clearly uses the goal.
+
+229
+00:13:53,937 --> 00:13:58,317
+Curiously, first predicting each
+candidate's outcome, and then scoring it,
+
+230
+00:13:58,337 --> 00:14:04,147
+brings no consistent advantage,
+and drops Wan's accuracy to 63.6 percent.
+
+231
+00:14:04,503 --> 00:14:09,273
+The second test removes the candidates:
+the probe must output the motion itself.
+
+232
+00:14:09,443 --> 00:14:11,698
+Current and goal features are projected,
+
+233
+00:14:11,718 --> 00:14:15,163
+then fused with their difference
+and their element-wise product.
+
+234
+00:14:15,787 --> 00:14:20,624
+This full model makes positive progress
+on 50 to 60 percent of trajectories,
+
+235
+00:14:20,644 --> 00:14:24,237
+beating a goal-only version by 6 to 14 points.
+
+236
+00:14:24,417 --> 00:14:26,157
+So the current state matters.
+
+237
+00:14:26,327 --> 00:14:28,134
+But adding the goal doesn't help:
+
+238
+00:14:28,154 --> 00:14:31,477
+it never beats a current-only
+version that ignores the goal.
+
+239
+00:14:31,842 --> 00:14:33,887
+Now, the most telling experiment.
+
+240
+00:14:34,057 --> 00:14:36,597
+Keep the current state
+and the trained weights fixed,
+
+241
+00:14:36,617 --> 00:14:40,447
+and swap in a goal from a different scene,
+matched for difficulty.
+
+242
+00:14:40,803 --> 00:14:44,763
+The predicted direction swings
+by 30 to 46 degrees.
+
+243
+00:14:44,933 --> 00:14:47,343
+The model is clearly listening to the goal.
+
+244
+00:14:47,703 --> 00:14:49,543
+Yet progress barely moves.
+
+245
+00:14:49,713 --> 00:14:54,393
+The difference between correct
+and shuffled goals ranges from minus 2.3
+
+246
+00:14:54,413 --> 00:14:59,193
+to plus 1.2 points, and every
+confidence interval contains zero.
+
+247
+00:14:59,553 --> 00:15:03,438
+It's like a compass needle that turns
+whenever you change the destination,
+
+248
+00:15:03,458 --> 00:15:05,093
+but doesn't point you toward it.
+
+249
+00:15:05,263 --> 00:15:08,053
+Goal sensitivity is not goal utility.
+
+250
+00:15:10,170 --> 00:15:12,110
+How do the four levels relate?
+
+251
+00:15:12,280 --> 00:15:14,999
+The results point to two
+chains of association.
+
+252
+00:15:15,370 --> 00:15:19,140
+The first links camera pose,
+object persistence, and action.
+
+253
+00:15:19,310 --> 00:15:24,147
+Among the four backbones tested on action,
+the two best at pose and persistence,
+
+254
+00:15:24,167 --> 00:15:29,060
+Fast3R and V-JEPA 2, are also the
+two best at choosing between moves,
+
+255
+00:15:29,080 --> 00:15:31,830
+and Fast3R makes the most progress.
+
+256
+00:15:31,999 --> 00:15:34,940
+DINOv2, the best predictor, leads neither.
+
+257
+00:15:35,303 --> 00:15:37,433
+The second links what the scene contains,
+
+258
+00:15:37,453 --> 00:15:40,433
+its depth, objects, and views, to prediction.
+
+259
+00:15:40,603 --> 00:15:44,818
+Both prediction tasks rank models much
+like these scene-content readouts do,
+
+260
+00:15:44,838 --> 00:15:47,703
+but not like camera pose or persistence.
+
+261
+00:15:48,070 --> 00:15:50,820
+Yet strong scene-content
+readout is not enough.
+
+262
+00:15:50,990 --> 00:15:53,595
+Fast3R reads depth and view best,
+
+263
+00:15:53,615 --> 00:15:56,410
+and still ranks only seventh
+of nine at prediction.
+
+264
+00:15:56,770 --> 00:15:59,532
+In each chain, strong lower-level readout goes
+
+265
+00:15:59,552 --> 00:16:02,040
+with the higher level without guaranteeing it.
+
+266
+00:16:02,210 --> 00:16:06,680
+That is why no single diagnostic
+can stand in for the whole profile.
+
+267
+00:16:08,802 --> 00:16:10,117
+Let's step back.
+
+268
+00:16:10,287 --> 00:16:12,455
+Across ten frozen representations,
+
+269
+00:16:12,475 --> 00:16:16,527
+spatial readouts shift with the task,
+the layer, and the context.
+
+270
+00:16:16,707 --> 00:16:18,547
+No model leads everywhere.
+
+271
+00:16:18,903 --> 00:16:21,093
+And three questions keep coming apart.
+
+272
+00:16:21,263 --> 00:16:23,103
+Is the information readable?
+
+273
+00:16:23,273 --> 00:16:26,553
+Is it actually used: the motion,
+the history, the goal?
+
+274
+00:16:26,723 --> 00:16:28,383
+And does it help behavior?
+
+275
+00:16:28,762 --> 00:16:31,027
+Seeing a scene does not mean remembering it.
+
+276
+00:16:31,197 --> 00:16:34,557
+Predicting features does not
+mean preserving how they read.
+
+277
+00:16:34,727 --> 00:16:37,627
+And responding to a goal
+does not mean reaching it.
+
+278
+00:16:37,987 --> 00:16:42,127
+These are offline, probe-based
+diagnostics in static indoor scenes.
+
+279
+00:16:42,297 --> 00:16:46,982
+Each prefix is encoded on its own,
+so the results describe what a representation
+
+280
+00:16:47,002 --> 00:16:51,037
+of the observed history affords,
+not an online state update.
+
+281
+00:16:51,403 --> 00:16:52,983
+But the message is clear.
+
+282
+00:16:53,163 --> 00:16:56,181
+To judge whether a visual
+model holds a spatial state,
+
+283
+00:16:56,201 --> 00:16:58,368
+ask not only what can be decoded,
+
+284
+00:16:58,388 --> 00:17:03,293
+but whether it can be kept beyond view,
+updated under motion, and used to act.
+
