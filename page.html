@@ -157,6 +157,9 @@ p{margin:0}
 .measure .row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .measure .row b{font-family:var(--f-mono);font-weight:600;font-size:.86rem;white-space:nowrap}
 .measure .lab{color:var(--graphite)}
+.measure .mhead{margin:0;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink)}
+.demo-note{display:flex;gap:10px;align-items:baseline;max-width:64ch;margin-top:12px;font-size:.95rem;color:var(--ink-2)}
+.demo-note .tag{flex:none;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);border:1px solid var(--accent);border-radius:999px;padding:2px 8px}
 .stage{display:grid;gap:12px;min-width:0;position:sticky;top:76px}
 .ghostbox{position:absolute;right:12px;bottom:12px;width:36%;border:2px dashed var(--accent);border-radius:8px;overflow:hidden;background:var(--panel)}
 .ghostbox canvas{width:100%;height:auto;aspect-ratio:16/9}
@@ -250,6 +253,8 @@ select{font-family:var(--f-display);font-size:.9rem;padding:7px 10px;border-radi
 .m-banner{position:absolute;left:14px;top:14px;font-family:var(--f-display);font-weight:700;font-size:.95rem;padding:7px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--hair);box-shadow:var(--shadow);max-width:calc(100% - 28px)}
 .m-banner.bad{border-color:var(--accent);color:var(--accent-ink)}
 .m-banner.good{border-color:var(--good);color:var(--good)}
+.m-banner .sub{display:block;font-family:var(--f-body);font-weight:500;font-size:.84rem;line-height:1.35;margin-top:3px;color:var(--ink-2)}
+.m-banner .bar{display:block;height:3px;border-radius:2px;background:currentColor;opacity:.45;margin-top:6px;transform-origin:left center}
 .m-under{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:stretch}
 .m-under .vf canvas.view{cursor:default}
 .log{font-family:var(--f-mono);font-size:.74rem;line-height:1.5;background:var(--panel);border:1px solid var(--hair);border-radius:14px;padding:10px 12px;overflow-y:auto;max-height:240px;min-height:120px;display:grid;align-content:start;gap:4px}
@@ -355,11 +360,12 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
       </div>
       <div class="btnrow">
         <a class="btn primary" href="#play">Point to the chair</a>
+        <a class="btn" href="https://arxiv.org/abs/2610.40636" target="_blank" rel="noopener"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M5 2.5h7l3.5 3.5v11.5H5zM12 2.5V6h3.5M7.5 10h5M7.5 13h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Paper</a>
         <a class="btn" href="https://github.com/yyyybq/Probing_Spatial_State_Release" target="_blank" rel="noopener"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M7 5 2 10l5 5M13 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Code</a>
         <a class="btn" href="#mission">Watch a robot try</a>
         <a class="btn" href="#video">3-minute video</a>
       </div>
-      <p class="meta">Under review. The paper link will be added here.</p>
+      <p class="meta"><a href="https://arxiv.org/abs/2610.40636" target="_blank" rel="noopener">arXiv:2610.40636</a> [cs.CV], 2026</p>
     </div>
     <div class="hero-stage">
       <figure class="vf">
@@ -418,6 +424,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
       <p class="eyebrow">Four levels</p>
       <h2>What a spatial state lets you do</h2>
       <p class="lede">We don't assume a 3D map, a scene graph or any particular architecture. A spatial state is characterized by what it supports, at four levels ordered by what each demands beyond the current view: reading the scene, keeping what left it, anticipating what comes next, and acting on it.</p>
+      <p class="demo-note"><span class="tag">Illustration</span>The toy room, views and answers in these demos are rendered in your browser to show what each task asks. They are the correct answers, not model outputs. The boxed numbers under each demo are what the paper measured for the frozen models on real ScanNet++ scans.</p>
     </div>
     <div class="spread">
       <div class="panel">
@@ -429,13 +436,14 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
         </div>
         <div class="tabpanel" role="tabpanel" id="lvp1" aria-labelledby="tab1">
           <h3>Read the geometry of what is in view</h3>
-          <p>Depth at every pixel, the camera's pose, which pixels belong to which object, and whether two views show the same place. Switch what the camera shows:</p>
+          <p>Depth at every pixel, the camera's pose, which pixels belong to which object, and whether two views show the same place. Switch what the camera shows; Depth and Objects are the true targets a probe has to recover from frozen features:</p>
           <div class="seg" id="lvMode" role="group" aria-label="View mode">
             <button type="button" data-mode="rgb" aria-pressed="true">Color</button>
             <button type="button" data-mode="depth" aria-pressed="false">Depth</button>
             <button type="button" data-mode="inst" aria-pressed="false">Objects</button>
           </div>
           <div class="measure">
+            <p class="mhead">Measured in the paper · real ScanNet++ scans</p>
             <div class="row"><span class="lab">Depth loss, lower is better</span><b>Fast3R 0.139</b></div>
             <div class="row"><span class="lab">Camera pose AUC@30, higher</span><b>Fast3R 0.387</b></div>
             <div class="row"><span class="lab">Instance identity loss, lower</span><b>DINOv2 1.38</b></div>
@@ -448,6 +456,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
           <p>The probe gets an object's appearance from an early frame and must point to it from the final camera, after the object is out of view. It is never told where the object was or how the camera moved. Drag the view to turn; arrows on the plan point to what you remember.</p>
           <label class="note"><input type="checkbox" id="lvArrows" checked> Point to remembered objects</label>
           <div class="measure">
+            <p class="mhead">Measured in the paper · real ScanNet++ scans</p>
             <div class="row"><span class="lab">Angular error to the hidden object</span><b>Fast3R 32.8°</b></div>
             <div class="row"><span class="lab">Worst of ten</span><b>CogVideoX 70.6°</b></div>
             <p class="note">Scored over 16 azimuth × 8 elevation bins around the final camera; random pointing would average 90°.</p>
@@ -464,6 +473,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
           </div>
           <p class="note" id="lvMoveMsg" aria-live="polite">Pick a move.</p>
           <div class="measure">
+            <p class="mhead">Measured in the paper · real ScanNet++ scans</p>
             <div class="row"><span class="lab">Direct prediction R@1</span><b>DINOv2 0.237</b></div>
             <div class="row"><span class="lab">Path integration R@1</span><b>V-JEPA 2 0.159</b></div>
             <p class="note">A prediction counts when it retrieves the true future frame among all samples, scored in each model's own feature space. Targets are 1, 2 and 4 frames ahead.</p>
@@ -475,6 +485,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
           <div class="btnrow"><button class="btn" type="button" data-pick="A">Move A</button><button class="btn" type="button" data-pick="B">Move B</button><button class="btn" type="button" id="lvNewPair">New pair</button></div>
           <p class="feedback" id="lvFeedback" aria-live="polite">Pick a move.</p>
           <div class="measure">
+            <p class="mhead">Measured in the paper · real ScanNet++ scans</p>
             <div class="row"><span class="lab">Pick the better of two moves</span><b>76–80%</b></div>
             <div class="row"><span class="lab">Knowing only the two moves</span><b>67.8%</b></div>
             <div class="row"><span class="lab">Output the move itself: makes progress</span><b>50–60%</b></div>
@@ -486,6 +497,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
         <figure class="vf">
           <canvas class="view" id="lvView" width="896" height="504" tabindex="0" role="img" aria-label="First-person view for the level demos. Drag or use the arrow keys to turn."></canvas>
           <div class="hud tl" id="lvHud">L1 · color</div>
+          <div class="hud tr">illustration · not model output</div>
           <div class="ghostbox" id="lvGhostBox" hidden><canvas id="lvGhost" width="448" height="252"></canvas><span>expected next view</span></div>
         </figure>
         <canvas class="planbox" id="lvMap" width="900" height="540" role="img" aria-label="Floor plan for the level demos"></canvas>
@@ -689,19 +701,19 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
     <p class="takeaway">To judge whether a visual model holds a spatial state, ask not only what can be decoded, but whether it can be <b>kept beyond view</b>, <b>updated under motion</b> and <b>used to act</b>.</p>
     <div class="two">
       <div class="panel">
-        <h3>Abstract</h3>
+        <div class="bib-head"><h3>Abstract</h3><a class="btn" href="https://arxiv.org/abs/2610.40636" target="_blank" rel="noopener">Read on arXiv</a></div>
         <p>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore involves more than recognizing individual images: it calls for a persistent spatial state that is updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We study this question through four levels of spatial capability—spatial structure, object persistence, predictive spatial update, and actionability—using frozen-feature probes on ten representations under streaming egocentric observations of static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong readout of the visible scene does not ensure accurate object persistence or future-feature retrieval. Matched controls separate readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure, but a spatial reader trained on real features does not transfer to predicted features unchanged. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: predicted actions respond to goal changes, yet supplying the correct goal does not reliably improve progress. Across the four levels, object persistence and actionability build on camera-pose readout, whereas feature prediction builds on visible-scene readout. Together, these findings motivate evaluating spatial representations not only by what can be decoded from them, but by whether that information is maintained beyond observation, updated predictively, and used for goal-directed action.</p>
       </div>
       <div class="panel">
         <div class="bib-head"><h3>BibTeX</h3><button class="btn" id="copyBib" type="button">Copy</button></div>
-<pre id="bib"><code>@misc{yin2026probing,
-  title  = {Probing Spatial State Representations
-            in Visual Foundation Models},
-  author = {Yin, Baiqiao and Cai, Zhongang
-            and Wang, Ruisi and Liang, Qiwei
-            and Yang, Lei and Liu, Ziwei},
-  year   = {2026},
-  note   = {Under review}
+<pre id="bib"><code>@misc{yin2026probingspatialstaterepresentations,
+      title={Probing Spatial State Representations in Visual Foundation Models},
+      author={Baiqiao Yin and Zhongang Cai and Ruisi Wang and Qiwei Liang and Lei Yang and Ziwei Liu},
+      year={2026},
+      eprint={2610.40636},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2610.40636},
 }</code></pre>
         <p class="note">Scope: offline, probe-based diagnostics with frozen features in static indoor scenes. Each causal prefix is encoded independently, so the results describe what a representation of the observed history affords, not an online state update; retrieval scores in different feature spaces do not share a physical error scale.</p>
       </div>
@@ -712,7 +724,7 @@ pre{margin:0;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-heig
 
 <footer class="foot">
   <div class="wrap">
-    <p>Probing Spatial State Representations in Visual Foundation Models · Baiqiao Yin, Zhongang Cai, Ruisi Wang, Qiwei Liang, Lei Yang, Ziwei Liu.</p>
+    <p>Probing Spatial State Representations in Visual Foundation Models · Baiqiao Yin, Zhongang Cai, Ruisi Wang, Qiwei Liang, Lei Yang, Ziwei Liu · <a href="https://arxiv.org/abs/2610.40636" target="_blank" rel="noopener">arXiv:2610.40636</a>.</p>
     <p>The apartment, views, robot and errand on this page are illustrations rendered in your browser. All reported numbers come from the paper.</p>
   </div>
 </footer>
@@ -1162,8 +1174,8 @@ const names = ids => Array.from(ids).map(i => OBJ.find(o => o.id === i)).filter(
 safe('hero', () => {
   const view = $('#heroView'), map = $('#heroMap');
   const chairC = center('chair');
-  const H = { x: -1.2, y: -0.35, h: lookAt(-1.2, -0.35, chairC.x, chairC.y), seen: new Set(), vis: new Set(), touched: 0, on: true, t: 0 };
-  const h0 = H.h;
+  const h0 = lookAt(-1.2, -0.35, chairC.x, chairC.y);
+  const H = { x: -1.2, y: -0.35, h: h0, seen: new Set(), vis: new Set(), touched: 0, on: true, since: performance.now(), t: 0 };
   function draw() {
     H.vis = renderView(view, H.x, H.y, H.h);
     H.vis.forEach(i => H.seen.add(i));
@@ -1172,15 +1184,29 @@ safe('hero', () => {
     const inV = names(H.vis), rem = names(new Set(Array.from(H.seen).filter(i => !H.vis.has(i))));
     $('#heroMem').innerHTML = `<span class="k">in view</span> ${inV.slice(0, 3).join(', ') || '—'}` + (rem.length ? `<br><span class="rem">remembered</span> ${rem.slice(0, 3).join(', ')}` : '');
   }
+  // A tour starts facing the chair with an empty memory, so the plan only remembers what has been
+  // in view since the visitor started watching: on load, when the hero comes back on screen, and
+  // each time the automatic turn returns to the chair.
+  function restart() { H.h = h0; H.t = 0; H.touched = 0; H.seen = new Set(); draw(); }
   dragTurn(view, () => H.h, v => { H.h = v; H.touched = performance.now(); draw(); }, () => { H.touched = performance.now(); });
-  redraw.add(draw); onResize(view, draw); draw();
-  onScreen(view, v => { H.on = v; });
+  redraw.add(draw); onResize(view, draw); restart();
+  let offAt = 0;
+  onScreen(view, v => {
+    const now = performance.now();
+    if (v && !H.on) { if (offAt && now - offAt > 1000) restart(); H.since = now; }
+    if (!v && H.on) offAt = now;
+    H.on = v;
+  });
   if (!REDUCED) {
-    let last = performance.now();
+    let last = performance.now(), cycle = 0;
     const loop = now => {
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      if (H.on && now - H.touched > 4000 && !document.hidden) {
-        H.t += dt; const target = h0 - 1.05 + Math.cos(H.t * 0.32) * 1.05;
+      // turn on its own only after the view has been on screen for a moment and nobody is dragging
+      if (H.on && !document.hidden && now - H.since > 2500 && now - H.touched > 4000) {
+        H.t += dt;
+        const c = Math.floor(H.t * 0.32 / TAU);
+        if (c !== cycle) { cycle = c; H.seen = new Set(H.vis); }   // back at the chair: a new tour
+        const target = h0 - 1.05 + Math.cos(H.t * 0.32) * 1.05;
         H.h += (target - H.h) * Math.min(1, dt * 2.5); draw();
       }
       requestAnimationFrame(loop);
@@ -1588,7 +1614,7 @@ safe('mission', () => {
     { lv: 3, title: 'Plan the trip to the counter', op: 'Key operation: imagine where four moves will take it.', unit: 'imagined trips that end in the right place', get: m => m.r3 * 100, lo: 0, hi: 100, f: v => fmt(v, 1) + '%', ticks: [0, 25, 50, 75, 100] },
     { lv: 4, title: 'Carry it to the coffee table', op: 'Key operation: choose each move so it gets closer.', unit: 'predicted moves that make progress', get: m => m.p4, lo: 0, hi: 100, f: v => fmt(v, 1) + '%', ticks: [0, 25, 50, 75, 100] }
   ];
-  const M = { m: 'DINOv2-L', step: 0, t: 1, playing: false, outcomes: [null, null, null, null], log: [], raf: 0, clock: 0 };
+  const M = { m: 'DINOv2-L', step: 0, t: 1, hold: 0, playing: false, outcomes: [null, null, null, null], log: [], raf: 0, clock: 0 };
   const steps = $('#mSteps'), chips = $('#mModels');
   chips.innerHTML = ORDER.map(k => `<button type="button" data-m="${k}" aria-pressed="${k === M.m}"${k === 'Ideal' ? ' class="ideal"' : ''}>${k === 'Ideal' ? 'Ideal state' : k}${k === 'Ideal' ? '' : `<small>${FAMILY[k]}</small>`}</button>`).join('');
   steps.innerHTML = STEPS.map((s, k) => `<li class="m-step" data-k="${k + 1}" tabindex="0" role="button" aria-label="Show step ${k + 1}: ${s.title}"><div class="top"><span class="lv">L${s.lv}</span><h3>${k + 1} · ${s.title}</h3></div><p class="op">${s.op}</p><div class="val"><span>${s.unit}</span><b id="mv${k + 1}"></b></div><svg id="mg${k + 1}" viewBox="0 0 320 62" aria-hidden="true"></svg>${k === 2 ? '<div class="units" id="mUnits" aria-hidden="true"></div>' : ''}<p class="out" id="mo${k + 1}"></p></li>`).join('');
@@ -1724,7 +1750,14 @@ safe('mission', () => {
     const b = $('#mBanner'), m = MB[M.m];
     if (M.step === 0) { b.className = 'm-banner'; b.textContent = 'Ready: the mug is behind the robot.'; return; }
     const done = M.outcomes.filter(Boolean).length, firstKo = M.outcomes.findIndex(o => o === 'ko');
-    if (done < 4) { b.className = 'm-banner'; b.textContent = `Step ${M.step} of 4 · ${STEPS[M.step - 1].title}`; return; }
+    if (done < 4) {
+      // while a step runs, name it; once it has an outcome, keep that on screen during the pause
+      const cur = M.outcomes[M.step - 1];
+      b.className = 'm-banner' + (cur === 'ok' ? ' good' : cur === 'ko' ? ' bad' : '');
+      b.innerHTML = `Step ${M.step} of 4 · ${STEPS[M.step - 1].title}` + (cur ? `<span class="sub">${outcome(M.step)[1]}</span>` : '') +
+        (cur && M.hold > 0 ? '<span class="bar" id="mBar"></span>' : '');
+      return;
+    }
     if (firstKo < 0 && m.ideal) { b.className = 'm-banner good'; b.textContent = 'Mug delivered.'; }
     else { b.className = 'm-banner bad'; b.textContent = `Errand fails at step ${firstKo + 1}: ${STEPS[firstKo].title.toLowerCase()}.`; }
   }
@@ -1734,28 +1767,46 @@ safe('mission', () => {
   }
   function refreshStatic() { for (let k = 1; k <= 4; k++) gauge(k); units(); summary(); }
   function reset() {
-    cancelAnimationFrame(M.raf); M.playing = false; M.step = 0; M.t = 1; M.outcomes = [null, null, null, null]; M.log = []; M.clock = 0;
+    cancelAnimationFrame(M.raf); M.playing = false; M.step = 0; M.t = 1; M.hold = 0; M.outcomes = [null, null, null, null]; M.log = []; M.clock = 0;
     for (let k = 1; k <= 4; k++) { $('#mo' + k).textContent = ''; $('#mo' + k).className = 'out'; }
     $('#mLog').innerHTML = ''; logLine('·', `robot stopped in the living room, facing the window · backbone ${M.m}`);
     $('#mRun').textContent = 'Run the errand'; banner(); draw();
   }
+  const PAUSE = 4;   // seconds each step's outcome stays up before the next step starts
+  function startStep(k) {
+    M.step = k; M.t = 0; M.hold = 0; M.outcomes[k - 1] = null;
+    $('#mo' + k).textContent = ''; $('#mo' + k).className = 'out';
+    $('#mRun').textContent = 'Running…'; banner();
+  }
   function play(fromStep, single) {
-    cancelAnimationFrame(M.raf); M.playing = true; M.step = fromStep; M.t = 0; $('#mRun').textContent = 'Running…';
+    cancelAnimationFrame(M.raf); M.playing = true;
     for (let k = 1; k < fromStep; k++) if (!M.outcomes[k - 1]) { setOutcome(k); }
-    const dur = [0, 2200, 2600, 3000, 4200];
-    let last = performance.now(), hold = 0;
-    banner();
+    startStep(fromStep);
+    const dur = [0, 2800, 3200, 3800, 5200];
+    let last = performance.now();
     const tick = now => {
       const dt = (now - last) / 1000; last = now; M.clock += dt;
-      if (hold > 0) { hold -= dt; if (hold <= 0) { if (single || M.step >= 4) { M.playing = false; $('#mRun').textContent = 'Run again'; banner(); return; } M.step += 1; M.t = 0; banner(); } M.raf = requestAnimationFrame(tick); return; }
+      if (M.hold > 0) {
+        M.hold -= dt;
+        const bar = $('#mBar'); if (bar) bar.style.transform = `scaleX(${clamp(M.hold / PAUSE, 0, 1)})`;
+        if (M.hold <= 0) startStep(M.step + 1);
+        M.raf = requestAnimationFrame(tick); return;
+      }
       M.t = REDUCED ? 1 : clamp(M.t + dt * 1000 / dur[M.step], 0, 1); draw();
-      if (M.t >= 1) { stepLog(M.step); setOutcome(M.step); banner(); hold = REDUCED ? 0.01 : 0.9; }
+      if (M.t >= 1) {
+        stepLog(M.step); setOutcome(M.step);
+        if (single || M.step >= 4) { M.playing = false; $('#mRun').textContent = 'Run again'; banner(); return; }
+        M.hold = PAUSE; $('#mRun').textContent = 'Next step ▸'; banner();
+      }
       M.raf = requestAnimationFrame(tick);
     };
     M.raf = requestAnimationFrame(tick);
   }
   chips.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; M.m = b.dataset.m; $$('#mModels button').forEach(x => x.setAttribute('aria-pressed', x === b)); refreshStatic(); reset(); });
-  $('#mRun').addEventListener('click', () => { if (M.playing) return; reset(); play(1, false); });
+  $('#mRun').addEventListener('click', () => {
+    if (M.playing) { if (M.hold > 0) M.hold = 1e-3; return; }   // during a pause: go on to the next step now
+    reset(); play(1, false);
+  });
   $('#mReset').addEventListener('click', reset);
   $$('#mSteps .m-step').forEach(el => {
     const go = () => { if (M.playing) return; const k = +el.dataset.k; if (M.step === 0) { M.log = []; M.clock = 0; } play(k, true); };

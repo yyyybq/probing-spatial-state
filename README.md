@@ -37,11 +37,10 @@ All numbers come from the paper (same values as `../video_3b1b/results_data.py`;
 94-98% width (`font-stretch`), narrower than its default so headings read taller. The apartment, robot and errand are
 illustrations; the page says so where they appear.
 
-## Before going public
+## Links
 
-- Authors, affiliations and the code link are filled in. Still to do: the paper link in
-  the hero meta line.
-- Add a Paper button next to Code in the hero button row (`.btnrow` under `.verdict`).
+Paper: https://arxiv.org/abs/2610.40636 (hero Paper button, meta line, abstract, BibTeX, footer).
+Code: https://github.com/yyyybq/Probing_Spatial_State_Release.
 
 ## Deployment
 
